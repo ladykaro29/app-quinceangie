@@ -1,0 +1,2094 @@
+<?php
+/**
+ * Invitación XV Años - Angie Karolina Avendaño Rivera
+ * Página principal de la invitación digital
+ */
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mis XV Años - Angie Karolina Avendaño Rivera</title>
+    <meta name="description" content="Invitación digital a la celebración de XV años de Angie Karolina Avendaño Rivera. 3 de octubre de 2026, Mérida, Venezuela.">
+    <meta name="theme-color" content="#062E25">
+
+    <!-- Tipografías -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ============================================================
+           VARIABLES Y RESET
+           ============================================================ */
+        :root {
+            --verde-oscuro: #062E25;
+            --verde-medio: #006B4F;
+            --verde-claro: #2F8F68;
+            --dorado: #C8A24A;
+            --dorado-claro: #E7D49A;
+            --crema: #FFF8EC;
+            --marron: #1A1410;
+
+            --font-script: 'Great Vibes', cursive;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Montserrat', sans-serif;
+
+            --card-max-width: 420px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            background: var(--verde-oscuro);
+            color: var(--crema);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================================
+           DECK DE TARJETAS DESLIZABLES
+           ============================================================ */
+        .deck-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        opacity 0.6s ease;
+            will-change: transform, opacity;
+        }
+
+        .card-slide.active {
+            transform: translateX(0);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .card-slide.prev {
+            transform: translateX(-100%);
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .card-slide.next {
+            transform: translateX(100%);
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .card-slide.hidden {
+            transform: translateX(100%);
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           TARJETA BASE
+           ============================================================ */
+        .card {
+            background: linear-gradient(145deg, rgba(6, 46, 37, 0.95), rgba(0, 107, 79, 0.9));
+            border: 2px solid var(--dorado);
+            border-radius: 20px;
+            width: 100%;
+            max-width: var(--card-max-width);
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 35px 25px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 30px rgba(200, 162, 74, 0.15),
+                        inset 0 1px 0 rgba(231, 212, 154, 0.1);
+            scrollbar-width: thin;
+            scrollbar-color: var(--dorado) transparent;
+        }
+
+        .card::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .card::-webkit-scrollbar-thumb {
+            background: var(--dorado);
+            border-radius: 2px;
+        }
+
+        /* Esquinas decorativas */
+        .card::before,
+        .card::after {
+            content: '✦';
+            position: absolute;
+            color: var(--dorado);
+            font-size: 18px;
+            opacity: 0.6;
+        }
+
+        .card::before {
+            top: 10px;
+            left: 15px;
+        }
+
+        .card::after {
+            bottom: 10px;
+            right: 15px;
+        }
+
+        .corner-tl, .corner-tr, .corner-bl, .corner-br {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--dorado);
+            opacity: 0.4;
+        }
+
+        .corner-tl {
+            top: 5px;
+            left: 5px;
+            border-top: 2px solid;
+            border-left: 2px solid;
+            border-radius: 5px 0 0 0;
+        }
+
+        .corner-tr {
+            top: 5px;
+            right: 5px;
+            border-top: 2px solid;
+            border-right: 2px solid;
+            border-radius: 0 5px 0 0;
+        }
+
+        .corner-bl {
+            bottom: 5px;
+            left: 5px;
+            border-bottom: 2px solid;
+            border-left: 2px solid;
+            border-radius: 0 0 0 5px;
+        }
+
+        .corner-br {
+            bottom: 5px;
+            right: 5px;
+            border-bottom: 2px solid;
+            border-right: 2px solid;
+            border-radius: 0 0 5px 0;
+        }
+
+        /* ============================================================
+           ÍCONO CIRCULAR DE TARJETA
+           ============================================================ */
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 15px rgba(200, 162, 74, 0.3);
+        }
+
+        .card-icon i {
+            font-size: 24px;
+            color: var(--verde-oscuro);
+        }
+
+        /* ============================================================
+           TIPOGRAFÍA
+           ============================================================ */
+        .card-title-script {
+            font-family: var(--font-script);
+            font-size: 2.2rem;
+            color: var(--dorado);
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(200, 162, 74, 0.3);
+        }
+
+        .card-title-serif {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            color: var(--dorado-claro);
+            text-align: center;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .card-text {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--crema);
+            text-align: center;
+            line-height: 1.7;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Divisor dorado */
+        .gold-divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--dorado), transparent);
+            margin: 15px auto;
+        }
+
+        /* ============================================================
+           NAVEGACIÓN DEL DECK
+           ============================================================ */
+        .nav-arrows {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-arrow {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--dorado);
+            background: rgba(6, 46, 37, 0.8);
+            color: var(--dorado);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-arrow:hover {
+            background: var(--dorado);
+            color: var(--verde-oscuro);
+            transform: scale(1.1);
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .nav-dots {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(200, 162, 74, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--dorado);
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(200, 162, 74, 0.5);
+        }
+
+        /* ============================================================
+           TARJETA 1 — PORTADA
+           ============================================================ */
+        .cover-card {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .cover-tiara {
+            font-size: 3rem;
+            color: var(--dorado);
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .cover-presents {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--dorado-claro);
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .cover-name {
+            font-family: var(--font-script);
+            font-size: 3rem;
+            color: var(--dorado);
+            line-height: 1.2;
+            text-shadow: 0 3px 15px rgba(200, 162, 74, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .cover-xv {
+            font-family: var(--font-serif);
+            font-size: 4rem;
+            color: var(--dorado);
+            letter-spacing: 8px;
+            font-weight: 700;
+            text-shadow: 0 4px 20px rgba(200, 162, 74, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .cover-date {
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: var(--dorado-claro);
+            font-weight: 300;
+        }
+
+        .cover-swipe {
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: var(--dorado-claro);
+            opacity: 0.5;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Partículas doradas */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--dorado);
+            border-radius: 50%;
+            animation: sparkle var(--duration, 3s) var(--delay, 0s) infinite;
+            opacity: 0;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0; transform: translateY(0) scale(0); }
+            50% { opacity: 1; transform: translateY(-30px) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0); }
+        }
+
+        /* ============================================================
+           TARJETA 2 — CUENTA REGRESIVA
+           ============================================================ */
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .countdown-item {
+            text-align: center;
+            padding: 12px 5px;
+            background: rgba(200, 162, 74, 0.1);
+            border: 1px solid rgba(200, 162, 74, 0.2);
+            border-radius: 10px;
+        }
+
+        .countdown-number {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            color: var(--dorado);
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-family: var(--font-sans);
+            font-size: 0.6rem;
+            color: var(--dorado-claro);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        /* ============================================================
+           TARJETA 3 — INVITACIÓN FORMAL
+           ============================================================ */
+        .formal-text {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--crema);
+            text-align: center;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .formal-parents {
+            font-family: var(--font-serif);
+            font-size: 0.85rem;
+            color: var(--dorado-claro);
+            text-align: center;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           TARJETA 4 — LUGAR Y FECHA
+           ============================================================ */
+        .info-block {
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(200, 162, 74, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(200, 162, 74, 0.15);
+        }
+
+        .info-label {
+            font-family: var(--font-sans);
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--dorado);
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            color: var(--crema);
+            line-height: 1.5;
+        }
+
+        .map-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            border: none;
+            border-radius: 25px;
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .map-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(200, 162, 74, 0.4);
+        }
+
+        /* ============================================================
+           TARJETA 5 — DRESS CODE
+           ============================================================ */
+        .dresscode-colors {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--dorado);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.2);
+        }
+
+        .dresscode-note {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            color: var(--dorado-claro);
+            text-align: center;
+            font-style: italic;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        /* ============================================================
+           TARJETA 6 — ITINERARIO
+           ============================================================ */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--dorado), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--dorado);
+            border: 2px solid var(--verde-oscuro);
+        }
+
+        .timeline-time {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            color: var(--dorado);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .timeline-event {
+            font-family: var(--font-serif);
+            font-size: 0.9rem;
+            color: var(--crema);
+            margin-top: 3px;
+        }
+
+        /* ============================================================
+           TARJETA 7 — TRIVIA
+           ============================================================ */
+        .trivia-question {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            color: var(--crema);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .trivia-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .trivia-option {
+            padding: 12px 15px;
+            border: 1px solid rgba(200, 162, 74, 0.3);
+            border-radius: 10px;
+            background: rgba(200, 162, 74, 0.05);
+            color: var(--crema);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .trivia-option:hover {
+            border-color: var(--dorado);
+            background: rgba(200, 162, 74, 0.15);
+        }
+
+        .trivia-option.correct {
+            border-color: var(--verde-claro);
+            background: rgba(47, 143, 104, 0.3);
+            color: var(--dorado-claro);
+        }
+
+        .trivia-option.incorrect {
+            border-color: #8B4513;
+            background: rgba(139, 69, 19, 0.2);
+            opacity: 0.6;
+        }
+
+        .trivia-result {
+            text-align: center;
+            margin-top: 15px;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--dorado-claro);
+            display: none;
+        }
+
+        .trivia-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .trivia-nav-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--dorado);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--dorado);
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .trivia-nav-btn:hover {
+            background: var(--dorado);
+            color: var(--verde-oscuro);
+        }
+
+        .trivia-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .trivia-counter {
+            text-align: center;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            color: var(--dorado-claro);
+            opacity: 0.6;
+            margin-bottom: 10px;
+        }
+
+        /* ============================================================
+           TARJETA 8 — PLAYLIST
+           ============================================================ */
+        .playlist-form {
+            margin-top: 15px;
+        }
+
+        .playlist-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .playlist-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid rgba(200, 162, 74, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--crema);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .playlist-input:focus {
+            border-color: var(--dorado);
+        }
+
+        .playlist-input::placeholder {
+            color: rgba(255, 248, 236, 0.3);
+        }
+
+        .playlist-add-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .playlist-add-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 15px rgba(200, 162, 74, 0.4);
+        }
+
+        .playlist-songs {
+            margin-top: 15px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .playlist-song {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(200, 162, 74, 0.1);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+        }
+
+        .playlist-song i {
+            color: var(--dorado);
+            font-size: 0.7rem;
+        }
+
+        /* ============================================================
+           TARJETA 9 — RSVP (NUEVA)
+           ============================================================ */
+        .rsvp-form-container {
+            width: 100%;
+        }
+
+        .rsvp-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(200, 162, 74, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--crema);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .rsvp-input:focus {
+            border-color: var(--dorado);
+            box-shadow: 0 0 15px rgba(200, 162, 74, 0.15);
+        }
+
+        .rsvp-input::placeholder {
+            color: rgba(255, 248, 236, 0.35);
+        }
+
+        .rsvp-label {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            color: var(--dorado-claro);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .rsvp-attendance-btns {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .rsvp-attend-btn {
+            flex: 1;
+            padding: 12px 10px;
+            border: 2px solid rgba(200, 162, 74, 0.3);
+            border-radius: 12px;
+            background: rgba(200, 162, 74, 0.05);
+            color: var(--crema);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .rsvp-attend-btn:hover {
+            border-color: var(--dorado);
+            background: rgba(200, 162, 74, 0.15);
+        }
+
+        .rsvp-attend-btn.selected {
+            border-color: var(--dorado);
+            background: linear-gradient(135deg, rgba(200, 162, 74, 0.2), rgba(231, 212, 154, 0.15));
+            color: var(--dorado);
+            box-shadow: 0 0 20px rgba(200, 162, 74, 0.2);
+        }
+
+        .rsvp-attend-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        /* Acompañantes */
+        .rsvp-companions-section {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .rsvp-companions-section.visible {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rsvp-companion-entry {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .rsvp-companion-entry input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid rgba(200, 162, 74, 0.25);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.15);
+            color: var(--crema);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .rsvp-companion-entry input:focus {
+            border-color: var(--dorado);
+        }
+
+        .rsvp-companion-entry input::placeholder {
+            color: rgba(255, 248, 236, 0.3);
+        }
+
+        .rsvp-remove-companion {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(200, 162, 74, 0.2);
+            background: rgba(139, 69, 19, 0.15);
+            color: var(--dorado-claro);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .rsvp-remove-companion:hover {
+            background: rgba(139, 69, 19, 0.35);
+            border-color: #8B4513;
+        }
+
+        .rsvp-add-companion-btn {
+            width: 100%;
+            padding: 10px;
+            border: 1px dashed rgba(200, 162, 74, 0.3);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--dorado-claro);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .rsvp-add-companion-btn:hover {
+            border-color: var(--dorado);
+            background: rgba(200, 162, 74, 0.05);
+            color: var(--dorado);
+        }
+
+        .rsvp-add-companion-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .rsvp-submit-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .rsvp-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(200, 162, 74, 0.4);
+        }
+
+        .rsvp-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .rsvp-submit-btn .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--verde-oscuro);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mensaje de error */
+        .rsvp-error {
+            display: none;
+            padding: 10px 14px;
+            border: 1px solid rgba(139, 69, 19, 0.5);
+            border-radius: 8px;
+            background: rgba(139, 69, 19, 0.15);
+            color: var(--dorado-claro);
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            text-align: center;
+            margin-bottom: 12px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .rsvp-error.visible {
+            display: block;
+        }
+
+        /* Mensaje de éxito */
+        .rsvp-success {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .rsvp-success.visible {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .rsvp-success-icon {
+            font-size: 3rem;
+            color: var(--dorado);
+            margin-bottom: 15px;
+            animation: successPulse 1.5s ease infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(200, 162, 74, 0.3)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(200, 162, 74, 0.6)); }
+        }
+
+        .rsvp-success h3 {
+            font-family: var(--font-script);
+            font-size: 1.8rem;
+            color: var(--dorado);
+            margin-bottom: 10px;
+        }
+
+        .rsvp-success p {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--crema);
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Destello dorado de confirmación */
+        .gold-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(200, 162, 74, 0.3), transparent 70%);
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            animation: goldFlash 1.2s ease forwards;
+        }
+
+        @keyframes goldFlash {
+            0% { opacity: 0; }
+            30% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* ============================================================
+           TARJETA 10 — GRACIAS
+           ============================================================ */
+        .thanks-heart {
+            font-size: 2.5rem;
+            color: var(--dorado);
+            text-align: center;
+            margin-bottom: 10px;
+            animation: heartBeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            60% { transform: scale(1); }
+        }
+
+        /* ============================================================
+           AUDIO TOGGLE
+           ============================================================ */
+        .audio-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--dorado);
+            background: rgba(6, 46, 37, 0.8);
+            color: var(--dorado);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .audio-toggle:hover {
+            background: var(--dorado);
+            color: var(--verde-oscuro);
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 380px) {
+            .card {
+                padding: 25px 18px;
+            }
+
+            .cover-name {
+                font-size: 2.4rem;
+            }
+
+            .cover-xv {
+                font-size: 3rem;
+            }
+
+            .card-title-script {
+                font-size: 1.8rem;
+            }
+
+            .countdown-number {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .card {
+                max-width: 480px;
+                padding: 45px 35px;
+            }
+        }
+
+        /* ============================================================
+           ANIMACIÓN DE ENTRADA DE TARJETAS
+           ============================================================ */
+        .card.animate-in .card-icon,
+        .card.animate-in .card-title-script,
+        .card.animate-in .card-title-serif,
+        .card.animate-in .gold-divider,
+        .card.animate-in .card-text,
+        .card.animate-in .info-block,
+        .card.animate-in .timeline-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: cardContentIn 0.6s ease forwards;
+        }
+
+        .card.animate-in .card-icon { animation-delay: 0.1s; }
+        .card.animate-in .card-title-script { animation-delay: 0.2s; }
+        .card.animate-in .card-title-serif { animation-delay: 0.3s; }
+        .card.animate-in .gold-divider { animation-delay: 0.35s; }
+        .card.animate-in .card-text { animation-delay: 0.4s; }
+        .card.animate-in .info-block:nth-child(1) { animation-delay: 0.45s; }
+        .card.animate-in .info-block:nth-child(2) { animation-delay: 0.55s; }
+
+        @keyframes cardContentIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================================
+           CONFETTI / SPARKLE BURST
+           ============================================================ */
+        .sparkle-burst {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .sparkle-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: sparkleBurst 1s ease forwards;
+        }
+
+        @keyframes sparkleBurst {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor principal del deck -->
+    <div class="deck-container" id="deckContainer">
+
+        <!-- ============================================
+             TARJETA 1: PORTADA
+             ============================================ -->
+        <div class="card-slide active" data-slide="0">
+            <div class="card cover-card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="particles-container" id="particles"></div>
+
+                <div class="cover-tiara">👑</div>
+                <div class="cover-presents">TE INVITO A CELEBRAR</div>
+                <div class="card-title-script cover-name">Angie Karolina</div>
+                <div class="gold-divider"></div>
+                <div class="cover-xv">XV AÑOS</div>
+                <div class="cover-date">3 · OCTUBRE · 2026</div>
+                <div class="cover-swipe">
+                    <i class="fas fa-chevron-down"></i><br>
+                    Desliza para ver más
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 2: CUENTA REGRESIVA
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="1">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="card-title-script">Cuenta Regresiva</div>
+                <div class="card-title-serif">FALTAN</div>
+                <div class="gold-divider"></div>
+
+                <div class="countdown-grid" id="countdown">
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="cd-days">--</div>
+                        <div class="countdown-label">Días</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="cd-hours">--</div>
+                        <div class="countdown-label">Horas</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="cd-minutes">--</div>
+                        <div class="countdown-label">Minutos</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="cd-seconds">--</div>
+                        <div class="countdown-label">Segundos</div>
+                    </div>
+                </div>
+
+                <p class="card-text">para la noche más especial ✨</p>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 3: INVITACIÓN FORMAL
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="2">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <div class="card-title-script">Invitación</div>
+                <div class="gold-divider"></div>
+
+                <p class="formal-text">
+                    Con la bendición de Dios y el cariño de mi familia,
+                    tengo el honor de invitarte a celebrar conmigo
+                    esta fecha tan especial en mi vida.
+                </p>
+
+                <div class="gold-divider"></div>
+
+                <p class="formal-parents">
+                    Mis padres<br>
+                    <strong style="color: var(--dorado);">Sr. & Sra. Avendaño Rivera</strong><br>
+                    te extienden esta cordial invitación
+                </p>
+
+                <div class="gold-divider"></div>
+
+                <p class="card-text">
+                    Será una noche llena de alegría, baile y momentos
+                    inolvidables que quiero compartir contigo.
+                </p>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 4: LUGAR Y FECHA
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="3">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="card-title-script">Lugar y Fecha</div>
+                <div class="gold-divider"></div>
+
+                <div class="info-block">
+                    <div class="info-label">📅 Fecha</div>
+                    <div class="info-value">Sábado, 3 de Octubre de 2026</div>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">🕗 Hora</div>
+                    <div class="info-value">8:00 PM</div>
+                </div>
+
+                <div class="info-block">
+                    <div class="info-label">📍 Lugar</div>
+                    <div class="info-value">
+                        Colegio de Médicos del<br>Estado Mérida
+                    </div>
+                    <div class="card-text" style="margin-top: 5px; font-size: 0.75rem;">
+                        Av. Urdaneta, Mérida 5101, Venezuela
+                    </div>
+                    <a href="https://www.google.com/maps/search/Colegio+de+Medicos+Merida+Venezuela+Av+Urdaneta" target="_blank" class="map-btn">
+                        <i class="fas fa-directions"></i> Cómo llegar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 5: DRESS CODE
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="4">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <div class="card-title-script">Dress Code</div>
+                <div class="card-title-serif">ELEGANTE</div>
+                <div class="gold-divider"></div>
+
+                <p class="card-text">
+                    Te invitamos a vestirte elegante para esta noche especial.
+                    Aquí tienes la paleta de colores sugerida:
+                </p>
+
+                <div class="dresscode-colors">
+                    <div class="color-swatch" style="background: #062E25;" title="Verde Oscuro"></div>
+                    <div class="color-swatch" style="background: #006B4F;" title="Verde Esmeralda"></div>
+                    <div class="color-swatch" style="background: #C8A24A;" title="Dorado"></div>
+                    <div class="color-swatch" style="background: #E7D49A;" title="Dorado Claro"></div>
+                    <div class="color-swatch" style="background: #FFF8EC;" title="Crema"></div>
+                    <div class="color-swatch" style="background: #1A1410;" title="Marrón Oscuro"></div>
+                </div>
+
+                <p class="dresscode-note">
+                    ✨ Evita el color blanco, por favor ✨
+                </p>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 6: ITINERARIO
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="5">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-title-script">Itinerario</div>
+                <div class="card-title-serif">PROGRAMA DE LA NOCHE</div>
+                <div class="gold-divider"></div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:00 PM</div>
+                        <div class="timeline-event">Recepción de invitados</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">8:30 PM</div>
+                        <div class="timeline-event">Ceremonia de entrada</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">9:00 PM</div>
+                        <div class="timeline-event">Vals con mi padre</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">9:30 PM</div>
+                        <div class="timeline-event">Brindis y cena</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:30 PM</div>
+                        <div class="timeline-event">¡A bailar toda la noche! 🎶</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 7: TRIVIA
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="6">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="card-title-script">¿Cuánto me conoces?</div>
+                <div class="card-title-serif">TRIVIA</div>
+                <div class="gold-divider"></div>
+
+                <div id="trivia-container">
+                    <div class="trivia-counter" id="trivia-counter">Pregunta 1 de 5</div>
+                    <div class="trivia-question" id="trivia-question"></div>
+                    <div class="trivia-options" id="trivia-options"></div>
+                    <div class="trivia-result" id="trivia-result"></div>
+                    <div class="trivia-nav">
+                        <button class="trivia-nav-btn" id="trivia-prev" disabled>
+                            <i class="fas fa-arrow-left"></i> Anterior
+                        </button>
+                        <button class="trivia-nav-btn" id="trivia-next">
+                            Siguiente <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 8: PLAYLIST
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="7">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="card-title-script">Playlist</div>
+                <div class="card-title-serif">SUGIERE UNA CANCIÓN</div>
+                <div class="gold-divider"></div>
+
+                <p class="card-text">
+                    ¿Qué canción no puede faltar en la fiesta?
+                    Ayúdame a crear la playlist perfecta 🎵
+                </p>
+
+                <div class="playlist-form">
+                    <div class="playlist-input-group">
+                        <input type="text" class="playlist-input" id="playlist-song-input" placeholder="Nombre de la canción y artista...">
+                        <button class="playlist-add-btn" id="playlist-add-btn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="playlist-songs" id="playlist-songs"></div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 9: RSVP — CONFIRMA TU ASISTENCIA
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="8">
+            <div class="card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="card-title-script">Confirma tu Asistencia</div>
+                <div class="card-title-serif">RSVP</div>
+                <div class="gold-divider"></div>
+
+                <!-- Formulario RSVP -->
+                <div class="rsvp-form-container" id="rsvp-form">
+                    <div class="rsvp-error" id="rsvp-error"></div>
+
+                    <div class="rsvp-label">Tu nombre completo</div>
+                    <input type="text" class="rsvp-input" id="rsvp-nombre" 
+                           placeholder="Nombre y Apellido" 
+                           maxlength="150" autocomplete="name">
+
+                    <div class="rsvp-label">¿Asistirás?</div>
+                    <div class="rsvp-attendance-btns">
+                        <button class="rsvp-attend-btn" id="rsvp-yes" data-attend="true">
+                            <i class="fas fa-check-circle"></i>
+                            Sí asistiré
+                        </button>
+                        <button class="rsvp-attend-btn" id="rsvp-no" data-attend="false">
+                            <i class="fas fa-times-circle"></i>
+                            No podré asistir
+                        </button>
+                    </div>
+
+                    <!-- Sección de acompañantes (visible solo si confirma) -->
+                    <div class="rsvp-companions-section" id="rsvp-companions-section">
+                        <div class="rsvp-label">Acompañantes</div>
+                        <div id="rsvp-companions-list"></div>
+                        <button class="rsvp-add-companion-btn" id="rsvp-add-companion">
+                            <i class="fas fa-user-plus"></i> Agregar acompañante
+                        </button>
+                    </div>
+
+                    <button class="rsvp-submit-btn" id="rsvp-submit" disabled>
+                        Confirmar Asistencia
+                    </button>
+                </div>
+
+                <!-- Mensaje de éxito -->
+                <div class="rsvp-success" id="rsvp-success">
+                    <div class="rsvp-success-icon">✨</div>
+                    <h3 id="rsvp-success-title">¡Gracias!</h3>
+                    <p id="rsvp-success-message"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 10: GRACIAS
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="9">
+            <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="thanks-heart">💛</div>
+                <div class="card-title-script" style="font-size: 2.5rem; margin-bottom: 10px;">¡Gracias!</div>
+                <div class="gold-divider"></div>
+                <p class="card-text" style="margin-top: 10px;">
+                    Tu presencia es el mejor regalo.<br>
+                    ¡Te espero con todo mi cariño!
+                </p>
+                <div class="gold-divider"></div>
+                <p class="card-text" style="font-size: 0.75rem; margin-top: 15px; opacity: 0.6;">
+                    Con amor,<br>
+                    <span style="font-family: var(--font-script); font-size: 1.5rem; color: var(--dorado);">
+                        Angie Karolina
+                    </span>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navegación -->
+    <div class="nav-dots" id="navDots"></div>
+    <div class="nav-arrows">
+        <button class="nav-arrow" id="prevBtn" disabled>
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="nav-arrow" id="nextBtn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Audio toggle -->
+    <button class="audio-toggle" id="audioToggle" title="Música">
+        <i class="fas fa-volume-mute" id="audioIcon"></i>
+    </button>
+
+    <script>
+    /* ================================================================
+       DECK NAVIGATION
+       ================================================================ */
+    (() => {
+        const slides = document.querySelectorAll('.card-slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+        let isTransitioning = false;
+
+        // Create nav dots
+        const dotsContainer = document.getElementById('navDots');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            dotsContainer.appendChild(dot);
+        }
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev', 'next', 'hidden');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                    // Trigger card animation
+                    const card = slide.querySelector('.card');
+                    if (card) {
+                        card.classList.remove('animate-in');
+                        void card.offsetWidth; // Force reflow
+                        card.classList.add('animate-in');
+                    }
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                } else {
+                    slide.classList.add('next');
+                }
+            });
+
+            // Update dots
+            document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+
+            // Update buttons
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        function goToSlide(index) {
+            if (isTransitioning || index === currentSlide || index < 0 || index >= totalSlides) return;
+            isTransitioning = true;
+            currentSlide = index;
+            updateSlides();
+            setTimeout(() => { isTransitioning = false; }, 650);
+        }
+
+        prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+        // Touch/Swipe support
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const deck = document.getElementById('deckContainer');
+
+        deck.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        deck.addEventListener('touchend', (e) => {
+            const deltaX = e.changedTouches[0].screenX - touchStartX;
+            const deltaY = e.changedTouches[0].screenY - touchStartY;
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX < 0) goToSlide(currentSlide + 1);
+                else goToSlide(currentSlide - 1);
+            }
+        }, { passive: true });
+
+        // Keyboard nav
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goToSlide(currentSlide + 1);
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goToSlide(currentSlide - 1);
+        });
+    })();
+
+    /* ================================================================
+       COUNTDOWN
+       ================================================================ */
+    (() => {
+        const eventDate = new Date('2026-10-03T20:00:00-04:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const diff = eventDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('cd-days').textContent = '🎉';
+                document.getElementById('cd-hours').textContent = '¡HOY!';
+                document.getElementById('cd-minutes').textContent = '';
+                document.getElementById('cd-seconds').textContent = '';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').textContent = days;
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    })();
+
+    /* ================================================================
+       PARTICLES
+       ================================================================ */
+    (() => {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            p.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+            p.style.setProperty('--delay', (Math.random() * 4) + 's');
+            p.style.width = (2 + Math.random() * 4) + 'px';
+            p.style.height = p.style.width;
+            container.appendChild(p);
+        }
+    })();
+
+    /* ================================================================
+       TRIVIA
+       ================================================================ */
+    (() => {
+        const triviaQuestions = [
+            {
+                question: '¿Cuál es el color favorito de Angie?',
+                options: ['Rosa', 'Verde esmeralda', 'Azul', 'Morado'],
+                correct: 1
+            },
+            {
+                question: '¿Qué actividad disfruta más Angie?',
+                options: ['Bailar', 'Pintar', 'Leer', 'Cocinar'],
+                correct: 0
+            },
+            {
+                question: '¿Cuál es la comida favorita de Angie?',
+                options: ['Pizza', 'Sushi', 'Arepas', 'Pasta'],
+                correct: 2
+            },
+            {
+                question: '¿Qué tipo de música prefiere Angie?',
+                options: ['Reggaetón', 'Pop', 'Vallenato', 'Todas las anteriores'],
+                correct: 3
+            },
+            {
+                question: '¿En qué mes cumple años Angie?',
+                options: ['Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                correct: 1
+            }
+        ];
+
+        let currentQ = 0;
+        let answers = new Array(triviaQuestions.length).fill(null);
+
+        const questionEl = document.getElementById('trivia-question');
+        const optionsEl = document.getElementById('trivia-options');
+        const resultEl = document.getElementById('trivia-result');
+        const counterEl = document.getElementById('trivia-counter');
+        const prevBtn = document.getElementById('trivia-prev');
+        const nextBtn = document.getElementById('trivia-next');
+
+        function renderQuestion() {
+            const q = triviaQuestions[currentQ];
+            counterEl.textContent = `Pregunta ${currentQ + 1} de ${triviaQuestions.length}`;
+            questionEl.textContent = q.question;
+            optionsEl.innerHTML = '';
+            resultEl.style.display = 'none';
+
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'trivia-option';
+                btn.textContent = opt;
+
+                if (answers[currentQ] !== null) {
+                    btn.style.pointerEvents = 'none';
+                    if (i === q.correct) btn.classList.add('correct');
+                    if (answers[currentQ] === i && i !== q.correct) btn.classList.add('incorrect');
+                }
+
+                btn.addEventListener('click', () => {
+                    answers[currentQ] = i;
+                    renderQuestion();
+                    if (i === q.correct) {
+                        resultEl.textContent = '¡Correcto! 🎉';
+                    } else {
+                        resultEl.textContent = `No exactamente... La respuesta era: ${q.options[q.correct]}`;
+                    }
+                    resultEl.style.display = 'block';
+                });
+
+                optionsEl.appendChild(btn);
+            });
+
+            prevBtn.disabled = currentQ === 0;
+            nextBtn.textContent = currentQ === triviaQuestions.length - 1 ? 'Resultados' : 'Siguiente ›';
+
+            if (currentQ === triviaQuestions.length - 1 && answers.every(a => a !== null)) {
+                nextBtn.addEventListener('click', showResults, { once: true });
+            }
+        }
+
+        function showResults() {
+            const correct = answers.filter((a, i) => a === triviaQuestions[i].correct).length;
+            questionEl.textContent = '¡Resultados!';
+            optionsEl.innerHTML = '';
+            counterEl.textContent = '';
+            resultEl.textContent = `Acertaste ${correct} de ${triviaQuestions.length}. ${correct >= 3 ? '¡Me conoces bien! 💛' : '¡Hay que conocernos más! 😊'}`;
+            resultEl.style.display = 'block';
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQ > 0) { currentQ--; renderQuestion(); }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQ < triviaQuestions.length - 1) { currentQ++; renderQuestion(); }
+        });
+
+        renderQuestion();
+    })();
+
+    /* ================================================================
+       PLAYLIST
+       ================================================================ */
+    (() => {
+        const input = document.getElementById('playlist-song-input');
+        const addBtn = document.getElementById('playlist-add-btn');
+        const list = document.getElementById('playlist-songs');
+        const songs = [];
+
+        function addSong() {
+            const song = input.value.trim();
+            if (!song) return;
+
+            songs.push(song);
+            const div = document.createElement('div');
+            div.className = 'playlist-song';
+            div.innerHTML = `<i class="fas fa-music"></i> <span>${escapeHtml(song)}</span>`;
+            list.appendChild(div);
+            input.value = '';
+        }
+
+        addBtn.addEventListener('click', addSong);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addSong();
+        });
+    })();
+
+    /* ================================================================
+       RSVP MODULE
+       ================================================================ */
+    (() => {
+        const MAX_COMPANIONS = 5;
+        let selectedAttendance = null;
+        let isSubmitting = false;
+
+        const form = document.getElementById('rsvp-form');
+        const successDiv = document.getElementById('rsvp-success');
+        const errorDiv = document.getElementById('rsvp-error');
+        const nombreInput = document.getElementById('rsvp-nombre');
+        const yesBtn = document.getElementById('rsvp-yes');
+        const noBtn = document.getElementById('rsvp-no');
+        const companionsSection = document.getElementById('rsvp-companions-section');
+        const companionsList = document.getElementById('rsvp-companions-list');
+        const addCompanionBtn = document.getElementById('rsvp-add-companion');
+        const submitBtn = document.getElementById('rsvp-submit');
+
+        function showError(msg) {
+            errorDiv.textContent = msg;
+            errorDiv.classList.add('visible');
+            setTimeout(() => errorDiv.classList.remove('visible'), 5000);
+        }
+
+        function hideError() {
+            errorDiv.classList.remove('visible');
+        }
+
+        // Attendance selection
+        function selectAttendance(attending) {
+            selectedAttendance = attending;
+            yesBtn.classList.toggle('selected', attending === true);
+            noBtn.classList.toggle('selected', attending === false);
+
+            if (attending) {
+                companionsSection.classList.add('visible');
+            } else {
+                companionsSection.classList.remove('visible');
+                companionsList.innerHTML = '';
+            }
+
+            submitBtn.disabled = false;
+        }
+
+        yesBtn.addEventListener('click', () => selectAttendance(true));
+        noBtn.addEventListener('click', () => selectAttendance(false));
+
+        // Add companion
+        function addCompanion() {
+            const count = companionsList.children.length;
+            if (count >= MAX_COMPANIONS) {
+                showError(`Máximo ${MAX_COMPANIONS} acompañantes permitidos.`);
+                return;
+            }
+
+            const entry = document.createElement('div');
+            entry.className = 'rsvp-companion-entry';
+            entry.innerHTML = `
+                <input type="text" placeholder="Nombre del acompañante" maxlength="150" autocomplete="off">
+                <button class="rsvp-remove-companion" title="Eliminar"><i class="fas fa-times"></i></button>
+            `;
+
+            entry.querySelector('.rsvp-remove-companion').addEventListener('click', () => {
+                entry.remove();
+                updateAddBtnState();
+            });
+
+            companionsList.appendChild(entry);
+            entry.querySelector('input').focus();
+            updateAddBtnState();
+        }
+
+        function updateAddBtnState() {
+            addCompanionBtn.disabled = companionsList.children.length >= MAX_COMPANIONS;
+        }
+
+        addCompanionBtn.addEventListener('click', addCompanion);
+
+        // Submit RSVP
+        submitBtn.addEventListener('click', async () => {
+            hideError();
+
+            if (isSubmitting) return;
+
+            const nombre = nombreInput.value.trim();
+            if (!nombre) {
+                showError('Por favor ingresa tu nombre completo.');
+                nombreInput.focus();
+                return;
+            }
+
+            // Validate name chars
+            if (!/^[\p{L}\s.\-']+$/u.test(nombre)) {
+                showError('El nombre solo puede contener letras, espacios y tildes.');
+                return;
+            }
+
+            if (selectedAttendance === null) {
+                showError('Por favor indica si asistirás o no.');
+                return;
+            }
+
+            // Gather companions
+            const acompanantes = [];
+            if (selectedAttendance) {
+                const inputs = companionsList.querySelectorAll('input');
+                for (const input of inputs) {
+                    const val = input.value.trim();
+                    if (val) {
+                        if (!/^[\p{L}\s.\-']+$/u.test(val)) {
+                            showError(`El nombre "${val}" contiene caracteres no válidos.`);
+                            input.focus();
+                            return;
+                        }
+                        acompanantes.push(val);
+                    }
+                }
+            }
+
+            // Disable and show spinner
+            isSubmitting = true;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+            try {
+                const response = await fetch('/api/confirmar.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre_completo: nombre,
+                        asistira: selectedAttendance,
+                        acompanantes: acompanantes
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show success
+                    form.style.display = 'none';
+                    document.getElementById('rsvp-success-title').textContent = selectedAttendance ? '¡Gracias!' : 'Entendido';
+                    document.getElementById('rsvp-success-message').textContent = data.message;
+                    successDiv.classList.add('visible');
+
+                    // Gold flash effect
+                    const flash = document.createElement('div');
+                    flash.className = 'gold-flash';
+                    document.body.appendChild(flash);
+                    setTimeout(() => flash.remove(), 1500);
+
+                    // Sparkle burst
+                    createSparkleBurst();
+                } else {
+                    showError(data.error || 'Ocurrió un error. Intenta de nuevo.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Confirmar Asistencia';
+                    isSubmitting = false;
+                }
+            } catch (err) {
+                showError('Error de conexión. Verifica tu internet e intenta de nuevo.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Confirmar Asistencia';
+                isSubmitting = false;
+            }
+        });
+
+        function createSparkleBurst() {
+            const burst = document.createElement('div');
+            burst.className = 'sparkle-burst';
+            burst.style.left = '50%';
+            burst.style.top = '50%';
+            document.body.appendChild(burst);
+
+            const colors = ['#C8A24A', '#E7D49A', '#FFF8EC', '#2F8F68'];
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'sparkle-particle';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                const angle = (Math.PI * 2 * i) / 20;
+                const distance = 80 + Math.random() * 120;
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                burst.appendChild(particle);
+            }
+
+            setTimeout(() => burst.remove(), 1200);
+        }
+    })();
+
+    /* ================================================================
+       AUDIO (placeholder — no actual audio loaded)
+       ================================================================ */
+    (() => {
+        const toggle = document.getElementById('audioToggle');
+        const icon = document.getElementById('audioIcon');
+        let playing = false;
+
+        toggle.addEventListener('click', () => {
+            playing = !playing;
+            icon.className = playing ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+        });
+    })();
+
+    /* ================================================================
+       UTILITY
+       ================================================================ */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    </script>
+</body>
+</html>

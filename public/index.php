@@ -1443,19 +1443,21 @@
             width: 100vw;
             height: 100vh;
             pointer-events: none;
-            z-index: 25;
+            z-index: 60;
             overflow: hidden;
         }
 
         .gold-butterfly {
             position: absolute;
-            width: var(--b-size, 38px);
-            height: var(--b-size, 38px);
+            top: 0;
+            left: 0;
+            width: var(--b-size, 44px);
+            height: var(--b-size, 44px);
             pointer-events: none;
             transform-style: preserve-3d;
             perspective: 600px;
-            filter: drop-shadow(0 0 7px rgba(255, 215, 0, 0.85)) drop-shadow(0 0 14px rgba(200, 162, 74, 0.6));
-            will-change: transform, left, top;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95)) drop-shadow(0 0 18px rgba(200, 162, 74, 0.8));
+            will-change: transform;
             user-select: none;
         }
 
@@ -1524,7 +1526,19 @@
 <body>
 
     <!-- Mariposas doradas volando mágicamente -->
-    <div class="butterflies-container" id="butterfliesContainer"></div>
+    <div class="butterflies-container" id="butterfliesContainer">
+        <svg style="width:0;height:0;position:absolute;visibility:hidden;" aria-hidden="true">
+            <defs>
+                <linearGradient id="globalGoldWing" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFFDF5" />
+                    <stop offset="25%" stop-color="#FFE680" />
+                    <stop offset="60%" stop-color="#FFC107" />
+                    <stop offset="85%" stop-color="#D4AF37" />
+                    <stop offset="100%" stop-color="#996515" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
 
     <!-- Contenedor principal del deck -->
     <div class="deck-container" id="deckContainer">
@@ -2619,57 +2633,46 @@
         const container = document.getElementById('butterfliesContainer');
         if (!container) return;
 
-        const BUTTERFLY_COUNT = 7;
+        const BUTTERFLY_COUNT = 12;
         const butterflies = [];
-        let uid = 0;
 
         function createButterflyElement(size, flapSpeed) {
-            uid++;
             const el = document.createElement('div');
             el.className = 'gold-butterfly';
             el.style.setProperty('--b-size', size + 'px');
             el.style.setProperty('--flap-speed', flapSpeed + 's');
 
-            const gradId = 'gbGrad_' + uid;
             el.innerHTML = `
                 <div class="butterfly-inner">
                     <div class="butterfly-wing left">
                         <svg viewBox="0 0 50 60" style="width:100%;height:100%;display:block;overflow:visible;">
-                            <defs>
-                                <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#FFFDF5" />
-                                    <stop offset="35%" stop-color="#F3E0A0" />
-                                    <stop offset="70%" stop-color="#C8A24A" />
-                                    <stop offset="100%" stop-color="#7B5B16" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M48,28 C45,12 28,1 8,4 C0,12 5,26 22,28 C8,31 3,46 15,54 C28,60 42,48 48,28 Z" fill="url(#${gradId})" fill-opacity="0.94" />
-                            <path d="M46,28 C32,20 18,12 9,6 M46,28 C30,26 18,24 10,27 M46,28 C32,36 22,46 16,51 M36,18 C26,24 20,27 15,36" stroke="#FFF8EC" stroke-width="1.3" stroke-linecap="round" opacity="0.75" fill="none"/>
-                            <circle cx="10" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
-                            <circle cx="20" cy="2" r="1.5" fill="#FFF" opacity="0.85"/>
-                            <circle cx="32" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
-                            <circle cx="12" cy="52" r="1.3" fill="#FFF" opacity="0.85"/>
-                            <circle cx="22" cy="56" r="1.3" fill="#FFF" opacity="0.85"/>
+                            <path d="M48,28 C45,12 28,1 8,4 C0,12 5,26 22,28 C8,31 3,46 15,54 C28,60 42,48 48,28 Z" fill="url(#globalGoldWing)" fill-opacity="0.96" stroke="#FFE680" stroke-width="0.8" />
+                            <path d="M46,28 C32,20 18,12 9,6 M46,28 C30,26 18,24 10,27 M46,28 C32,36 22,46 16,51 M36,18 C26,24 20,27 15,36" stroke="#FFFDF5" stroke-width="1.3" stroke-linecap="round" opacity="0.85" fill="none"/>
+                            <circle cx="10" cy="5" r="1.6" fill="#FFF" opacity="0.9"/>
+                            <circle cx="20" cy="2" r="1.6" fill="#FFF" opacity="0.9"/>
+                            <circle cx="32" cy="5" r="1.6" fill="#FFF" opacity="0.9"/>
+                            <circle cx="12" cy="52" r="1.4" fill="#FFF" opacity="0.9"/>
+                            <circle cx="22" cy="56" r="1.4" fill="#FFF" opacity="0.9"/>
                         </svg>
                     </div>
                     <div class="butterfly-center">
                         <svg viewBox="0 0 10 60" style="width:100%;height:100%;display:block;overflow:visible;">
-                            <path d="M4,15 C2,8 0,3 1,0 M6,15 C8,8 10,3 9,0" stroke="#FFF8EC" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-                            <circle cx="1" cy="0" r="1.2" fill="#E7D49A"/>
-                            <circle cx="9" cy="0" r="1.2" fill="#E7D49A"/>
-                            <ellipse cx="5" cy="18" rx="2.5" ry="3.5" fill="#E7D49A"/>
-                            <ellipse cx="5" cy="32" rx="2" ry="10" fill="#917224"/>
+                            <path d="M4,15 C2,8 0,3 1,0 M6,15 C8,8 10,3 9,0" stroke="#FFFDF5" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+                            <circle cx="1" cy="0" r="1.3" fill="#FFE680"/>
+                            <circle cx="9" cy="0" r="1.3" fill="#FFE680"/>
+                            <ellipse cx="5" cy="18" rx="2.5" ry="3.5" fill="#FFE680"/>
+                            <ellipse cx="5" cy="32" rx="2.2" ry="11" fill="#78520A"/>
                         </svg>
                     </div>
                     <div class="butterfly-wing right">
                         <svg viewBox="0 0 50 60" style="width:100%;height:100%;display:block;overflow:visible;">
-                            <path d="M48,28 C45,12 28,1 8,4 C0,12 5,26 22,28 C8,31 3,46 15,54 C28,60 42,48 48,28 Z" fill="url(#${gradId})" fill-opacity="0.94" />
-                            <path d="M46,28 C32,20 18,12 9,6 M46,28 C30,26 18,24 10,27 M46,28 C32,36 22,46 16,51 M36,18 C26,24 20,27 15,36" stroke="#FFF8EC" stroke-width="1.3" stroke-linecap="round" opacity="0.75" fill="none"/>
-                            <circle cx="10" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
-                            <circle cx="20" cy="2" r="1.5" fill="#FFF" opacity="0.85"/>
-                            <circle cx="32" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
-                            <circle cx="12" cy="52" r="1.3" fill="#FFF" opacity="0.85"/>
-                            <circle cx="22" cy="56" r="1.3" fill="#FFF" opacity="0.85"/>
+                            <path d="M48,28 C45,12 28,1 8,4 C0,12 5,26 22,28 C8,31 3,46 15,54 C28,60 42,48 48,28 Z" fill="url(#globalGoldWing)" fill-opacity="0.96" stroke="#FFE680" stroke-width="0.8" />
+                            <path d="M46,28 C32,20 18,12 9,6 M46,28 C30,26 18,24 10,27 M46,28 C32,36 22,46 16,51 M36,18 C26,24 20,27 15,36" stroke="#FFFDF5" stroke-width="1.3" stroke-linecap="round" opacity="0.85" fill="none"/>
+                            <circle cx="10" cy="5" r="1.6" fill="#FFF" opacity="0.9"/>
+                            <circle cx="20" cy="2" r="1.6" fill="#FFF" opacity="0.9"/>
+                            <circle cx="32" cy="5" r="1.6" fill="#FFF" opacity="0.9"/>
+                            <circle cx="12" cy="52" r="1.4" fill="#FFF" opacity="0.9"/>
+                            <circle cx="22" cy="56" r="1.4" fill="#FFF" opacity="0.9"/>
                         </svg>
                     </div>
                 </div>
@@ -2681,8 +2684,8 @@
         function createSparkle(x, y) {
             const s = document.createElement('div');
             s.className = 'butterfly-sparkle';
-            s.style.left = (x + (Math.random() * 10 - 5)) + 'px';
-            s.style.top = (y + (Math.random() * 10 - 5)) + 'px';
+            s.style.left = (x + (Math.random() * 12 - 6)) + 'px';
+            s.style.top = (y + (Math.random() * 12 - 6)) + 'px';
             container.appendChild(s);
             setTimeout(() => s.remove(), 1100);
         }
@@ -2690,108 +2693,100 @@
         class Butterfly {
             constructor(isInteractive = false, startX, startY) {
                 this.isInteractive = isInteractive;
-                this.size = isInteractive ? 34 : (28 + Math.random() * 18);
-                this.flapSpeed = (0.16 + Math.random() * 0.12).toFixed(2);
+                this.size = isInteractive ? 44 : (38 + Math.random() * 22);
+                this.flapSpeed = (0.16 + Math.random() * 0.10).toFixed(2);
                 this.el = createButterflyElement(this.size, this.flapSpeed);
                 this.sparkleTimer = Math.floor(Math.random() * 20);
+                this.sinOffset = Math.random() * 100;
+                this.sinSpeed = 0.05 + Math.random() * 0.03;
+                this.speed = isInteractive ? (2.2 + Math.random() * 1.5) : (1.3 + Math.random() * 1.2);
+                this.vx = 0;
+                this.vy = 0;
+                this.angle = 0;
+
+                const w = Math.max(window.innerWidth, 360);
+                const h = Math.max(window.innerHeight, 600);
 
                 if (isInteractive && startX !== undefined) {
                     this.x = startX - this.size / 2;
                     this.y = startY - this.size / 2;
-                    const angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.8;
-                    const speed = 2 + Math.random() * 1.5;
-                    this.vx = Math.cos(angle) * speed;
-                    this.vy = Math.sin(angle) * speed;
+                    this.targetX = startX + (Math.random() - 0.5) * 200;
+                    this.targetY = -100;
                 } else {
-                    this.reset(true);
+                    this.x = Math.random() * (w - 60) + 30;
+                    this.y = Math.random() * (h - 60) + 30;
+                    this.pickNewTarget();
                 }
             }
 
-            reset(initialRandom = false) {
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-
-                if (initialRandom) {
-                    this.x = Math.random() * w;
-                    this.y = Math.random() * h;
-                } else {
-                    // Aparecer desde los bordes de la pantalla
-                    const side = Math.floor(Math.random() * 3);
-                    if (side === 0) { // Desde abajo
-                        this.x = Math.random() * w;
-                        this.y = h + 20;
-                    } else if (side === 1) { // Desde la izquierda
-                        this.x = -this.size - 20;
-                        this.y = Math.random() * (h * 0.8) + (h * 0.2);
-                    } else { // Desde la derecha
-                        this.x = w + 20;
-                        this.y = Math.random() * (h * 0.8) + (h * 0.2);
-                    }
-                }
-
-                // Punto de destino en la pantalla para trayectoria suave
-                const targetX = Math.random() * w;
-                const targetY = Math.random() * (h * 0.6);
-                const angle = Math.atan2(targetY - this.y, targetX - this.x);
-                const speed = 0.9 + Math.random() * 1.3;
-
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-
-                this.sinOffset = Math.random() * 100;
-                this.sinSpeed = 0.03 + Math.random() * 0.02;
-                this.sinAmp = 0.8 + Math.random() * 1.2;
-                this.angle = angle * (180 / Math.PI) + 90;
+            pickNewTarget() {
+                const w = Math.max(window.innerWidth, 360);
+                const h = Math.max(window.innerHeight, 600);
+                this.targetX = Math.random() * (w - 100) + 50;
+                this.targetY = Math.random() * (h - 100) + 50;
             }
 
             update() {
+                const w = Math.max(window.innerWidth, 360);
+                const h = Math.max(window.innerHeight, 600);
+
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < 70 || Math.random() < 0.008) {
+                    if (this.isInteractive && this.y < -50) {
+                        this.el.remove();
+                        return false;
+                    }
+                    this.pickNewTarget();
+                }
+
+                const targetAngle = Math.atan2(dy, dx);
+                const desiredVx = Math.cos(targetAngle) * this.speed;
+                const desiredVy = Math.sin(targetAngle) * this.speed;
+
+                // Suave aceleración hacia el destino
+                this.vx += (desiredVx - this.vx) * 0.06;
+                this.vy += (desiredVy - this.vy) * 0.06;
+
                 this.sinOffset += this.sinSpeed;
-                const wave = Math.sin(this.sinOffset) * this.sinAmp;
+                const wobble = Math.sin(this.sinOffset) * 1.5;
 
-                // Movimiento curvilíneo y ondulante natural
-                this.x += this.vx + Math.cos(this.sinOffset) * 0.5;
-                this.y += this.vy + wave;
+                this.x += this.vx;
+                this.y += this.vy + wobble;
 
-                // Orientar la mariposa suavemente hacia donde vuela
-                const currentAngle = Math.atan2(this.vy + wave, this.vx) * (180 / Math.PI) + 90;
-                this.angle += (currentAngle - this.angle) * 0.1;
+                // Mantener mariposas no interactivas dentro de los límites visibles
+                if (!this.isInteractive) {
+                    if (this.x < 10) { this.x = 10; this.pickNewTarget(); }
+                    if (this.x > w - this.size - 10) { this.x = w - this.size - 10; this.pickNewTarget(); }
+                    if (this.y < 10) { this.y = 10; this.pickNewTarget(); }
+                    if (this.y > h - this.size - 10) { this.y = h - this.size - 10; this.pickNewTarget(); }
+                }
 
-                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.angle}deg)`;
+                // Rotación suave orientada al vuelo
+                const heading = Math.atan2(this.vy + wobble, this.vx) * (180 / Math.PI) + 90;
+                this.angle += (heading - this.angle) * 0.15;
 
-                // Destellos dorados ocasionales
+                this.el.style.transform = `translate3d(${this.x.toFixed(1)}px, ${this.y.toFixed(1)}px, 0) rotate(${this.angle.toFixed(1)}deg)`;
+
+                // Destellos dorados cada cierto tiempo
                 this.sparkleTimer++;
-                if (this.sparkleTimer > 24) {
+                if (this.sparkleTimer > 20) {
                     this.sparkleTimer = 0;
                     createSparkle(this.x + this.size * 0.4, this.y + this.size * 0.4);
                 }
 
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-
-                // Si sale de la pantalla, reiniciar o eliminar
-                if (
-                    this.x < -80 ||
-                    this.x > w + 80 ||
-                    this.y < -80 ||
-                    this.y > h + 80
-                ) {
-                    if (this.isInteractive) {
-                        this.el.remove();
-                        return false;
-                    } else {
-                        this.reset(false);
-                    }
-                }
                 return true;
             }
         }
 
-        // Crear enjambre inicial de mariposas
+        // Crear las 12 mariposas doradas iniciales
         for (let i = 0; i < BUTTERFLY_COUNT; i++) {
             butterflies.push(new Butterfly(false));
         }
 
-        // Ciclo de animación a 60 FPS
+        // Bucle de animación a 60 FPS
         function animate() {
             for (let i = butterflies.length - 1; i >= 0; i--) {
                 const alive = butterflies[i].update();
@@ -2803,10 +2798,10 @@
         }
         requestAnimationFrame(animate);
 
-        // Tocar la pantalla hace que nazca una mariposa dorada que alza vuelo
+        // Tocar la pantalla hace que nazca una mariposa dorada que vuela hacia arriba
         window.addEventListener('pointerdown', (e) => {
             if (e.target.closest('button, input, textarea, select, a, .trivia-option-btn')) return;
-            if (butterflies.length < 16) {
+            if (butterflies.length < 20) {
                 butterflies.push(new Butterfly(true, e.clientX, e.clientY));
             }
         });

@@ -27,10 +27,11 @@ require_once __DIR__ . '/../config/database.php';
 
 try {
     $pdo = getDBConnection();
+    populateMissingRaffleCodes($pdo);
 
     // Obtener todos los invitados
     $stmtInvitados = $pdo->query(
-        'SELECT id, nombre_completo, asistira, created_at 
+        'SELECT id, nombre_completo, asistira, codigo_rifa, created_at 
          FROM invitados 
          ORDER BY created_at DESC'
     );
@@ -38,7 +39,7 @@ try {
 
     // Obtener todos los acompañantes agrupados por invitado_id
     $stmtAcomp = $pdo->query(
-        'SELECT invitado_id, nombre_completo 
+        'SELECT id, invitado_id, nombre_completo, codigo_rifa 
          FROM acompanantes 
          ORDER BY id ASC'
     );
@@ -47,7 +48,11 @@ try {
     // Agrupar acompañantes por invitado_id
     $acompPorInvitado = [];
     foreach ($todosAcompanantes as $acomp) {
-        $acompPorInvitado[$acomp['invitado_id']][] = $acomp['nombre_completo'];
+        $acompPorInvitado[$acomp['invitado_id']][] = [
+            'id'            => (int)$acomp['id'],
+            'nombre'        => $acomp['nombre_completo'],
+            'codigo_rifa'   => $acomp['codigo_rifa']
+        ];
     }
 
     // Construir respuesta con invitados y sus acompañantes
@@ -61,6 +66,7 @@ try {
             'id'              => (int)$inv['id'],
             'nombre_completo' => $inv['nombre_completo'],
             'asistira'        => (bool)$inv['asistira'],
+            'codigo_rifa'     => $inv['codigo_rifa'],
             'acompanantes'    => $acomps,
             'created_at'      => $inv['created_at'],
         ];

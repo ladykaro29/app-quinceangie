@@ -107,22 +107,44 @@ try {
     $pdo->beginTransaction();
 
     try {
+        // Generar código de rifa para el titular si asistirá
+        $codigoRifaTitular = $asistira ? generarCodigoRifaUnico($pdo) : null;
+
         // Insertar invitado principal
-        $stmt = $pdo->prepare('INSERT INTO invitados (nombre_completo, asistira) VALUES (:nombre, :asistira)');
+        $stmt = $pdo->prepare('INSERT INTO invitados (nombre_completo, asistira, codigo_rifa) VALUES (:nombre, :asistira, :codigo_rifa)');
         $stmt->execute([
-            ':nombre'   => $nombreCompleto,
-            ':asistira' => $asistira ? 1 : 0,
+            ':nombre'      => $nombreCompleto,
+            ':asistira'    => $asistira ? 1 : 0,
+            ':codigo_rifa' => $codigoRifaTitular,
         ]);
         $invitadoId = $pdo->lastInsertId();
 
-        // Insertar acompañantes si los hay
+        // Boletos de rifa generados
+        $boletosRifa = [];
+        if ($asistira && $codigoRifaTitular) {
+            $boletosRifa[] = [
+                'nombre'     => $nombreCompleto,
+                'codigo'     => $codigoRifaTitular,
+                'es_titular' => true,
+            ];
+        }
+
+        // Insertar acompañantes si los hay con su propio código de rifa único
         if ($asistira && !empty($acompanantes)) {
-            $stmtAcomp = $pdo->prepare('INSERT INTO acompanantes (invitado_id, nombre_completo) VALUES (:invitado_id, :nombre)');
+            $stmtAcomp = $pdo->prepare('INSERT INTO acompanantes (invitado_id, nombre_completo, codigo_rifa) VALUES (:invitado_id, :nombre, :codigo_rifa)');
             foreach ($acompanantes as $nombreAcomp) {
+                $codigoRifaAcomp = generarCodigoRifaUnico($pdo);
                 $stmtAcomp->execute([
                     ':invitado_id' => $invitadoId,
                     ':nombre'      => $nombreAcomp,
+                    ':codigo_rifa' => $codigoRifaAcomp,
                 ]);
+
+                $boletosRifa[] = [
+                    'nombre'     => $nombreAcomp,
+                    'codigo'     => $codigoRifaAcomp,
+                    'es_titular' => false,
+                ];
             }
         }
 
@@ -147,9 +169,10 @@ try {
             'acompanantes'      => $acompanantes,
             'total_pases'       => $asistira ? (1 + count($acompanantes)) : 0,
             'qr_code'           => $qrCode,
+            'boletos_rifa'      => $boletosRifa,
             'total_confirmados' => $totalConfirmados,
             'message'           => $asistira
-                ? '¡Gracias por confirmar tu asistencia! Aquí tienes tu Pase VIP de entrada con código QR. 🎉'
+                ? '¡Gracias por confirmar tu asistencia! Aquí tienes tu Pase VIP de entrada y tus boletos para la Rifa de Regalos. 🎉'
                 : 'Lamentamos que no puedas asistir. ¡Te llevaremos en el corazón! 💛'
         ]);
 

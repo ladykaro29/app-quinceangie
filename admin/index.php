@@ -23,10 +23,11 @@ if (!isset($_SERVER['PHP_AUTH_USER']) ||
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     try {
         $pdo = getDBConnection();
-        
+        populateMissingRaffleCodes($pdo);
+
         $stmt = $pdo->query(
-            'SELECT i.id, i.nombre_completo, i.asistira, i.created_at,
-                    GROUP_CONCAT(a.nombre_completo SEPARATOR \'; \') AS acompanantes_nombres,
+            'SELECT i.id, i.nombre_completo, i.asistira, i.codigo_rifa, i.created_at,
+                    GROUP_CONCAT(CONCAT(a.nombre_completo, " [", IFNULL(a.codigo_rifa, "N/A"), "]") SEPARATOR "; ") AS acomp_rifas,
                     COUNT(a.id) AS num_acompanantes
              FROM invitados i
              LEFT JOIN acompanantes a ON a.invitado_id = i.id
@@ -36,26 +37,27 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
         $rows = $stmt->fetchAll();
 
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="invitados_xv_angie_' . date('Y-m-d') . '.csv"');
-        
+        header('Content-Disposition: attachment; filename="invitados_rifa_xv_angie_' . date('Y-m-d') . '.csv"');
+
         $output = fopen('php://output', 'w');
         // BOM for Excel UTF-8
         fwrite($output, "\xEF\xBB\xBF");
-        
-        fputcsv($output, ['ID', 'Nombre Completo', 'Asistirá', 'Acompañantes', 'Núm. Acompañantes', 'Total Personas', 'Fecha Confirmación']);
-        
+
+        fputcsv($output, ['ID', 'Nombre Titular', 'Asistirá', 'Boleto Rifa Titular', 'Acompañantes y Boletos Rifa', 'Núm. Acompañantes', 'Total Personas', 'Fecha Confirmación']);
+
         foreach ($rows as $row) {
             fputcsv($output, [
                 $row['id'],
                 $row['nombre_completo'],
                 $row['asistira'] ? 'Sí' : 'No',
-                $row['acompanantes_nombres'] ?? '',
+                $row['asistira'] ? ($row['codigo_rifa'] ?? 'Sin código') : 'N/A',
+                $row['acomp_rifas'] ?? '',
                 $row['num_acompanantes'],
                 $row['asistira'] ? 1 + (int)$row['num_acompanantes'] : 0,
                 $row['created_at']
             ]);
         }
-        
+
         fclose($output);
         exit;
     } catch (\PDOException $e) {
@@ -65,36 +67,65 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     }
 }
 
-// Obtener datos para la tabla
+// Obtener datos para la tabla y sorteo de rifa
 try {
     $pdo = getDBConnection();
-    
+    populateMissingRaffleCodes($pdo);
+
     $stmtInvitados = $pdo->query(
-        'SELECT id, nombre_completo, asistira, created_at 
+        'SELECT id, nombre_completo, asistira, codigo_rifa, created_at 
          FROM invitados ORDER BY created_at DESC'
     );
     $invitados = $stmtInvitados->fetchAll();
 
     $stmtAcomp = $pdo->query(
-        'SELECT invitado_id, nombre_completo FROM acompanantes ORDER BY id ASC'
+        'SELECT id, invitado_id, nombre_completo, codigo_rifa FROM acompanantes ORDER BY id ASC'
     );
     $todosAcomp = $stmtAcomp->fetchAll();
 
     $acompPorInvitado = [];
     foreach ($todosAcomp as $a) {
-        $acompPorInvitado[$a['invitado_id']][] = $a['nombre_completo'];
+        $acompPorInvitado[$a['invitado_id']][] = [
+            'id'          => $a['id'],
+            'nombre'      => $a['nombre_completo'],
+            'codigo_rifa' => $a['codigo_rifa']
+        ];
     }
 
-    // Conteos
+    // Conteos y recopilación de todos los boletos de rifa activos
     $totalRegistros = count($invitados);
     $totalConfirmados = 0;
     $totalNoAsistiran = 0;
     $totalPersonas = 0;
+    $todosBoletosRifa = [];
 
     foreach ($invitados as $inv) {
+        $acomps = $acompPorInvitado[$inv['id']] ?? [];
         if ($inv['asistira']) {
             $totalConfirmados++;
-            $totalPersonas += 1 + count($acompPorInvitado[$inv['id']] ?? []);
+            $totalPersonas += 1 + count($acomps);
+
+            if (!empty($inv['codigo_rifa'])) {
+                $todosBoletosRifa[] = [
+                    'id'          => 'inv_' . $inv['id'],
+                    'nombre'      => $inv['nombre_completo'],
+                    'codigo_rifa' => $inv['codigo_rifa'],
+                    'tipo'        => 'Titular',
+                    'titular'     => $inv['nombre_completo']
+                ];
+            }
+
+            foreach ($acomps as $ac) {
+                if (!empty($ac['codigo_rifa'])) {
+                    $todosBoletosRifa[] = [
+                        'id'          => 'ac_' . $ac['id'],
+                        'nombre'      => $ac['nombre'],
+                        'codigo_rifa' => $ac['codigo_rifa'],
+                        'tipo'        => 'Acompañante',
+                        'titular'     => $inv['nombre_completo']
+                    ];
+                }
+            }
         } else {
             $totalNoAsistiran++;
         }
@@ -105,6 +136,7 @@ try {
     $dbError = $e->getMessage();
     $invitados = [];
     $acompPorInvitado = [];
+    $todosBoletosRifa = [];
     $totalRegistros = $totalConfirmados = $totalNoAsistiran = $totalPersonas = 0;
 }
 ?>
@@ -118,6 +150,7 @@ try {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --verde-oscuro: #062E25;
@@ -331,10 +364,159 @@ try {
             color: var(--dorado);
         }
 
-        .date-cell {
-            font-size: 0.75rem;
+        /* Boletos de rifa en tabla */
+        .raffle-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            margin: 2px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .raffle-pill.titular {
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            border: 1px solid var(--dorado-claro);
+        }
+
+        .raffle-pill.acomp {
+            background: rgba(200, 162, 74, 0.15);
             color: var(--dorado-claro);
-            opacity: 0.7;
+            border: 1px dashed var(--dorado);
+        }
+
+        /* Modal Sorteo de Rifa en Vivo */
+        .raffle-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .raffle-modal-window {
+            background: linear-gradient(145deg, #062E25, #004D38);
+            border: 2px solid var(--dorado);
+            border-radius: 20px;
+            max-width: 620px;
+            width: 100%;
+            padding: 26px 24px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(200, 162, 74, 0.15);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .raffle-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 162, 74, 0.3);
+            padding-bottom: 14px;
+            margin-bottom: 20px;
+        }
+
+        .raffle-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--dorado);
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s;
+        }
+
+        .raffle-close-btn:hover {
+            transform: scale(1.2) rotate(90deg);
+            color: #FFF;
+        }
+
+        .raffle-roulette-display {
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px dashed var(--dorado);
+            border-radius: 16px;
+            padding: 25px 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .raffle-ticket-anim-number {
+            font-family: 'Courier New', monospace;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .raffle-ticket-anim-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--crema);
+            margin-bottom: 6px;
+            min-height: 1.8rem;
+        }
+
+        .raffle-ticket-anim-meta {
+            font-size: 0.8rem;
+            color: var(--dorado-claro);
+            opacity: 0.85;
+        }
+
+        .raffle-roulette-display.spinning .raffle-ticket-anim-number {
+            animation: pulseFast 0.1s infinite alternate;
+        }
+
+        @keyframes pulseFast {
+            from { transform: scale(0.98); opacity: 0.9; }
+            to { transform: scale(1.02); opacity: 1; }
+        }
+
+        .raffle-winners-container {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(200, 162, 74, 0.25);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .winner-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(200, 162, 74, 0.1);
+            border-left: 4px solid var(--dorado);
+            font-size: 0.82rem;
         }
 
         .empty-state {
@@ -408,7 +590,11 @@ try {
         </div>
         <div class="stat-card">
             <div class="stat-number"><?= $totalPersonas ?></div>
-            <div class="stat-label">Total Personas Esperadas</div>
+            <div class="stat-label">Personas Esperadas</div>
+        </div>
+        <div class="stat-card" style="border-color: rgba(255, 215, 0, 0.45); background: linear-gradient(145deg, rgba(200, 162, 74, 0.18), rgba(6, 46, 37, 0.8));">
+            <div class="stat-number" style="color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);"><?= count($todosBoletosRifa) ?></div>
+            <div class="stat-label" style="color: #FFE680;">🎟️ Boletos en Rifa</div>
         </div>
     </div>
 
@@ -419,7 +605,10 @@ try {
                 Última actualización: <?= date('d/m/Y H:i') ?>
             </span>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="action-btn" id="btnOpenRaffle" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
+                <i class="fas fa-gift"></i> Sorteo de Rifa en Vivo
+            </button>
             <a href="?export=csv" class="action-btn primary">
                 <i class="fas fa-file-csv"></i> Exportar CSV
             </a>
@@ -441,8 +630,9 @@ try {
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Nombre Completo</th>
+                        <th>Nombre Titular</th>
                         <th>¿Asistirá?</th>
+                        <th>Boletos de Rifa</th>
                         <th>Acompañantes</th>
                         <th>Total Personas</th>
                         <th>Fecha</th>
@@ -464,10 +654,32 @@ try {
                                 <?php endif; ?>
                             </td>
                             <td>
+                                <?php if ($inv['asistira']): ?>
+                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                        <?php if (!empty($inv['codigo_rifa'])): ?>
+                                            <span class="raffle-pill titular" title="Boleto de <?= htmlspecialchars($inv['nombre_completo']) ?>">
+                                                <i class="fas fa-ticket-alt"></i> <?= htmlspecialchars($inv['codigo_rifa']) ?>
+                                                <span style="font-size: 0.65rem; opacity: 0.85;">(Titular)</span>
+                                            </span>
+                                        <?php endif; ?>
+                                        <?php foreach ($acomps as $ac): ?>
+                                            <?php if (!empty($ac['codigo_rifa'])): ?>
+                                                <span class="raffle-pill acomp" title="Boleto de <?= htmlspecialchars($ac['nombre']) ?>">
+                                                    <i class="fas fa-ticket-alt"></i> <?= htmlspecialchars($ac['codigo_rifa']) ?>
+                                                    <span style="font-size: 0.65rem; opacity: 0.85;">(<?= htmlspecialchars($ac['nombre']) ?>)</span>
+                                                </span>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <span style="opacity: 0.4; font-size: 0.8rem;">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <?php if (!empty($acomps)): ?>
                                     <ul class="companion-list">
-                                        <?php foreach ($acomps as $acomp): ?>
-                                            <li><?= htmlspecialchars($acomp) ?></li>
+                                        <?php foreach ($acomps as $ac): ?>
+                                            <li><?= htmlspecialchars($ac['nombre']) ?></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 <?php else: ?>
@@ -492,5 +704,283 @@ try {
         Panel de Administración — XV Años Angie Karolina Avendaño Rivera — 2026
     </div>
 
+    <!-- ============================================================
+         MODAL SORTEO DE RIFA EN VIVO
+         ============================================================ -->
+    <div id="raffleModal" class="raffle-modal-backdrop" style="display: none;">
+        <div class="raffle-modal-window">
+            <div class="raffle-modal-header">
+                <div>
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dorado); margin: 0;">🎁 Sorteo de Rifa de Regalos</h3>
+                    <div style="font-size: 0.8rem; color: var(--dorado-claro); opacity: 0.85;">XV Años — Angie Karolina Avendaño Rivera</div>
+                </div>
+                <button type="button" class="raffle-close-btn" id="btnCloseRaffle" title="Cerrar">&times;</button>
+            </div>
+
+            <div class="raffle-modal-body">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.8rem; color: var(--dorado-claro); margin-bottom: 6px; font-weight: 600;">
+                        <i class="fas fa-gift"></i> Regalo o Premio a sortear:
+                    </label>
+                    <input type="text" id="rafflePrizeInput" placeholder="Ej. Premio Sorpresa #1, Perfume, etc." value="Premio Especial #1" style="width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--dorado); background: rgba(0,0,0,0.45); color: var(--crema); font-family: 'Montserrat', sans-serif; font-size: 0.9rem;">
+                </div>
+
+                <!-- Ruleta / Pantalla animada -->
+                <div class="raffle-roulette-display" id="raffleRouletteBox">
+                    <div class="raffle-ticket-anim-number" id="raffleDisplayNumber">🎟️ ????</div>
+                    <div class="raffle-ticket-anim-name" id="raffleDisplayName">Presiona el botón para sortear</div>
+                    <div class="raffle-ticket-anim-meta" id="raffleDisplayMeta">Boletos participantes: <?= count($todosBoletosRifa) ?></div>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <button type="button" class="action-btn primary" id="btnSpinRaffle" style="padding: 14px 36px; font-size: 1.05rem; border-radius: 30px; box-shadow: 0 6px 25px rgba(200, 162, 74, 0.5); cursor: pointer;">
+                        <i class="fas fa-dice"></i> ¡GIRAR RULETA Y SORTEAR!
+                    </button>
+                </div>
+
+                <!-- Ganadores sorteados -->
+                <div class="raffle-winners-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="font-size: 0.82rem; color: var(--dorado); margin: 0; text-transform: uppercase; letter-spacing: 1px;">
+                            🏆 Ganadores de la Noche (<span id="raffleWinnersCount">0</span>)
+                        </h4>
+                        <button type="button" id="btnClearWinners" style="background: none; border: none; color: #D4A26A; font-size: 0.72rem; cursor: pointer; text-decoration: underline;">
+                            Reiniciar sorteos
+                        </button>
+                    </div>
+                    <div id="raffleWinnersList" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto;">
+                        <div id="raffleEmptyWinners" style="color: var(--dorado-claro); opacity: 0.5; font-size: 0.8rem; text-align: center; padding: 10px 0;">
+                            Aún no se ha realizado ningún sorteo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script del Sorteo de Rifa en Vivo -->
+    <script>
+    (() => {
+        const allTickets = <?= json_encode($todosBoletosRifa, JSON_UNESCAPED_UNICODE) ?>;
+        const modal = document.getElementById('raffleModal');
+        const openBtn = document.getElementById('btnOpenRaffle');
+        const closeBtn = document.getElementById('btnCloseRaffle');
+        const spinBtn = document.getElementById('btnSpinRaffle');
+        const prizeInput = document.getElementById('rafflePrizeInput');
+        const rouletteBox = document.getElementById('raffleRouletteBox');
+        const numDisplay = document.getElementById('raffleDisplayNumber');
+        const nameDisplay = document.getElementById('raffleDisplayName');
+        const metaDisplay = document.getElementById('raffleDisplayMeta');
+        const winnersList = document.getElementById('raffleWinnersList');
+        const winnersCount = document.getElementById('raffleWinnersCount');
+        const emptyWinnersMsg = document.getElementById('raffleEmptyWinners');
+        const clearWinnersBtn = document.getElementById('btnClearWinners');
+
+        let isSpinning = false;
+        let drawnWinners = [];
+
+        // Sintetizador de sonido con Web Audio API (no requiere archivos externos)
+        const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
+
+        function playTick() {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(450 + Math.random() * 200, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } catch (e) {}
+        }
+
+        function playFanfare() {
+            if (!audioCtx) return;
+            try {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, index) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.1);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + index * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.1 + 0.35);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + index * 0.1);
+                    osc.stop(audioCtx.currentTime + index * 0.1 + 0.4);
+                });
+            } catch (e) {}
+        }
+
+        // Abrir y cerrar modal
+        openBtn?.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        closeBtn?.addEventListener('click', () => {
+            if (!isSpinning) modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal && !isSpinning) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Girar ruleta
+        spinBtn?.addEventListener('click', () => {
+            if (isSpinning) return;
+            if (allTickets.length === 0) {
+                alert('No hay boletos de rifa disponibles porque aún no hay invitados confirmados.');
+                return;
+            }
+
+            // Filtrar boletos que aún no hayan ganado
+            const availableTickets = allTickets.filter(t => !drawnWinners.some(w => w.ticket.codigo_rifa === t.codigo_rifa));
+
+            if (availableTickets.length === 0) {
+                alert('¡Todos los boletos participantes ya han ganado un premio!');
+                return;
+            }
+
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            spinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sorteando...';
+            rouletteBox.classList.add('spinning');
+
+            const prizeName = prizeInput.value.trim() || `Premio #${drawnWinners.length + 1}`;
+            const spinDuration = 3200; // 3.2 segundos
+            const startTime = Date.now();
+            let speed = 60;
+
+            function shuffleStep() {
+                const randomItem = availableTickets[Math.floor(Math.random() * availableTickets.length)];
+                numDisplay.textContent = randomItem.codigo_rifa;
+                nameDisplay.textContent = randomItem.nombre;
+                metaDisplay.textContent = `${randomItem.tipo} · Registrado con ${randomItem.titular}`;
+                playTick();
+
+                const elapsed = Date.now() - startTime;
+                if (elapsed < spinDuration) {
+                    speed = 60 + Math.floor((elapsed / spinDuration) * 200);
+                    setTimeout(shuffleStep, speed);
+                } else {
+                    // Seleccionar ganador final
+                    finalizeWinner(availableTickets, prizeName);
+                }
+            }
+
+            shuffleStep();
+        });
+
+        function finalizeWinner(pool, prizeName) {
+            const winner = pool[Math.floor(Math.random() * pool.length)];
+
+            numDisplay.textContent = '🎉 ' + winner.codigo_rifa;
+            nameDisplay.textContent = winner.nombre;
+            metaDisplay.innerHTML = `<strong style="color: #FFD700; font-size: 0.95rem;">¡GANADOR(A) DE: ${escapeHtml(prizeName)}!</strong>`;
+
+            rouletteBox.classList.remove('spinning');
+            spinBtn.disabled = false;
+            spinBtn.innerHTML = '<i class="fas fa-dice"></i> Sortear Siguiente Premio';
+            isSpinning = false;
+
+            // Guardar ganador
+            const winRecord = {
+                prize: prizeName,
+                ticket: winner,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            drawnWinners.unshift(winRecord);
+            renderWinners();
+
+            // Sonido y confeti triunfal
+            playFanfare();
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#FFD700', '#C8A24A', '#2F8F68', '#FFFDF5', '#E7D49A']
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#FFD700', '#C8A24A']
+                    });
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#2F8F68', '#FFFDF5']
+                    });
+                }, 300);
+            }
+
+            // Preparar siguiente sugerencia de premio
+            prizeInput.value = `Premio Especial #${drawnWinners.length + 1}`;
+        }
+
+        function renderWinners() {
+            winnersCount.textContent = drawnWinners.length;
+            if (drawnWinners.length === 0) {
+                if (emptyWinnersMsg) emptyWinnersMsg.style.display = 'block';
+                return;
+            }
+            if (emptyWinnersMsg) emptyWinnersMsg.style.display = 'none';
+
+            winnersList.innerHTML = '';
+            drawnWinners.forEach((w, idx) => {
+                const item = document.createElement('div');
+                item.className = 'winner-item';
+                item.innerHTML = `
+                    <div>
+                        <div style="font-weight: 700; color: #FFD700; font-size: 0.85rem;">
+                            <i class="fas fa-trophy"></i> ${escapeHtml(w.prize)}
+                        </div>
+                        <div style="color: var(--crema); font-size: 0.82rem;">
+                            <strong>${escapeHtml(w.ticket.nombre)}</strong>
+                            <span style="opacity: 0.7; font-size: 0.75rem;">(${escapeHtml(w.ticket.tipo)})</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="raffle-pill titular">${escapeHtml(w.ticket.codigo_rifa)}</span>
+                        <div style="font-size: 0.68rem; color: var(--dorado-claro); opacity: 0.7;">${w.time}</div>
+                    </div>
+                `;
+                winnersList.appendChild(item);
+            });
+        }
+
+        clearWinnersBtn?.addEventListener('click', () => {
+            if (confirm('¿Deseas reiniciar la lista de ganadores del sorteo?')) {
+                drawnWinners = [];
+                renderWinners();
+                numDisplay.textContent = '🎟️ ????';
+                nameDisplay.textContent = 'Presiona el botón para sortear';
+                metaDisplay.textContent = `Boletos participantes: ${allTickets.length}`;
+            }
+        });
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+    })();
+    </script>
 </body>
 </html>

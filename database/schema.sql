@@ -14,8 +14,10 @@ CREATE TABLE IF NOT EXISTS invitados (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre_completo VARCHAR(150) NOT NULL,
     asistira TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = Sí asistirá, 0 = No podrá asistir',
+    codigo_rifa VARCHAR(20) NULL UNIQUE COMMENT 'Código único para la rifa de regalos',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_asistira (asistira),
+    INDEX idx_codigo_rifa (codigo_rifa),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -24,8 +26,10 @@ CREATE TABLE IF NOT EXISTS acompanantes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     invitado_id INT NOT NULL,
     nombre_completo VARCHAR(150) NOT NULL,
+    codigo_rifa VARCHAR(20) NULL UNIQUE COMMENT 'Código único para la rifa de regalos',
     CONSTRAINT fk_invitado
         FOREIGN KEY (invitado_id) REFERENCES invitados(id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    INDEX idx_acomp_codigo_rifa (codigo_rifa)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

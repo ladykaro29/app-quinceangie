@@ -59,5 +59,83 @@ function getDBConnection(): PDO {
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    return new PDO($dsn, $dbUser, $dbPass, $options);
+    $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
+    ensureRaffleSchema($pdo);
+    return $pdo;
+}
+
+/**
+ * Asegura automáticamente que existan las columnas de código de rifa
+ */
+function ensureRaffleSchema(PDO $pdo): void {
+    static $migrated = false;
+    if ($migrated) return;
+
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM invitados LIKE 'codigo_rifa'");
+        if (!$stmt->fetch()) {
+            $pdo->exec("ALTER TABLE invitados ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER asistira");
+        }
+    } catch (\Exception $e) {
+        // Ignorar si no se puede alterar o ya existe
+    }
+
+    try {
+        $stmt = $pdo->query("SHOW COLUMNS FROM acompanantes LIKE 'codigo_rifa'");
+        if (!$stmt->fetch()) {
+            $pdo->exec("ALTER TABLE acompanantes ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER nombre_completo");
+        }
+    } catch (\Exception $e) {
+        // Ignorar si no se puede alterar o ya existe
+    }
+
+    $migrated = true;
+}
+
+/**
+ * Genera un código único aleatorio para la rifa de regalos (ej. RIFA-4821)
+ */
+function generarCodigoRifaUnico(PDO $pdo): string {
+    for ($attempt = 0; $attempt < 100; $attempt++) {
+        $num = rand(1000, 9999);
+        $codigo = 'RIFA-' . $num;
+
+        $stmt = $pdo->prepare('SELECT (
+            (SELECT COUNT(*) FROM invitados WHERE codigo_rifa = :c1) +
+            (SELECT COUNT(*) FROM acompanantes WHERE codigo_rifa = :c2)
+        ) AS total');
+        $stmt->execute([':c1' => $codigo, ':c2' => $codigo]);
+        if ((int)$stmt->fetchColumn() === 0) {
+            return $codigo;
+        }
+    }
+    // Fallback con número mayor en caso de colisión improbable
+    return 'RIFA-' . rand(10000, 99999);
+}
+
+/**
+ * Genera códigos de rifa retroactivamente para registros previos sin código
+ */
+function populateMissingRaffleCodes(PDO $pdo): void {
+    try {
+        // Invitados que asistirán sin código de rifa
+        $stmt = $pdo->query("SELECT id FROM invitados WHERE asistira = 1 AND (codigo_rifa IS NULL OR codigo_rifa = '')");
+        $sinCodigo = $stmt->fetchAll();
+        foreach ($sinCodigo as $inv) {
+            $codigo = generarCodigoRifaUnico($pdo);
+            $upd = $pdo->prepare("UPDATE invitados SET codigo_rifa = :cod WHERE id = :id");
+            $upd->execute([':cod' => $codigo, ':id' => $inv['id']]);
+        }
+
+        // Acompañantes de invitados confirmados sin código de rifa
+        $stmtAcomp = $pdo->query("SELECT a.id FROM acompanantes a INNER JOIN invitados i ON a.invitado_id = i.id WHERE i.asistira = 1 AND (a.codigo_rifa IS NULL OR a.codigo_rifa = '')");
+        $acompSinCodigo = $stmtAcomp->fetchAll();
+        foreach ($acompSinCodigo as $ac) {
+            $codigo = generarCodigoRifaUnico($pdo);
+            $upd = $pdo->prepare("UPDATE acompanantes SET codigo_rifa = :cod WHERE id = :id");
+            $upd->execute([':cod' => $codigo, ':id' => $ac['id']]);
+        }
+    } catch (\Exception $e) {
+        // Silencioso en caso de error
+    }
 }

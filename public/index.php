@@ -1323,6 +1323,89 @@
             font-weight: 700;
         }
 
+        /* Sección de Boletos para la Rifa de Regalos */
+        .ticket-raffle-section {
+            background: linear-gradient(135deg, rgba(200, 162, 74, 0.12), rgba(6, 46, 37, 0.65));
+            border: 1.5px dashed var(--dorado);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 12px 0 14px 0;
+            text-align: center;
+        }
+
+        .ticket-raffle-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--dorado);
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .ticket-raffle-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .raffle-ticket-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 46, 37, 0.9);
+            border: 1px solid rgba(200, 162, 74, 0.4);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: var(--font-sans);
+        }
+
+        .raffle-ticket-person {
+            font-size: 0.78rem;
+            color: var(--crema);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 60%;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .raffle-ticket-person i {
+            color: var(--dorado-claro);
+            font-size: 0.75rem;
+        }
+
+        .raffle-ticket-number {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .raffle-ticket-note {
+            font-size: 0.7rem;
+            color: var(--dorado-claro);
+            opacity: 0.9;
+            margin-top: 8px;
+            line-height: 1.35;
+            font-style: italic;
+        }
+
         .ticket-instruction {
             font-family: var(--font-sans);
             font-size: 0.72rem;
@@ -2137,6 +2220,19 @@
                             </div>
                         </div>
 
+                        <!-- Boletos para la Rifa de Regalos -->
+                        <div class="ticket-raffle-section" id="ticketRaffleSection" style="display: none;">
+                            <div class="ticket-raffle-header">
+                                <i class="fas fa-gift"></i>
+                                <span>Tus Boletos para la Rifa de Regalos</span>
+                                <i class="fas fa-ticket-alt"></i>
+                            </div>
+                            <div class="ticket-raffle-badges" id="ticketRaffleBadges"></div>
+                            <div class="raffle-ticket-note">
+                                🎁 ¡Conserva estos números! Cada uno participa en la gran rifa de regalos durante la fiesta.
+                            </div>
+                        </div>
+
                         <div class="ticket-instruction">
                             <i class="fas fa-qrcode"></i> Presenta este código QR en la entrada para acceder a la fiesta
                         </div>
@@ -2755,6 +2851,33 @@
 
                         const qrCodeId = data.qr_code || ('XVANGIE-' + (data.id || '001'));
                         qrCodeTextEl.textContent = qrCodeId;
+
+                        // Mostrar Boletos para la Rifa de Regalos
+                        const raffleSection = document.getElementById('ticketRaffleSection');
+                        const raffleBadges = document.getElementById('ticketRaffleBadges');
+                        if (raffleSection && raffleBadges) {
+                            if (data.boletos_rifa && data.boletos_rifa.length > 0) {
+                                raffleBadges.innerHTML = '';
+                                data.boletos_rifa.forEach(b => {
+                                    const item = document.createElement('div');
+                                    item.className = 'raffle-ticket-item';
+                                    item.innerHTML = `
+                                        <div class="raffle-ticket-person">
+                                            <i class="fas fa-user${b.es_titular ? '-check' : ''}"></i>
+                                            <span>${escapeHtml(b.nombre)}</span>
+                                        </div>
+                                        <div class="raffle-ticket-number">
+                                            <i class="fas fa-ticket-alt"></i>
+                                            <span>${escapeHtml(b.codigo)}</span>
+                                        </div>
+                                    `;
+                                    raffleBadges.appendChild(item);
+                                });
+                                raffleSection.style.display = 'block';
+                            } else {
+                                raffleSection.style.display = 'none';
+                            }
+                        }
 
                         // Generar el Código QR
                         const qrPayload = `XV-ANGIE | PASE #${data.id || 1} | TITULAR: ${data.nombre || nombre} | PASES: ${totalP} | CODIGO: ${qrCodeId}`;

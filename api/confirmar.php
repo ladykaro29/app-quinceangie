@@ -183,18 +183,19 @@ try {
 
 } catch (\PDOException $e) {
     http_response_code(500);
+    $detail = $e->getMessage();
     echo json_encode([
         'success' => false,
-        'error'   => 'Error al guardar la confirmación. Por favor intenta de nuevo.'
+        'error'   => 'Error de base de datos: ' . $detail
     ]);
-    // En producción, loguear el error real: error_log($e->getMessage());
-    error_log('Error en confirmar.php: ' . $e->getMessage());
+    error_log('Error en confirmar.php (PDO): ' . $detail);
 
 } catch (\Exception $e) {
     http_response_code(500);
+    $detail = $e->getMessage();
     echo json_encode([
         'success' => false,
-        'error'   => 'Ocurrió un error inesperado. Por favor intenta de nuevo.'
+        'error'   => 'Error al procesar: ' . $detail
     ]);
-    error_log('Error en confirmar.php: ' . $e->getMessage());
+    error_log('Error en confirmar.php: ' . $detail);
 }

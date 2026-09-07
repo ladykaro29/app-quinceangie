@@ -89,17 +89,19 @@ try {
 
 } catch (\PDOException $e) {
     http_response_code(500);
+    $detail = $e->getMessage();
     echo json_encode([
         'success' => false,
-        'error'   => 'Error al obtener la lista de invitados.'
+        'error'   => 'Error al obtener la lista de invitados: ' . $detail
     ]);
-    error_log('Error en invitados.php: ' . $e->getMessage());
+    error_log('Error en invitados.php (PDO): ' . $detail);
 
 } catch (\Exception $e) {
     http_response_code(500);
+    $detail = $e->getMessage();
     echo json_encode([
         'success' => false,
-        'error'   => 'Ocurrió un error inesperado.'
+        'error'   => 'Ocurrió un error inesperado: ' . $detail
     ]);
-    error_log('Error en invitados.php: ' . $e->getMessage());
+    error_log('Error en invitados.php: ' . $detail);
 }

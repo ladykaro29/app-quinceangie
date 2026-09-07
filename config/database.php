@@ -27,12 +27,12 @@ if (file_exists($envFile)) {
     }
 }
 
-// Configuración de la base de datos
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbPort = getenv('DB_PORT') ?: '3306';
-$dbName = getenv('DB_NAME') ?: 'invitacion_xv';
-$dbUser = getenv('DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASS') ?: '';
+// Configuración de la base de datos (detecta variables estándar de Easypanel, Docker, cPanel y Laravel)
+$dbHost = getenv('DB_HOST') ?: getenv('DATABASE_HOST') ?: getenv('MYSQL_HOST') ?: getenv('MARIADB_HOST') ?: 'localhost';
+$dbPort = getenv('DB_PORT') ?: getenv('DATABASE_PORT') ?: getenv('MYSQL_PORT') ?: '3306';
+$dbName = getenv('DB_NAME') ?: getenv('DATABASE_NAME') ?: getenv('MYSQL_DATABASE') ?: 'invitacion_xv';
+$dbUser = getenv('DB_USER') ?: getenv('DATABASE_USER') ?: getenv('MYSQL_USER') ?: getenv('MYSQL_USERNAME') ?: 'root';
+$dbPass = getenv('DB_PASS') ?: getenv('DB_PASSWORD') ?: getenv('DATABASE_PASSWORD') ?: getenv('MYSQL_PASSWORD') ?: getenv('MYSQL_ROOT_PASSWORD') ?: '';
 $dbCharset = 'utf8mb4';
 
 // Credenciales del panel de administración
@@ -44,6 +44,7 @@ define('MAX_ACOMPANANTES', (int)(getenv('MAX_ACOMPANANTES') ?: 5));
 
 /**
  * Obtiene una conexión PDO a la base de datos
+ * Con reintento inteligente de nombres de host comunes en Docker/Easypanel y auto-creación de tablas
  * 
  * @return PDO
  * @throws PDOException
@@ -51,45 +52,109 @@ define('MAX_ACOMPANANTES', (int)(getenv('MAX_ACOMPANANTES') ?: 5));
 function getDBConnection(): PDO {
     global $dbHost, $dbPort, $dbName, $dbUser, $dbPass, $dbCharset;
 
-    $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset={$dbCharset}";
-
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
-    ensureRaffleSchema($pdo);
+    // Si DB_HOST no fue especificado manualmente en .env, probar candidatos típicos de red interna Docker
+    $hostsToTry = [$dbHost];
+    if (!getenv('DB_HOST') && !getenv('DATABASE_HOST') && !getenv('MYSQL_HOST')) {
+        $hostsToTry = array_unique(array_filter([$dbHost, 'mysql', 'mariadb', 'database', 'db', '127.0.0.1']));
+    }
+
+    $lastException = null;
+    $pdo = null;
+
+    foreach ($hostsToTry as $candidateHost) {
+        try {
+            $dsn = "mysql:host={$candidateHost};port={$dbPort};dbname={$dbName};charset={$dbCharset}";
+            $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
+            $dbHost = $candidateHost;
+            break;
+        } catch (\PDOException $e) {
+            $lastException = $e;
+
+            // Si el servidor MySQL responde pero la base de datos aún no existe (código 1049), crearla automáticamente
+            if ($e->getCode() == 1049 || strpos($e->getMessage(), 'Unknown database') !== false) {
+                try {
+                    $dsnNoDb = "mysql:host={$candidateHost};port={$dbPort};charset={$dbCharset}";
+                    $pdoRoot = new PDO($dsnNoDb, $dbUser, $dbPass, $options);
+                    $pdoRoot->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                    $pdo = new PDO("mysql:host={$candidateHost};port={$dbPort};dbname={$dbName};charset={$dbCharset}", $dbUser, $dbPass, $options);
+                    $dbHost = $candidateHost;
+                    break;
+                } catch (\Exception $ex) {
+                    $lastException = $ex;
+                }
+            }
+        }
+    }
+
+    if (!$pdo) {
+        throw $lastException ?: new \PDOException("No se pudo conectar a la base de datos en [{$dbHost}:{$dbPort}].");
+    }
+
+    ensureTablesExist($pdo);
     return $pdo;
 }
 
 /**
- * Asegura automáticamente que existan las columnas de código de rifa
+ * Asegura automáticamente que existan las tablas requeridas y columnas de rifa
  */
-function ensureRaffleSchema(PDO $pdo): void {
+function ensureTablesExist(PDO $pdo): void {
     static $migrated = false;
     if ($migrated) return;
 
+    try {
+        // Crear tabla invitados si no existe
+        $pdo->exec("CREATE TABLE IF NOT EXISTS invitados (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre_completo VARCHAR(150) NOT NULL,
+            asistira TINYINT(1) NOT NULL DEFAULT 1,
+            codigo_rifa VARCHAR(20) NULL UNIQUE,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_asistira (asistira),
+            INDEX idx_codigo_rifa (codigo_rifa),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+        // Crear tabla acompanantes si no existe
+        $pdo->exec("CREATE TABLE IF NOT EXISTS acompanantes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            invitado_id INT NOT NULL,
+            nombre_completo VARCHAR(150) NOT NULL,
+            codigo_rifa VARCHAR(20) NULL UNIQUE,
+            INDEX idx_acomp_codigo_rifa (codigo_rifa)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+    } catch (\Exception $e) {
+        // Ignorar si ya existen
+    }
+
+    // Migraciones seguras para columnas de rifa en tablas existentes
     try {
         $stmt = $pdo->query("SHOW COLUMNS FROM invitados LIKE 'codigo_rifa'");
         if (!$stmt->fetch()) {
             $pdo->exec("ALTER TABLE invitados ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER asistira");
         }
-    } catch (\Exception $e) {
-        // Ignorar si no se puede alterar o ya existe
-    }
+    } catch (\Exception $e) {}
 
     try {
         $stmt = $pdo->query("SHOW COLUMNS FROM acompanantes LIKE 'codigo_rifa'");
         if (!$stmt->fetch()) {
             $pdo->exec("ALTER TABLE acompanantes ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER nombre_completo");
         }
-    } catch (\Exception $e) {
-        // Ignorar si no se puede alterar o ya existe
-    }
+    } catch (\Exception $e) {}
 
     $migrated = true;
+}
+
+/**
+ * Alias de compatibilidad hacia atrás
+ */
+function ensureRaffleSchema(PDO $pdo): void {
+    ensureTablesExist($pdo);
 }
 
 /**

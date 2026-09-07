@@ -1203,9 +1203,99 @@
             0% { opacity: 1; transform: translate(0, 0) scale(1); }
             100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
         }
+
+        /* ============================================================
+           MARIPOSAS DORADAS VOLANDO (GOLDEN BUTTERFLIES)
+           ============================================================ */
+        .butterflies-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 25;
+            overflow: hidden;
+        }
+
+        .gold-butterfly {
+            position: absolute;
+            width: var(--b-size, 38px);
+            height: var(--b-size, 38px);
+            pointer-events: none;
+            transform-style: preserve-3d;
+            perspective: 600px;
+            filter: drop-shadow(0 0 7px rgba(255, 215, 0, 0.85)) drop-shadow(0 0 14px rgba(200, 162, 74, 0.6));
+            will-change: transform, left, top;
+            user-select: none;
+        }
+
+        .butterfly-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+
+        .butterfly-wing {
+            width: 48%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .butterfly-wing.left {
+            transform-origin: right center;
+            animation: flapLeft var(--flap-speed, 0.22s) ease-in-out infinite alternate;
+        }
+
+        .butterfly-wing.right {
+            transform-origin: left center;
+            transform: scaleX(-1);
+            animation: flapRight var(--flap-speed, 0.22s) ease-in-out infinite alternate;
+        }
+
+        @keyframes flapLeft {
+            0% { transform: rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateY(68deg) rotateZ(5deg); }
+        }
+
+        @keyframes flapRight {
+            0% { transform: scaleX(-1) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: scaleX(-1) rotateY(68deg) rotateZ(5deg); }
+        }
+
+        .butterfly-center {
+            width: 8%;
+            height: 90%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .butterfly-sparkle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #FFFDF5;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #FFE58F, 0 0 14px #C8A24A;
+            pointer-events: none;
+            z-index: 24;
+            animation: bSparkleFade 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes bSparkleFade {
+            0% { opacity: 0.95; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.2) translateY(18px); }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Mariposas doradas volando mágicamente -->
+    <div class="butterflies-container" id="butterfliesContainer"></div>
 
     <!-- Contenedor principal del deck -->
     <div class="deck-container" id="deckContainer">
@@ -2078,6 +2168,206 @@
         toggle.addEventListener('click', () => {
             playing = !playing;
             icon.className = playing ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+        });
+    })();
+
+    /* ================================================================
+       MARIPOSAS DORADAS VOLANDO (GOLDEN BUTTERFLIES LOGIC)
+       ================================================================ */
+    (() => {
+        const container = document.getElementById('butterfliesContainer');
+        if (!container) return;
+
+        const BUTTERFLY_COUNT = 7;
+        const butterflies = [];
+        let uid = 0;
+
+        function createButterflyElement(size, flapSpeed) {
+            uid++;
+            const el = document.createElement('div');
+            el.className = 'gold-butterfly';
+            el.style.setProperty('--b-size', size + 'px');
+            el.style.setProperty('--flap-speed', flapSpeed + 's');
+
+            const gradId = 'gbGrad_' + uid;
+            el.innerHTML = `
+                <div class="butterfly-inner">
+                    <div class="butterfly-wing left">
+                        <svg viewBox="0 0 50 60" style="width:100%;height:100%;display:block;overflow:visible;">
+                            <defs>
+                                <linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFFDF5" />
+                                    <stop offset="35%" stop-color="#F3E0A0" />
+                                    <stop offset="70%" stop-color="#C8A24A" />
+                                    <stop offset="100%" stop-color="#7B5B16" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M48,28 C45,12 28,1 8,4 C0,12 5,26 22,28 C8,31 3,46 15,54 C28,60 42,48 48,28 Z" fill="url(#${gradId})" fill-opacity="0.94" />
+                            <path d="M46,28 C32,20 18,12 9,6 M46,28 C30,26 18,24 10,27 M46,28 C32,36 22,46 16,51 M36,18 C26,24 20,27 15,36" stroke="#FFF8EC" stroke-width="1.3" stroke-linecap="round" opacity="0.75" fill="none"/>
+                            <circle cx="10" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
+                            <circle cx="20" cy="2" r="1.5" fill="#FFF" opacity="0.85"/>
+                            <circle cx="32" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
+                            <circle cx="12" cy="52" r="1.3" fill="#FFF" opacity="0.85"/>
+                            <circle cx="22" cy="56" r="1.3" fill="#FFF" opacity="0.85"/>
+                        </svg>
+                    </div>
+                    <div class="butterfly-center">
+                        <svg viewBox="0 0 10 60" style="width:100%;height:100%;display:block;overflow:visible;">
+                            <path d="M4,15 C2,8 0,3 1,0 M6,15 C8,8 10,3 9,0" stroke="#FFF8EC" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                            <circle cx="1" cy="0" r="1.2" fill="#E7D49A"/>
+                            <circle cx="9" cy="0" r="1.2" fill="#E7D49A"/>
+                            <ellipse cx="5" cy="18" rx="2.5" ry="3.5" fill="#E7D49A"/>
+                            <ellipse cx="5" cy="32" rx="2" ry="10" fill="#917224"/>
+                        </svg>
+                    </div>
+                    <div class="butterfly-wing right">
+                        <svg viewBox="0 0 50 60" style="width:100%;height:100%;display:block;overflow:visible;">
+                            <path d="M48,28 C45,12 28,1 8,4 C0,12 5,26 22,28 C8,31 3,46 15,54 C28,60 42,48 48,28 Z" fill="url(#${gradId})" fill-opacity="0.94" />
+                            <path d="M46,28 C32,20 18,12 9,6 M46,28 C30,26 18,24 10,27 M46,28 C32,36 22,46 16,51 M36,18 C26,24 20,27 15,36" stroke="#FFF8EC" stroke-width="1.3" stroke-linecap="round" opacity="0.75" fill="none"/>
+                            <circle cx="10" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
+                            <circle cx="20" cy="2" r="1.5" fill="#FFF" opacity="0.85"/>
+                            <circle cx="32" cy="5" r="1.5" fill="#FFF" opacity="0.85"/>
+                            <circle cx="12" cy="52" r="1.3" fill="#FFF" opacity="0.85"/>
+                            <circle cx="22" cy="56" r="1.3" fill="#FFF" opacity="0.85"/>
+                        </svg>
+                    </div>
+                </div>
+            `;
+            container.appendChild(el);
+            return el;
+        }
+
+        function createSparkle(x, y) {
+            const s = document.createElement('div');
+            s.className = 'butterfly-sparkle';
+            s.style.left = (x + (Math.random() * 10 - 5)) + 'px';
+            s.style.top = (y + (Math.random() * 10 - 5)) + 'px';
+            container.appendChild(s);
+            setTimeout(() => s.remove(), 1100);
+        }
+
+        class Butterfly {
+            constructor(isInteractive = false, startX, startY) {
+                this.isInteractive = isInteractive;
+                this.size = isInteractive ? 34 : (28 + Math.random() * 18);
+                this.flapSpeed = (0.16 + Math.random() * 0.12).toFixed(2);
+                this.el = createButterflyElement(this.size, this.flapSpeed);
+                this.sparkleTimer = Math.floor(Math.random() * 20);
+
+                if (isInteractive && startX !== undefined) {
+                    this.x = startX - this.size / 2;
+                    this.y = startY - this.size / 2;
+                    const angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.8;
+                    const speed = 2 + Math.random() * 1.5;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                } else {
+                    this.reset(true);
+                }
+            }
+
+            reset(initialRandom = false) {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+
+                if (initialRandom) {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                } else {
+                    // Aparecer desde los bordes de la pantalla
+                    const side = Math.floor(Math.random() * 3);
+                    if (side === 0) { // Desde abajo
+                        this.x = Math.random() * w;
+                        this.y = h + 20;
+                    } else if (side === 1) { // Desde la izquierda
+                        this.x = -this.size - 20;
+                        this.y = Math.random() * (h * 0.8) + (h * 0.2);
+                    } else { // Desde la derecha
+                        this.x = w + 20;
+                        this.y = Math.random() * (h * 0.8) + (h * 0.2);
+                    }
+                }
+
+                // Punto de destino en la pantalla para trayectoria suave
+                const targetX = Math.random() * w;
+                const targetY = Math.random() * (h * 0.6);
+                const angle = Math.atan2(targetY - this.y, targetX - this.x);
+                const speed = 0.9 + Math.random() * 1.3;
+
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+
+                this.sinOffset = Math.random() * 100;
+                this.sinSpeed = 0.03 + Math.random() * 0.02;
+                this.sinAmp = 0.8 + Math.random() * 1.2;
+                this.angle = angle * (180 / Math.PI) + 90;
+            }
+
+            update() {
+                this.sinOffset += this.sinSpeed;
+                const wave = Math.sin(this.sinOffset) * this.sinAmp;
+
+                // Movimiento curvilíneo y ondulante natural
+                this.x += this.vx + Math.cos(this.sinOffset) * 0.5;
+                this.y += this.vy + wave;
+
+                // Orientar la mariposa suavemente hacia donde vuela
+                const currentAngle = Math.atan2(this.vy + wave, this.vx) * (180 / Math.PI) + 90;
+                this.angle += (currentAngle - this.angle) * 0.1;
+
+                this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.angle}deg)`;
+
+                // Destellos dorados ocasionales
+                this.sparkleTimer++;
+                if (this.sparkleTimer > 24) {
+                    this.sparkleTimer = 0;
+                    createSparkle(this.x + this.size * 0.4, this.y + this.size * 0.4);
+                }
+
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+
+                // Si sale de la pantalla, reiniciar o eliminar
+                if (
+                    this.x < -80 ||
+                    this.x > w + 80 ||
+                    this.y < -80 ||
+                    this.y > h + 80
+                ) {
+                    if (this.isInteractive) {
+                        this.el.remove();
+                        return false;
+                    } else {
+                        this.reset(false);
+                    }
+                }
+                return true;
+            }
+        }
+
+        // Crear enjambre inicial de mariposas
+        for (let i = 0; i < BUTTERFLY_COUNT; i++) {
+            butterflies.push(new Butterfly(false));
+        }
+
+        // Ciclo de animación a 60 FPS
+        function animate() {
+            for (let i = butterflies.length - 1; i >= 0; i--) {
+                const alive = butterflies[i].update();
+                if (!alive) {
+                    butterflies.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+
+        // Tocar la pantalla hace que nazca una mariposa dorada que alza vuelo
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button, input, textarea, select, a, .trivia-option-btn')) return;
+            if (butterflies.length < 16) {
+                butterflies.push(new Butterfly(true, e.clientX, e.clientY));
+            }
         });
     })();
 

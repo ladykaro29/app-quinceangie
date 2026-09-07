@@ -1810,8 +1810,11 @@
                 <div class="gold-divider"></div>
 
                 <div class="info-block">
-                    <div class="info-label">📅 Fecha</div>
+                    <div class="info-label">📅 Gran Celebración de XV Años</div>
                     <div class="info-value">Sábado, 3 de Octubre de 2026</div>
+                    <div style="font-size: 0.76rem; color: var(--dorado-claro); opacity: 0.9; margin-top: 3px; font-style: italic;">
+                        (Cumpleaños de Angie: 23 de Septiembre 🎂)
+                    </div>
                 </div>
 
                 <div class="info-block">
@@ -2310,9 +2313,9 @@
                 correct: 3
             },
             {
-                question: '¿En qué mes cumple años Angie?',
-                options: ['Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-                correct: 1
+                question: '¿Cuándo es el cumpleaños de Angie?',
+                options: ['23 de Septiembre', '3 de Octubre', '15 de Septiembre', '28 de Septiembre'],
+                correct: 0
             }
         ];
 
@@ -2345,9 +2348,22 @@
             } else {
                 const isCorrect = answers[currentQ] === q.correct;
                 resultEl.className = `trivia-result ${isCorrect ? 'correct' : 'incorrect'}`;
-                resultEl.innerHTML = isCorrect 
-                    ? '<i class="fas fa-check-circle"></i> ¡Correcto! Sabes mucho de Angie ✨' 
-                    : `<i class="fas fa-info-circle"></i> La respuesta correcta es: <strong>${escapeHtml(q.options[q.correct])}</strong>`;
+                
+                let feedback = '';
+                if (currentQ === 4) {
+                    if (isCorrect) {
+                        feedback = '<i class="fas fa-check-circle"></i> ¡Exacto! Nació el 23 de septiembre y lo celebramos en grande el 3 de octubre 🎂✨';
+                    } else if (answers[currentQ] === 1) {
+                        feedback = '<i class="fas fa-info-circle"></i> ¡El 3 de octubre es la fiesta! Pero su cumpleaños real es el <strong>23 de septiembre</strong> 🎂';
+                    } else {
+                        feedback = '<i class="fas fa-info-circle"></i> Su cumpleaños es el <strong>23 de septiembre</strong> (¡y la fiesta el 3 de octubre!) 🎂';
+                    }
+                } else {
+                    feedback = isCorrect 
+                        ? '<i class="fas fa-check-circle"></i> ¡Correcto! Sabes mucho de Angie ✨' 
+                        : `<i class="fas fa-info-circle"></i> La respuesta correcta es: <strong>${escapeHtml(q.options[q.correct])}</strong>`;
+                }
+                resultEl.innerHTML = feedback;
                 resultEl.style.display = 'block';
             }
 

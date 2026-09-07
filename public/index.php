@@ -1397,30 +1397,84 @@
         }
 
         /* ============================================================
-           AUDIO TOGGLE
+           AUDIO TOGGLE & MUSICA DE FONDO
            ============================================================ */
         .audio-toggle {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
+            top: 18px;
+            right: 18px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            border: 1px solid var(--dorado);
-            background: rgba(6, 46, 37, 0.8);
+            border: 1.5px solid var(--dorado);
+            background: rgba(6, 46, 37, 0.85);
             color: var(--dorado);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 200;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .audio-toggle:hover {
             background: var(--dorado);
             color: var(--verde-oscuro);
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(200, 162, 74, 0.6);
+        }
+
+        .audio-toggle.playing {
+            border-color: var(--dorado-claro);
+            background: rgba(6, 46, 37, 0.95);
+            color: var(--dorado-claro);
+            animation: musicPulse 2.4s infinite;
+        }
+
+        @keyframes musicPulse {
+            0% { box-shadow: 0 0 0 0 rgba(200, 162, 74, 0.6), 0 0 15px rgba(200, 162, 74, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(200, 162, 74, 0), 0 0 22px rgba(200, 162, 74, 0.2); }
+            100% { box-shadow: 0 0 0 0 rgba(200, 162, 74, 0), 0 0 15px rgba(200, 162, 74, 0.4); }
+        }
+
+        .audio-toggle.playing i {
+            animation: spinDisc 4s linear infinite;
+        }
+
+        @keyframes spinDisc {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tooltip informativo de música */
+        .audio-tooltip {
+            position: fixed;
+            top: 23px;
+            right: 70px;
+            background: rgba(6, 46, 37, 0.94);
+            border: 1px solid var(--dorado);
+            color: var(--dorado-claro);
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.4s ease;
+            white-space: nowrap;
+            z-index: 199;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        .audio-tooltip.visible {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         /* ============================================================
@@ -2142,10 +2196,16 @@
         </button>
     </div>
 
-    <!-- Audio toggle -->
-    <button class="audio-toggle" id="audioToggle" title="Música">
+    <!-- Audio toggle con tooltip y reproductor YouTube -->
+    <button class="audio-toggle" id="audioToggle" title="Música: Valiente - Con toda libertad" aria-label="Música de fondo">
         <i class="fas fa-volume-mute" id="audioIcon"></i>
     </button>
+    <div class="audio-tooltip" id="audioTooltip">🎵 Toca para activar música</div>
+
+    <!-- Contenedor oculto del reproductor de audio YouTube -->
+    <div id="youtube-audio-container" style="position:fixed;top:-9999px;left:-9999px;width:200px;height:200px;opacity:0.01;pointer-events:none;z-index:-999;">
+        <div id="youtube-player"></div>
+    </div>
 
     <script>
     /* ================================================================
@@ -2792,17 +2852,139 @@
     })();
 
     /* ================================================================
-       AUDIO (placeholder — no actual audio loaded)
+       AUDIO (YouTube Background Player - "Valiente / Con toda libertad")
        ================================================================ */
     (() => {
         const toggle = document.getElementById('audioToggle');
         const icon = document.getElementById('audioIcon');
-        let playing = false;
+        const tooltip = document.getElementById('audioTooltip');
+        if (!toggle || !icon) return;
 
-        toggle.addEventListener('click', () => {
-            playing = !playing;
-            icon.className = playing ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+        let player = null;
+        let isPlaying = false;
+        let hasInteracted = false;
+        let playerReady = false;
+
+        function showTooltip(text, duration = 3500) {
+            if (!tooltip) return;
+            tooltip.textContent = text;
+            tooltip.classList.add('visible');
+            setTimeout(() => {
+                tooltip.classList.remove('visible');
+            }, duration);
+        }
+
+        // Sugerencia inicial para activar la música
+        setTimeout(() => {
+            if (!isPlaying) {
+                showTooltip('🎵 Toca para activar la música', 4000);
+            }
+        }, 1500);
+
+        // Cargar YouTube IFrame API de forma asíncrona y segura
+        if (!window.YT) {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        window.onYouTubeIframeAPIReady = function() {
+            try {
+                player = new YT.Player('youtube-player', {
+                    height: '200',
+                    width: '200',
+                    videoId: '9rxjb_Meoms',
+                    playerVars: {
+                        'autoplay': 0,
+                        'controls': 0,
+                        'disablekb': 1,
+                        'fs': 0,
+                        'loop': 1,
+                        'playlist': '9rxjb_Meoms',
+                        'modestbranding': 1,
+                        'playsinline': 1,
+                        'rel': 0,
+                        'iv_load_policy': 3
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            } catch (err) {
+                console.warn('YouTube Player init error:', err);
+            }
+        };
+
+        function onPlayerReady(event) {
+            playerReady = true;
+            try {
+                event.target.setVolume(75);
+                // Si el usuario ya interactuó con la página, reproducir de inmediato
+                if (hasInteracted) {
+                    event.target.playVideo();
+                }
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                toggle.classList.add('playing');
+                icon.className = 'fas fa-compact-disc';
+                showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
+            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                isPlaying = false;
+                toggle.classList.remove('playing');
+                icon.className = 'fas fa-volume-mute';
+                if (event.data === YT.PlayerState.ENDED && player && typeof player.playVideo === 'function') {
+                    // Garantizar reproducción en bucle continuo
+                    player.playVideo();
+                }
+            }
+        }
+
+        function playMusic() {
+            if (player && typeof player.playVideo === 'function') {
+                player.playVideo();
+            }
+        }
+
+        function pauseMusic() {
+            if (player && typeof player.pauseVideo === 'function') {
+                player.pauseVideo();
+            }
+        }
+
+        // Control manual al hacer clic en el botón de música
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hasInteracted = true;
+            if (isPlaying) {
+                pauseMusic();
+                showTooltip('Música en pausa', 2000);
+            } else {
+                playMusic();
+            }
         });
+
+        // Autoplay al primer toque o deslizamiento en cualquier parte de la invitación
+        function onFirstUserGesture() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                playMusic();
+            }
+            window.removeEventListener('pointerdown', onFirstUserGesture);
+            window.removeEventListener('touchstart', onFirstUserGesture);
+            window.removeEventListener('click', onFirstUserGesture);
+        }
+
+        window.addEventListener('pointerdown', onFirstUserGesture, { passive: true, once: true });
+        window.addEventListener('touchstart', onFirstUserGesture, { passive: true, once: true });
+        window.addEventListener('click', onFirstUserGesture, { passive: true, once: true });
     })();
 
     /* ================================================================

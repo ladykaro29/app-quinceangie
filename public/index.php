@@ -1471,6 +1471,66 @@
             animation: heartBeat 2s ease-in-out infinite;
         }
 
+        /* Foto final de Angie en Tarjeta 10 */
+        .angie-photo-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 6px auto 10px auto;
+            border-radius: 20px;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro), #8B6914, var(--dorado));
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 25px rgba(200, 162, 74, 0.45);
+            transition: all 0.35s ease;
+        }
+
+        .angie-photo-wrapper:hover {
+            transform: scale(1.025);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75), 0 0 35px rgba(200, 162, 74, 0.65);
+        }
+
+        .angie-photo-frame {
+            position: relative;
+            width: 200px;
+            max-width: 62vw;
+            aspect-ratio: 4 / 5;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #062E25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .angie-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 20%;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .angie-photo-wrapper:hover .angie-photo-img {
+            transform: scale(1.06);
+        }
+
+        .angie-photo-sheen {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+            transform: skewX(-25deg);
+            pointer-events: none;
+            animation: photoSheen 5s infinite;
+        }
+
+        @keyframes photoSheen {
+            0%, 70% { left: -100%; }
+            100% { left: 200%; }
+        }
+
         @keyframes heartBeat {
             0%, 100% { transform: scale(1); }
             15% { transform: scale(1.15); }
@@ -2253,26 +2313,36 @@
         </div>
 
         <!-- ============================================
-             TARJETA 10: GRACIAS
+             TARJETA 10: GRACIAS & FOTO DE ANGIE
              ============================================ -->
         <div class="card-slide hidden" data-slide="9">
-            <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;">
+            <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 16px;">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
                 <div class="corner-bl"></div>
                 <div class="corner-br"></div>
 
-                <div class="thanks-heart">💛</div>
-                <div class="card-title-script" style="font-size: 2.5rem; margin-bottom: 10px;">¡Gracias!</div>
-                <div class="gold-divider"></div>
-                <p class="card-text" style="margin-top: 10px;">
+                <div class="card-title-script" style="font-size: 2.3rem; margin-bottom: 2px;">¡Te Espero!</div>
+                <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; margin-bottom: 8px;">MIS XV AÑOS</div>
+
+                <!-- Marco dorado con la foto de Angie -->
+                <div class="angie-photo-wrapper">
+                    <div class="angie-photo-frame">
+                        <img src="angie-xv.jpg" alt="Angie Karolina — Mis XV Años" class="angie-photo-img" loading="eager">
+                        <div class="angie-photo-sheen"></div>
+                    </div>
+                </div>
+
+                <div class="gold-divider" style="margin: 10px auto 8px auto;"></div>
+
+                <p class="card-text" style="margin: 0; font-size: 0.86rem; line-height: 1.4;">
                     Tu presencia es el mejor regalo.<br>
-                    ¡Te espero con todo mi cariño!
+                    ¡Celebremos juntos esta noche mágica! ✨
                 </p>
-                <div class="gold-divider"></div>
-                <p class="card-text" style="font-size: 0.75rem; margin-top: 15px; opacity: 0.6;">
-                    Con amor,<br>
-                    <span style="font-family: var(--font-script); font-size: 1.5rem; color: var(--dorado);">
+
+                <p class="card-text" style="font-size: 0.75rem; margin-top: 8px; opacity: 0.85;">
+                    Con todo mi cariño,<br>
+                    <span style="font-family: var(--font-script); font-size: 1.75rem; color: var(--dorado); display: inline-block; margin-top: 1px;">
                         Angie Karolina
                     </span>
                 </p>

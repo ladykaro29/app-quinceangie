@@ -1451,8 +1451,9 @@
 
                 <p class="formal-parents">
                     Mis padres<br>
-                    <strong style="color: var(--dorado);">Sr. & Sra. Avendaño Rivera</strong><br>
-                    te extienden esta cordial invitación
+                    <strong style="color: var(--dorado); font-size: 0.95rem;">Edwin Johan Avendaño</strong> <span style="font-size: 0.8rem; opacity: 0.85;">(Mi papá)</span><br>
+                    <strong style="color: var(--dorado); font-size: 0.95rem;">Lady Rivera</strong> <span style="font-size: 0.8rem; opacity: 0.85;">(Mi mamá)</span><br>
+                    <span style="display: inline-block; margin-top: 5px;">te extienden esta cordial invitación</span>
                 </p>
 
                 <div class="gold-divider"></div>

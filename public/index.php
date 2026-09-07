@@ -1769,16 +1769,16 @@
                 </p>
 
                 <div class="dresscode-colors">
-                    <div class="color-swatch" style="background: #062E25;" title="Verde Oscuro"></div>
-                    <div class="color-swatch" style="background: #006B4F;" title="Verde Esmeralda"></div>
                     <div class="color-swatch" style="background: #C8A24A;" title="Dorado"></div>
                     <div class="color-swatch" style="background: #E7D49A;" title="Dorado Claro"></div>
+                    <div class="color-swatch" style="background: #F5E6D3;" title="Champagne"></div>
                     <div class="color-swatch" style="background: #FFF8EC;" title="Crema"></div>
-                    <div class="color-swatch" style="background: #1A1410;" title="Marrón Oscuro"></div>
+                    <div class="color-swatch" style="background: #FFFFFF;" title="Blanco"></div>
+                    <div class="color-swatch" style="background: #1A1410;" title="Negro / Oscuro"></div>
                 </div>
 
                 <p class="dresscode-note">
-                    ✨ Evita el color blanco, por favor ✨
+                    ✨ Evita el color verde, por favor ✨
                 </p>
             </div>
         </div>

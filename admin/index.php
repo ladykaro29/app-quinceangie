@@ -2,22 +2,311 @@
 /**
  * Panel de Administración - Invitación XV Años
  * Lista de invitados confirmados con exportación CSV
- * Protegido por autenticación HTTP Basic
+ * Protegido por autenticación de sesión con clave privada
  */
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 require_once __DIR__ . '/../config/database.php';
 
-// Autenticación HTTP Basic
-if (!isset($_SERVER['PHP_AUTH_USER']) ||
-    $_SERVER['PHP_AUTH_USER'] !== ADMIN_USER ||
-    $_SERVER['PHP_AUTH_PW'] !== ADMIN_PASS) {
-    header('WWW-Authenticate: Basic realm="Panel de Administración - XV Años Angie"');
-    header('HTTP/1.0 401 Unauthorized');
-    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Acceso Denegado</title></head>
-    <body style="background:#062E25;color:#FFF8EC;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;">
-    <div style="text-align:center;"><h1 style="color:#C8A24A;">🔒 Acceso Denegado</h1><p>Credenciales incorrectas.</p></div></body></html>';
+// Cerrar sesión
+if (isset($_GET['logout'])) {
+    $_SESSION['admin_auth'] = false;
+    unset($_SESSION['admin_auth']);
+    session_destroy();
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
     exit;
 }
+
+// Claves válidas (ADMIN_PASS desde .env/database.php y alternas como angie2026 / angie15)
+$validPasswords = array_unique(array_filter([
+    ADMIN_PASS,
+    'angie2026',
+    'angie15'
+]));
+
+// Procesar formulario de login
+$loginError = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_login'])) {
+    $inputPass = trim($_POST['admin_pass'] ?? '');
+    $inputUser = trim($_POST['admin_user'] ?? '');
+
+    if (in_array($inputPass, $validPasswords, true) || 
+        (!empty($inputUser) && $inputUser === ADMIN_USER && in_array($inputPass, $validPasswords, true))) {
+        $_SESSION['admin_auth'] = true;
+        header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
+        exit;
+    } else {
+        $loginError = 'Clave incorrecta. Por favor verifica e intenta de nuevo.';
+    }
+}
+
+// Compatibilidad con HTTP Basic (por si un cliente lo envía)
+$isAuthenticated = !empty($_SESSION['admin_auth']);
+if (!$isAuthenticated && isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
+    if ($_SERVER['PHP_AUTH_USER'] === ADMIN_USER && in_array($_SERVER['PHP_AUTH_PW'], $validPasswords, true)) {
+        $_SESSION['admin_auth'] = true;
+        $isAuthenticated = true;
+    }
+}
+
+// Si NO está autenticado, mostrar pantalla de inicio de sesión elegante
+if (!$isAuthenticated) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Acceso Administrador — XV Años Angie</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <style>
+            :root {
+                --verde-oscuro: #062E25;
+                --verde-medio: #006B4F;
+                --dorado: #C8A24A;
+                --dorado-claro: #E7D49A;
+                --crema: #FFF8EC;
+            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: 'Montserrat', sans-serif;
+                background: linear-gradient(135deg, #031c16 0%, #062E25 50%, #004D38 100%);
+                color: var(--crema);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            .login-card {
+                background: rgba(6, 46, 37, 0.78);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                border: 2px solid var(--dorado);
+                border-radius: 24px;
+                padding: 40px 30px;
+                width: 100%;
+                max-width: 420px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.65), 0 0 35px rgba(200, 162, 74, 0.25);
+                position: relative;
+                text-align: center;
+            }
+            .corner-tl, .corner-tr, .corner-bl, .corner-br {
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                border-color: var(--dorado);
+                pointer-events: none;
+            }
+            .corner-tl { top: 8px; left: 8px; border-top: 2px solid; border-left: 2px solid; }
+            .corner-tr { top: 8px; right: 8px; border-top: 2px solid; border-right: 2px solid; }
+            .corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid; border-left: 2px solid; }
+            .corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid; border-right: 2px solid; }
+            .crown-icon {
+                font-size: 2.8rem;
+                color: var(--dorado);
+                margin-bottom: 10px;
+                filter: drop-shadow(0 0 10px rgba(200, 162, 74, 0.6));
+                animation: crownFloat 3s ease-in-out infinite alternate;
+            }
+            @keyframes crownFloat {
+                from { transform: translateY(0); }
+                to { transform: translateY(-6px); }
+            }
+            h1 {
+                font-family: 'Great Vibes', cursive;
+                font-size: 2.8rem;
+                color: var(--dorado);
+                line-height: 1.1;
+                margin-bottom: 4px;
+            }
+            h2 {
+                font-family: 'Playfair Display', serif;
+                font-size: 0.82rem;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--dorado-claro);
+                margin-bottom: 22px;
+                font-weight: 500;
+            }
+            .error-box {
+                background: rgba(180, 40, 40, 0.3);
+                border: 1px solid #ff6b6b;
+                color: #ffc9c9;
+                padding: 10px 14px;
+                border-radius: 10px;
+                font-size: 0.85rem;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                text-align: left;
+            }
+            .input-group {
+                position: relative;
+                margin-bottom: 22px;
+                text-align: left;
+            }
+            .input-label {
+                display: block;
+                font-size: 0.78rem;
+                color: var(--dorado-claro);
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+            .input-wrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+            .input-wrapper i.field-icon {
+                position: absolute;
+                left: 14px;
+                color: var(--dorado);
+                font-size: 1rem;
+            }
+            .input-field {
+                width: 100%;
+                padding: 13px 45px 13px 40px;
+                border-radius: 12px;
+                border: 1.5px solid rgba(200, 162, 74, 0.5);
+                background: rgba(0, 0, 0, 0.45);
+                color: #FFF;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                outline: none;
+                box-sizing: border-box;
+            }
+            .input-field:focus {
+                border-color: var(--dorado);
+                box-shadow: 0 0 15px rgba(200, 162, 74, 0.45);
+                background: rgba(0, 0, 0, 0.65);
+            }
+            .toggle-pass-btn {
+                position: absolute;
+                right: 12px;
+                background: none;
+                border: none;
+                color: var(--dorado-claro);
+                cursor: pointer;
+                font-size: 1rem;
+                padding: 6px;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+            .toggle-pass-btn:hover {
+                opacity: 1;
+            }
+            .btn-submit {
+                width: 100%;
+                padding: 14px;
+                border: none;
+                border-radius: 25px;
+                background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+                color: var(--verde-oscuro);
+                font-family: 'Montserrat', sans-serif;
+                font-size: 0.95rem;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                cursor: pointer;
+                box-shadow: 0 6px 20px rgba(200, 162, 74, 0.35);
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            .btn-submit:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(200, 162, 74, 0.55);
+            }
+            .btn-submit:active {
+                transform: translateY(0);
+            }
+            .back-link {
+                display: inline-block;
+                margin-top: 24px;
+                font-size: 0.8rem;
+                color: var(--dorado-claro);
+                text-decoration: none;
+                opacity: 0.75;
+                transition: all 0.2s;
+            }
+            .back-link:hover {
+                opacity: 1;
+                color: var(--dorado);
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-card">
+            <div class="corner-tl"></div>
+            <div class="corner-tr"></div>
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+
+            <div class="crown-icon"><i class="fas fa-crown"></i></div>
+            <h1>Mis XV Años</h1>
+            <h2>Panel de Administración</h2>
+
+            <?php if (!empty($loginError)): ?>
+                <div class="error-box">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><?= htmlspecialchars($loginError) ?></span>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="">
+                <input type="hidden" name="admin_login" value="1">
+                <div class="input-group">
+                    <label class="input-label" for="admin_pass">Clave de Acceso</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key field-icon"></i>
+                        <input type="password" id="admin_pass" name="admin_pass" class="input-field" placeholder="Ingresa la clave..." required autofocus>
+                        <button type="button" class="toggle-pass-btn" id="togglePass" title="Mostrar/ocultar clave">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-lock-open"></i> Ingresar al Panel
+                </button>
+            </form>
+
+            <a href="../" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver a la Invitación
+            </a>
+        </div>
+
+        <script>
+            const toggleBtn = document.getElementById('togglePass');
+            const passInput = document.getElementById('admin_pass');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            toggleBtn?.addEventListener('click', () => {
+                const isPassword = passInput.type === 'password';
+                passInput.type = isPassword ? 'text' : 'password';
+                eyeIcon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+            });
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 
 // Exportar CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
@@ -562,6 +851,21 @@ try {
 </head>
 <body>
 
+    <div class="admin-top-bar" style="max-width: 1200px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: rgba(0,0,0,0.35); border-radius: 14px; border: 1px solid rgba(200, 162, 74, 0.25); flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--dorado-claro); font-size: 0.82rem;">
+            <i class="fas fa-user-shield" style="color: var(--dorado); font-size: 1rem;"></i>
+            <span>Administrador activo</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="../" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem;">
+                <i class="fas fa-external-link-alt"></i> Ver Invitación
+            </a>
+            <a href="?logout=1" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; border-color: rgba(230, 90, 90, 0.6); color: #ff9999;">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
     <div class="admin-header">
         <h1>Panel de Administración</h1>
         <h2>XV Años — Angie Karolina</h2>
@@ -616,6 +920,12 @@ try {
                 <i class="fas fa-sync-alt"></i> Actualizar
             </a>
         </div>
+    </div>
+
+    <!-- Buscador en tiempo real de invitados -->
+    <div style="max-width: 1200px; margin: 0 auto 16px auto; position: relative;">
+        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--dorado); font-size: 0.95rem; pointer-events: none;"></i>
+        <input type="text" id="guestSearchInput" placeholder="🔍 Buscar invitado por nombre, acompañante o código de rifa..." style="width: 100%; box-sizing: border-box; padding: 12px 18px 12px 45px; border-radius: 25px; border: 1.5px solid rgba(200, 162, 74, 0.35); background: rgba(6, 46, 37, 0.7); color: #FFF; font-family: 'Montserrat', sans-serif; font-size: 0.88rem; outline: none; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
     </div>
 
     <!-- Tabla de invitados -->
@@ -973,6 +1283,17 @@ try {
                 nameDisplay.textContent = 'Presiona el botón para sortear';
                 metaDisplay.textContent = `Boletos participantes: ${allTickets.length}`;
             }
+        });
+
+        // Filtro en tiempo real de la tabla de invitados
+        const guestSearchInput = document.getElementById('guestSearchInput');
+        guestSearchInput?.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
         });
 
         function escapeHtml(str) {

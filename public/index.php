@@ -1620,6 +1620,37 @@
             transform: translateX(0);
         }
 
+        /* Botón discreto de acceso a Administración */
+        .admin-link-btn {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(6, 46, 37, 0.7);
+            border: 1px solid rgba(200, 162, 74, 0.35);
+            color: var(--dorado);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            text-decoration: none;
+            opacity: 0.35;
+            transition: all 0.3s ease;
+            z-index: 200;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .admin-link-btn:hover {
+            opacity: 1;
+            border-color: var(--dorado);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(200, 162, 74, 0.5);
+            color: #FFF;
+        }
+
         /* ============================================================
            RESPONSIVE
            ============================================================ */
@@ -2367,6 +2398,11 @@
         <i class="fas fa-volume-mute" id="audioIcon"></i>
     </button>
     <div class="audio-tooltip" id="audioTooltip">🎵 Toca para activar música</div>
+
+    <!-- Acceso discreto para administración de invitados -->
+    <a href="/admin/" target="_blank" class="admin-link-btn" title="Panel de Administración" aria-label="Panel de Administración">
+        <i class="fas fa-lock"></i>
+    </a>
 
     <!-- Contenedor oculto del reproductor de audio YouTube -->
     <div id="youtube-audio-container" style="position:fixed;top:-9999px;left:-9999px;width:200px;height:200px;opacity:0.01;pointer-events:none;z-index:-999;">

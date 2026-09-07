@@ -317,18 +317,17 @@ if (!$isAuthenticated) {
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     try {
         $pdo = getDBConnection();
-        populateMissingRaffleCodes($pdo);
+        $stmtInv = $pdo->query('SELECT id, nombre_completo, asistira, codigo_rifa, created_at FROM invitados ORDER BY created_at DESC');
+        $invRows = $stmtInv->fetchAll();
 
-        $stmt = $pdo->query(
-            'SELECT i.id, i.nombre_completo, i.asistira, i.codigo_rifa, i.created_at,
-                    GROUP_CONCAT(CONCAT(a.nombre_completo, " [", IFNULL(a.codigo_rifa, "N/A"), "]") SEPARATOR "; ") AS acomp_rifas,
-                    COUNT(a.id) AS num_acompanantes
-             FROM invitados i
-             LEFT JOIN acompanantes a ON a.invitado_id = i.id
-             GROUP BY i.id
-             ORDER BY i.created_at DESC'
-        );
-        $rows = $stmt->fetchAll();
+        $stmtAcomp = $pdo->query('SELECT invitado_id, nombre_completo, codigo_rifa FROM acompanantes ORDER BY id ASC');
+        $acompRows = $stmtAcomp->fetchAll();
+
+        $acompMap = [];
+        foreach ($acompRows as $ac) {
+            $rifaTxt = !empty($ac['codigo_rifa']) ? '[' . $ac['codigo_rifa'] . ']' : '[N/A]';
+            $acompMap[$ac['invitado_id']][] = $ac['nombre_completo'] . ' ' . $rifaTxt;
+        }
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="invitados_rifa_xv_angie_' . date('Y-m-d') . '.csv"');
@@ -339,15 +338,17 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 
         fputcsv($output, ['ID', 'Nombre Titular', 'Asistirá', 'Boleto Rifa Titular', 'Acompañantes y Boletos Rifa', 'Núm. Acompañantes', 'Total Personas', 'Fecha Confirmación']);
 
-        foreach ($rows as $row) {
+        foreach ($invRows as $row) {
+            $acomps = $acompMap[$row['id']] ?? [];
+            $numAcomp = count($acomps);
             fputcsv($output, [
                 $row['id'],
                 $row['nombre_completo'],
                 $row['asistira'] ? 'Sí' : 'No',
                 $row['asistira'] ? ($row['codigo_rifa'] ?? 'Sin código') : 'N/A',
-                $row['acomp_rifas'] ?? '',
-                $row['num_acompanantes'],
-                $row['asistira'] ? 1 + (int)$row['num_acompanantes'] : 0,
+                implode('; ', $acomps),
+                $numAcomp,
+                $row['asistira'] ? (1 + $numAcomp) : 0,
                 $row['created_at']
             ]);
         }
@@ -862,9 +863,16 @@ try {
 <body>
 
     <div class="admin-top-bar" style="max-width: 1200px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: rgba(0,0,0,0.35); border-radius: 14px; border: 1px solid rgba(200, 162, 74, 0.25); flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px; color: var(--dorado-claro); font-size: 0.82rem;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--dorado-claro); font-size: 0.82rem; flex-wrap: wrap;">
             <i class="fas fa-user-shield" style="color: var(--dorado); font-size: 1rem;"></i>
             <span>Administrador activo</span>
+            <?php 
+            $engine = function_exists('getActiveDbEngine') ? getActiveDbEngine() : 'mysql';
+            $engineLabel = ($engine === 'sqlite') ? '🟢 SQLite (Local)' : '🟢 MySQL (Conectado)';
+            ?>
+            <span class="badge" style="background: rgba(47, 143, 104, 0.25); border: 1px solid var(--verde-claro); color: #A7F3D0; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;">
+                <?= $engineLabel ?>
+            </span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <a href="../" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem;">

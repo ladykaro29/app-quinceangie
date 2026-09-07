@@ -49,8 +49,25 @@ define('MAX_ACOMPANANTES', (int)(getenv('MAX_ACOMPANANTES') ?: 5));
  * @return PDO
  * @throws PDOException
  */
+$currentDbEngine = 'mysql';
+
+/**
+ * Obtiene el motor de base de datos actualmente en uso ('mysql' o 'sqlite')
+ */
+function getActiveDbEngine(): string {
+    global $currentDbEngine;
+    return $currentDbEngine ?? 'mysql';
+}
+
+/**
+ * Obtiene una conexión PDO a la base de datos
+ * Conexión TCP obligatoria para evitar socket unix en Linux, reintentos en red Docker y fallback automático a SQLite
+ * 
+ * @return PDO
+ * @throws PDOException
+ */
 function getDBConnection(): PDO {
-    global $dbHost, $dbPort, $dbName, $dbUser, $dbPass, $dbCharset;
+    global $dbHost, $dbPort, $dbName, $dbUser, $dbPass, $dbCharset, $currentDbEngine;
 
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -58,25 +75,30 @@ function getDBConnection(): PDO {
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    // Si DB_HOST no fue especificado manualmente en .env, probar candidatos típicos de red interna Docker
-    $hostsToTry = [$dbHost];
+    // En Linux/Docker, 'localhost' intenta usar unix domain socket (/var/run/mysqld/mysqld.sock).
+    // Usar '127.0.0.1' fuerza conexión TCP de red.
+    $primaryHost = ($dbHost === 'localhost') ? '127.0.0.1' : $dbHost;
+
+    $hostsToTry = [$primaryHost];
     if (!getenv('DB_HOST') && !getenv('DATABASE_HOST') && !getenv('MYSQL_HOST')) {
-        $hostsToTry = array_unique(array_filter([$dbHost, 'mysql', 'mariadb', 'database', 'db', '127.0.0.1']));
+        $hostsToTry = array_unique(array_filter([$primaryHost, 'mysql', 'mariadb', 'database', 'db', '127.0.0.1']));
     }
 
-    $lastException = null;
+    $lastMysqlException = null;
     $pdo = null;
 
+    // 1. Intentar conectar a MySQL / MariaDB
     foreach ($hostsToTry as $candidateHost) {
         try {
             $dsn = "mysql:host={$candidateHost};port={$dbPort};dbname={$dbName};charset={$dbCharset}";
             $pdo = new PDO($dsn, $dbUser, $dbPass, $options);
             $dbHost = $candidateHost;
+            $currentDbEngine = 'mysql';
             break;
         } catch (\PDOException $e) {
-            $lastException = $e;
+            $lastMysqlException = $e;
 
-            // Si el servidor MySQL responde pero la base de datos aún no existe (código 1049), crearla automáticamente
+            // Si el servidor MySQL responde pero la base de datos no existe (1049), intentar crearla automáticamente
             if ($e->getCode() == 1049 || strpos($e->getMessage(), 'Unknown database') !== false) {
                 try {
                     $dsnNoDb = "mysql:host={$candidateHost};port={$dbPort};charset={$dbCharset}";
@@ -84,77 +106,115 @@ function getDBConnection(): PDO {
                     $pdoRoot->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
                     $pdo = new PDO("mysql:host={$candidateHost};port={$dbPort};dbname={$dbName};charset={$dbCharset}", $dbUser, $dbPass, $options);
                     $dbHost = $candidateHost;
+                    $currentDbEngine = 'mysql';
                     break;
                 } catch (\Exception $ex) {
-                    $lastException = $ex;
+                    $lastMysqlException = $ex;
                 }
             }
         }
     }
 
-    if (!$pdo) {
-        throw $lastException ?: new \PDOException("No se pudo conectar a la base de datos en [{$dbHost}:{$dbPort}].");
+    // 2. Si conectó a MySQL con éxito, asegurar tablas y retornar
+    if ($pdo) {
+        ensureTablesExist($pdo, 'mysql');
+        return $pdo;
     }
 
-    ensureTablesExist($pdo);
-    return $pdo;
+    // 3. Fallback inteligente a SQLite (si MySQL no está configurado o no responde en el contenedor)
+    if (extension_loaded('pdo_sqlite')) {
+        try {
+            $dbDir = __DIR__ . '/../database';
+            if (!is_dir($dbDir)) {
+                @mkdir($dbDir, 0775, true);
+            }
+            $sqlitePath = $dbDir . '/invitacion_xv.sqlite';
+            $pdo = new PDO('sqlite:' . $sqlitePath, null, null, $options);
+            $currentDbEngine = 'sqlite';
+            ensureTablesExist($pdo, 'sqlite');
+            return $pdo;
+        } catch (\Exception $sqle) {
+            // Si SQLite tampoco pudo abrirse, relanzar el error de MySQL
+        }
+    }
+
+    // 4. Si fallaron ambos, lanzar la excepción explicativa de MySQL
+    throw $lastMysqlException ?: new \PDOException("No se pudo conectar al servidor MySQL.");
 }
 
 /**
- * Asegura automáticamente que existan las tablas requeridas y columnas de rifa
+ * Asegura automáticamente que existan las tablas requeridas según el motor (MySQL o SQLite)
  */
-function ensureTablesExist(PDO $pdo): void {
-    static $migrated = false;
-    if ($migrated) return;
+function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
+    static $ensured = [];
+    if (!empty($ensured[$driver])) return;
 
-    try {
-        // Crear tabla invitados si no existe
+    if ($driver === 'sqlite') {
+        // Tablas para SQLite
         $pdo->exec("CREATE TABLE IF NOT EXISTS invitados (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre_completo VARCHAR(150) NOT NULL,
-            asistira TINYINT(1) NOT NULL DEFAULT 1,
-            codigo_rifa VARCHAR(20) NULL UNIQUE,
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_asistira (asistira),
-            INDEX idx_codigo_rifa (codigo_rifa),
-            INDEX idx_created_at (created_at)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_completo TEXT NOT NULL,
+            asistira INTEGER NOT NULL DEFAULT 1,
+            codigo_rifa TEXT UNIQUE,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );");
 
-        // Crear tabla acompanantes si no existe
         $pdo->exec("CREATE TABLE IF NOT EXISTS acompanantes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            invitado_id INT NOT NULL,
-            nombre_completo VARCHAR(150) NOT NULL,
-            codigo_rifa VARCHAR(20) NULL UNIQUE,
-            INDEX idx_acomp_codigo_rifa (codigo_rifa)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
-    } catch (\Exception $e) {
-        // Ignorar si ya existen
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            invitado_id INTEGER NOT NULL,
+            nombre_completo TEXT NOT NULL,
+            codigo_rifa TEXT UNIQUE,
+            FOREIGN KEY (invitado_id) REFERENCES invitados(id) ON DELETE CASCADE
+        );");
+
+    } else {
+        // Tablas para MySQL
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS invitados (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre_completo VARCHAR(150) NOT NULL,
+                asistira TINYINT(1) NOT NULL DEFAULT 1,
+                codigo_rifa VARCHAR(20) NULL UNIQUE,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_asistira (asistira),
+                INDEX idx_codigo_rifa (codigo_rifa),
+                INDEX idx_created_at (created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS acompanantes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                invitado_id INT NOT NULL,
+                nombre_completo VARCHAR(150) NOT NULL,
+                codigo_rifa VARCHAR(20) NULL UNIQUE,
+                INDEX idx_acomp_codigo_rifa (codigo_rifa)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+        } catch (\Exception $e) {}
+
+        // Migración de columnas de rifa en MySQL
+        try {
+            $stmt = $pdo->query("SHOW COLUMNS FROM invitados LIKE 'codigo_rifa'");
+            if (!$stmt->fetch()) {
+                $pdo->exec("ALTER TABLE invitados ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER asistira");
+            }
+        } catch (\Exception $e) {}
+
+        try {
+            $stmt = $pdo->query("SHOW COLUMNS FROM acompanantes LIKE 'codigo_rifa'");
+            if (!$stmt->fetch()) {
+                $pdo->exec("ALTER TABLE acompanantes ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER nombre_completo");
+            }
+        } catch (\Exception $e) {}
     }
 
-    // Migraciones seguras para columnas de rifa en tablas existentes
-    try {
-        $stmt = $pdo->query("SHOW COLUMNS FROM invitados LIKE 'codigo_rifa'");
-        if (!$stmt->fetch()) {
-            $pdo->exec("ALTER TABLE invitados ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER asistira");
-        }
-    } catch (\Exception $e) {}
-
-    try {
-        $stmt = $pdo->query("SHOW COLUMNS FROM acompanantes LIKE 'codigo_rifa'");
-        if (!$stmt->fetch()) {
-            $pdo->exec("ALTER TABLE acompanantes ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER nombre_completo");
-        }
-    } catch (\Exception $e) {}
-
-    $migrated = true;
+    $ensured[$driver] = true;
 }
 
 /**
  * Alias de compatibilidad hacia atrás
  */
 function ensureRaffleSchema(PDO $pdo): void {
-    ensureTablesExist($pdo);
+    global $currentDbEngine;
+    ensureTablesExist($pdo, $currentDbEngine ?? 'mysql');
 }
 
 /**

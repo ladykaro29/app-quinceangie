@@ -138,11 +138,18 @@ try {
         $totalConfirmados = (int)$stmtCount->fetchColumn();
 
         http_response_code(200);
+        $qrCode = 'XVANGIE-' . str_pad($invitadoId, 4, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($nombreCompleto . $invitadoId . 'angie2026'), 0, 6));
         echo json_encode([
             'success'           => true,
+            'id'                => (int)$invitadoId,
+            'nombre'            => $nombreCompleto,
+            'asistira'          => $asistira,
+            'acompanantes'      => $acompanantes,
+            'total_pases'       => $asistira ? (1 + count($acompanantes)) : 0,
+            'qr_code'           => $qrCode,
             'total_confirmados' => $totalConfirmados,
             'message'           => $asistira
-                ? '¡Gracias por confirmar tu asistencia! Te esperamos con mucha ilusión. 🎉'
+                ? '¡Gracias por confirmar tu asistencia! Aquí tienes tu Pase VIP de entrada con código QR. 🎉'
                 : 'Lamentamos que no puedas asistir. ¡Te llevaremos en el corazón! 💛'
         ]);
 

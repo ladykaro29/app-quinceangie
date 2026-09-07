@@ -21,6 +21,9 @@
     <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Generador de Códigos QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         /* ============================================================
            VARIABLES Y RESET
@@ -1118,6 +1121,171 @@
             line-height: 1.6;
         }
 
+        /* ============================================================
+           PASE DE ENTRADA VIP CON CÓDIGO QR
+           ============================================================ */
+        .vip-ticket {
+            background: linear-gradient(145deg, rgba(6, 46, 37, 0.98), rgba(0, 107, 79, 0.92));
+            border: 2px solid var(--dorado);
+            border-radius: 18px;
+            padding: 22px 18px;
+            text-align: center;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), inset 0 0 25px rgba(200, 162, 74, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin-top: 5px;
+            animation: ticketZoomIn 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        @keyframes ticketZoomIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .ticket-badge {
+            display: inline-block;
+            padding: 5px 16px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .ticket-tiara {
+            font-size: 1.6rem;
+            margin-bottom: 2px;
+        }
+
+        .ticket-title {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dorado);
+            letter-spacing: 2px;
+        }
+
+        .ticket-subtitle {
+            font-family: var(--font-script);
+            font-size: 1.8rem;
+            color: var(--crema);
+            margin-top: -3px;
+        }
+
+        .ticket-qr-container {
+            margin: 14px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #ticketQrWrapper {
+            padding: 10px;
+            background: #FFFDF5;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(200, 162, 74, 0.4);
+            display: inline-block;
+            min-width: 170px;
+            min-height: 170px;
+        }
+
+        #ticketQrWrapper img, #ticketQrWrapper canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 6px;
+        }
+
+        .ticket-qr-code-txt {
+            font-family: 'Courier New', monospace;
+            font-size: 0.76rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: var(--dorado-claro);
+            margin-top: 8px;
+        }
+
+        .ticket-info {
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(200, 162, 74, 0.3);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 14px 0;
+            text-align: left;
+        }
+
+        .t-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(200, 162, 74, 0.12);
+            font-size: 0.78rem;
+        }
+
+        .t-row:last-child {
+            border-bottom: none;
+        }
+
+        .t-lbl {
+            color: var(--dorado-claro);
+            font-family: var(--font-sans);
+            font-weight: 500;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+
+        .t-data {
+            color: var(--crema);
+            font-family: var(--font-sans);
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .t-passes {
+            color: var(--dorado);
+            font-weight: 700;
+        }
+
+        .ticket-instruction {
+            font-family: var(--font-sans);
+            font-size: 0.72rem;
+            color: var(--dorado-claro);
+            opacity: 0.85;
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+
+        .btn-ticket-download {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(200, 162, 74, 0.35);
+            transition: all 0.3s ease;
+        }
+
+        .btn-ticket-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(200, 162, 74, 0.55);
+        }
+
         /* Destello dorado de confirmación */
         .gold-flash {
             position: fixed;
@@ -1764,12 +1932,18 @@
                         </button>
                     </div>
 
-                    <!-- Sección de acompañantes (visible solo si confirma) -->
+                    <!-- Sección de acompañantes (visible solo si confirma que sí asistirá) -->
                     <div class="rsvp-companions-section" id="rsvp-companions-section">
-                        <div class="rsvp-label">Acompañantes</div>
+                        <div class="rsvp-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span>Acompañantes</span>
+                            <span id="rsvp-passes-badge" style="color: var(--dorado); font-size: 0.72rem; text-transform: none; font-weight: 600;">1 persona (Solo tú)</span>
+                        </div>
+                        <p style="font-size: 0.73rem; color: rgba(255, 248, 236, 0.7); margin-bottom: 12px; text-align: center; line-height: 1.4;">
+                            ¿Vienes con alguien más? Agrega a tus acompañantes para que queden incluidos en tu pase QR:
+                        </p>
                         <div id="rsvp-companions-list"></div>
-                        <button class="rsvp-add-companion-btn" id="rsvp-add-companion">
-                            <i class="fas fa-user-plus"></i> Agregar acompañante
+                        <button type="button" class="rsvp-add-companion-btn" id="rsvp-add-companion">
+                            <i class="fas fa-user-plus"></i> + Agregar Nombre de Acompañante
                         </button>
                     </div>
 
@@ -1778,11 +1952,61 @@
                     </button>
                 </div>
 
-                <!-- Mensaje de éxito -->
+                <!-- Mensaje de éxito / Pase VIP QR -->
                 <div class="rsvp-success" id="rsvp-success">
-                    <div class="rsvp-success-icon">✨</div>
-                    <h3 id="rsvp-success-title">¡Gracias!</h3>
-                    <p id="rsvp-success-message"></p>
+                    <!-- Pase de entrada VIP con QR si asistirá -->
+                    <div class="vip-ticket" id="vipTicket" style="display: none;">
+                        <div class="ticket-badge">✨ PASE DE ENTRADA VIP ✨</div>
+                        <div class="ticket-tiara">👑</div>
+                        <div class="ticket-title">MIS XV AÑOS</div>
+                        <div class="ticket-subtitle">Angie Karolina</div>
+                        <div class="gold-divider" style="margin: 8px auto 14px auto;"></div>
+
+                        <!-- Contenedor del QR -->
+                        <div class="ticket-qr-container">
+                            <div id="ticketQrWrapper"></div>
+                            <div class="ticket-qr-code-txt" id="ticketQrCodeText"></div>
+                        </div>
+
+                        <!-- Detalles del Pase -->
+                        <div class="ticket-info">
+                            <div class="t-row">
+                                <span class="t-lbl">Titular:</span>
+                                <span class="t-data" id="ticketGuestName">--</span>
+                            </div>
+                            <div class="t-row" id="ticketCompanionsRow" style="display: none;">
+                                <span class="t-lbl">Acompañantes:</span>
+                                <span class="t-data" id="ticketCompanionsNames">--</span>
+                            </div>
+                            <div class="t-row">
+                                <span class="t-lbl">Total Pases:</span>
+                                <span class="t-data t-passes" id="ticketTotalPasses">1 Persona</span>
+                            </div>
+                            <div class="t-row">
+                                <span class="t-lbl">Fecha y Hora:</span>
+                                <span class="t-data">3 · Oct · 2026 · 8:00 PM</span>
+                            </div>
+                            <div class="t-row">
+                                <span class="t-lbl">Lugar:</span>
+                                <span class="t-data">Colegio de Médicos, Mérida</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-instruction">
+                            <i class="fas fa-qrcode"></i> Presenta este código QR en la entrada para acceder a la fiesta
+                        </div>
+
+                        <button type="button" class="btn-ticket-download" id="btnDownloadTicket">
+                            <i class="fas fa-download"></i> Guardar Código QR
+                        </button>
+                    </div>
+
+                    <!-- Mensaje si confirmó que no asiste -->
+                    <div id="rsvp-declined-box" style="display: none; text-align: center; padding: 15px 0;">
+                        <div class="rsvp-success-icon">💛</div>
+                        <h3 id="rsvp-declined-title" style="font-family: var(--font-script); font-size: 2rem; color: var(--dorado); margin-bottom: 10px;">¡Gracias por avisar!</h3>
+                        <p id="rsvp-declined-message" style="font-family: var(--font-sans); font-size: 0.85rem; color: var(--crema); opacity: 0.9; line-height: 1.6;"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2142,11 +2366,26 @@
                 companionsList.innerHTML = '';
             }
 
+            updateAddBtnState();
             submitBtn.disabled = false;
         }
 
         yesBtn.addEventListener('click', () => selectAttendance(true));
         noBtn.addEventListener('click', () => selectAttendance(false));
+
+        const passesBadge = document.getElementById('rsvp-passes-badge');
+
+        function updateAddBtnState() {
+            const count = companionsList.children.length;
+            addCompanionBtn.disabled = count >= MAX_COMPANIONS;
+            if (passesBadge) {
+                if (count === 0) {
+                    passesBadge.textContent = '1 persona (Solo tú)';
+                } else {
+                    passesBadge.textContent = `${count + 1} personas (Tú + ${count} acompañante${count > 1 ? 's' : ''})`;
+                }
+            }
+        }
 
         // Add companion
         function addCompanion() {
@@ -2159,8 +2398,8 @@
             const entry = document.createElement('div');
             entry.className = 'rsvp-companion-entry';
             entry.innerHTML = `
-                <input type="text" placeholder="Nombre del acompañante" maxlength="150" autocomplete="off">
-                <button class="rsvp-remove-companion" title="Eliminar"><i class="fas fa-times"></i></button>
+                <input type="text" placeholder="Nombre y Apellido del acompañante ${count + 1}" maxlength="150" autocomplete="off">
+                <button type="button" class="rsvp-remove-companion" title="Eliminar"><i class="fas fa-times"></i></button>
             `;
 
             entry.querySelector('.rsvp-remove-companion').addEventListener('click', () => {
@@ -2171,10 +2410,6 @@
             companionsList.appendChild(entry);
             entry.querySelector('input').focus();
             updateAddBtnState();
-        }
-
-        function updateAddBtnState() {
-            addCompanionBtn.disabled = companionsList.children.length >= MAX_COMPANIONS;
         }
 
         addCompanionBtn.addEventListener('click', addCompanion);
@@ -2223,7 +2458,7 @@
             // Disable and show spinner
             isSubmitting = true;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner"></span> Enviando...';
+            submitBtn.innerHTML = '<span class="spinner"></span> Confirmando...';
 
             try {
                 const response = await fetch('/api/confirmar.php', {
@@ -2239,19 +2474,92 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Show success
+                    // Hide form and show success container
                     form.style.display = 'none';
-                    document.getElementById('rsvp-success-title').textContent = selectedAttendance ? '¡Gracias!' : 'Entendido';
-                    document.getElementById('rsvp-success-message').textContent = data.message;
                     successDiv.classList.add('visible');
 
-                    // Gold flash effect
+                    if (selectedAttendance) {
+                        // Rellenar datos del Pase VIP
+                        const vipTicket = document.getElementById('vipTicket');
+                        const guestNameEl = document.getElementById('ticketGuestName');
+                        const companionsRow = document.getElementById('ticketCompanionsRow');
+                        const companionsNamesEl = document.getElementById('ticketCompanionsNames');
+                        const totalPassesEl = document.getElementById('ticketTotalPasses');
+                        const qrCodeTextEl = document.getElementById('ticketQrCodeText');
+                        const qrWrapper = document.getElementById('ticketQrWrapper');
+
+                        guestNameEl.textContent = data.nombre || nombre;
+
+                        if (acompanantes.length > 0) {
+                            companionsRow.style.display = 'flex';
+                            companionsNamesEl.textContent = acompanantes.join(', ');
+                        } else {
+                            companionsRow.style.display = 'none';
+                        }
+
+                        const totalP = data.total_pases || (1 + acompanantes.length);
+                        totalPassesEl.textContent = `${totalP} ${totalP === 1 ? 'Persona' : 'Personas'}`;
+
+                        const qrCodeId = data.qr_code || ('XVANGIE-' + (data.id || '001'));
+                        qrCodeTextEl.textContent = qrCodeId;
+
+                        // Generar el Código QR
+                        const qrPayload = `XV-ANGIE | PASE #${data.id || 1} | TITULAR: ${data.nombre || nombre} | PASES: ${totalP} | CODIGO: ${qrCodeId}`;
+                        qrWrapper.innerHTML = '';
+
+                        if (typeof QRCode !== 'undefined') {
+                            new QRCode(qrWrapper, {
+                                text: qrPayload,
+                                width: 170,
+                                height: 170,
+                                colorDark: '#062E25',
+                                colorLight: '#FFFDF5',
+                                correctLevel: QRCode.CorrectLevel.M
+                            });
+                        } else {
+                            const qrImg = document.createElement('img');
+                            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=062E25&bgcolor=FFFDF5`;
+                            qrImg.alt = 'Código QR Pase VIP';
+                            qrWrapper.appendChild(qrImg);
+                        }
+
+                        vipTicket.style.display = 'block';
+
+                        // Botón de descarga de código QR
+                        const downloadBtn = document.getElementById('btnDownloadTicket');
+                        if (downloadBtn) {
+                            downloadBtn.onclick = () => {
+                                const canvas = qrWrapper.querySelector('canvas');
+                                let url = '';
+                                if (canvas) {
+                                    url = canvas.toDataURL('image/png');
+                                } else {
+                                    const img = qrWrapper.querySelector('img');
+                                    if (img) url = img.src;
+                                }
+                                if (url) {
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.download = `Pase_XV_Angie_${(data.nombre || nombre).replace(/\s+/g, '_')}.png`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    link.remove();
+                                }
+                            };
+                        }
+                    } else {
+                        // Mensaje de declinación
+                        const declinedBox = document.getElementById('rsvp-declined-box');
+                        document.getElementById('rsvp-declined-message').textContent = data.message;
+                        declinedBox.style.display = 'block';
+                    }
+
+                    // Efecto de destello y chispas
                     const flash = document.createElement('div');
                     flash.className = 'gold-flash';
                     document.body.appendChild(flash);
                     setTimeout(() => flash.remove(), 1500);
 
-                    // Sparkle burst
                     createSparkleBurst();
                 } else {
                     showError(data.error || 'Ocurrió un error. Intenta de nuevo.');

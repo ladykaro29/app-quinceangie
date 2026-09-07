@@ -930,7 +930,62 @@
         }
 
         /* ============================================================
-           TARJETA 9 — RSVP (NUEVA)
+           TARJETA: PRESENTE & LLUVIA DE SOBRES
+           ============================================================ */
+        .gift-envelope-box {
+            position: relative;
+            background: linear-gradient(145deg, rgba(0, 107, 79, 0.28), rgba(6, 46, 37, 0.75));
+            border: 1.5px solid rgba(200, 162, 74, 0.45);
+            border-radius: 20px;
+            padding: 22px 18px;
+            margin: 15px 0 12px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 0 25px rgba(200, 162, 74, 0.12);
+        }
+
+        .gift-icon-bubble {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.55rem;
+            margin: 0 auto 12px auto;
+            box-shadow: 0 6px 20px rgba(200, 162, 74, 0.45);
+            animation: giftFloat 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes giftFloat {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-4px) scale(1.05); box-shadow: 0 10px 25px rgba(200, 162, 74, 0.6); }
+        }
+
+        .gift-reception-note {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(200, 162, 74, 0.12);
+            border: 1px dashed var(--dorado);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-top: 14px;
+            text-align: left;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            color: var(--dorado-claro);
+        }
+
+        .gift-reception-note i {
+            font-size: 1.35rem;
+            color: var(--dorado);
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           TARJETA 10 — RSVP (CONFIRMA TU ASISTENCIA)
            ============================================================ */
         .rsvp-form-container {
             width: 100%;
@@ -2221,9 +2276,51 @@
         </div>
 
         <!-- ============================================
-             TARJETA 9: RSVP — CONFIRMA TU ASISTENCIA
+             TARJETA 9: PRESENTE & LLUVIA DE SOBRES
              ============================================ -->
         <div class="card-slide hidden" data-slide="8">
+            <div class="card" style="padding: 30px 22px;">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="card-title-script" style="font-size: 2.3rem;">Presente & Regalo</div>
+                <div class="card-title-serif" style="font-size: 0.75rem; letter-spacing: 2px;">LLUVIA DE SOBRES</div>
+                <div class="gold-divider" style="margin: 10px auto 14px auto;"></div>
+
+                <p class="card-text" style="margin-bottom: 12px; font-size: 0.88rem; line-height: 1.5;">
+                    El regalo más valioso para mis quince años es tu compañía, tus bendiciones y compartir juntos esta noche tan soñada. ✨
+                </p>
+
+                <!-- Cuadro elegante de lluvia de sobres -->
+                <div class="gift-envelope-box">
+                    <div class="gift-icon-bubble">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <div style="font-family: var(--font-serif); font-size: 1.05rem; color: var(--dorado); font-weight: 600; margin-bottom: 6px; letter-spacing: 1px;">
+                        Lluvia de Sobres ✉️
+                    </div>
+                    <p style="font-size: 0.84rem; color: var(--crema); line-height: 1.55; margin: 0;">
+                        Si es de tu agrado hacerme un presente, te agradecería con todo mi corazón que sea <strong>en efectivo</strong>, el cual será de gran ayuda para cumplir mis metas y proyectos en esta nueva etapa.
+                    </p>
+                </div>
+
+                <!-- Nota del buzón en la fiesta -->
+                <div class="gift-reception-note">
+                    <i class="fas fa-box-open"></i>
+                    <span>En la recepción del salón contaremos con un buzón especial donde podrás depositar tu sobre con tus mejores deseos.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 10: RSVP — CONFIRMA TU ASISTENCIA
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="9">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2351,9 +2448,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 10: GRACIAS & FOTO DE ANGIE
+             TARJETA 11: GRACIAS & FOTO DE ANGIE
              ============================================ -->
-        <div class="card-slide hidden" data-slide="9">
+        <div class="card-slide hidden" data-slide="10">
             <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 16px;">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>

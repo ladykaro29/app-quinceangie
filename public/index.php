@@ -464,6 +464,58 @@
             margin-top: 5px;
         }
 
+        .calendar-btn-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .calendar-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 280px;
+            padding: 13px 20px;
+            background: linear-gradient(135deg, rgba(200, 162, 74, 0.22), rgba(231, 212, 154, 0.1));
+            border: 1.5px solid var(--dorado);
+            border-radius: 50px;
+            color: var(--dorado-claro);
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 0 15px rgba(200, 162, 74, 0.2);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .calendar-btn:hover {
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45), 0 0 25px rgba(200, 162, 74, 0.45);
+        }
+
+        .calendar-btn i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .calendar-btn:hover i.fa-bell {
+            animation: ringBell 0.6s ease;
+        }
+
+        @keyframes ringBell {
+            0%, 100% { transform: rotate(0); }
+            20%, 60% { transform: rotate(15deg); }
+            40%, 80% { transform: rotate(-15deg); }
+        }
+
         /* ============================================================
            TARJETA 3 — INVITACIÓN FORMAL
            ============================================================ */
@@ -1362,6 +1414,14 @@
                 </div>
 
                 <p class="card-text">para la noche más especial ✨</p>
+
+                <div class="calendar-btn-container">
+                    <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+XV+A%C3%B1os+-+Angie+Karolina&dates=20261004T000000Z%2F20261004T060000Z&details=%C2%A1Celebremos+juntos+los+XV+A%C3%B1os+de+Angie+Karolina!+Una+noche+m%C3%A1gica+llena+de+alegr%C3%ADa+y+momentos+inolvidables.&location=Colegio+de+M%C3%A9dicos+del+Estado+M%C3%A9rida%2C+Av.+Urdaneta%2C+M%C3%A9rida%2C+Venezuela" target="_blank" rel="noopener noreferrer" class="calendar-btn" id="btnGoogleCalendar">
+                        <i class="fab fa-google"></i>
+                        <span>Agendar en Google Calendar</span>
+                        <i class="fas fa-bell"></i>
+                    </a>
+                </div>
             </div>
         </div>
 

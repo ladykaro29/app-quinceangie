@@ -1,0 +1,7 @@
+# Proteger archivos de configuración y base de datos
+<FilesMatch "^\.env|\.sql$|\.git">
+    Require all denied
+</FilesMatch>
+
+# Opciones generales
+Options -Indexes

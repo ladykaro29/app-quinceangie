@@ -700,46 +700,117 @@
         .trivia-options {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .trivia-option {
-            padding: 12px 15px;
-            border: 1px solid rgba(200, 162, 74, 0.3);
-            border-radius: 10px;
-            background: rgba(200, 162, 74, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            border: 1px solid rgba(200, 162, 74, 0.35);
+            border-radius: 12px;
+            background: rgba(200, 162, 74, 0.06);
             color: var(--crema);
             font-family: var(--font-sans);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
+            transition: all 0.25s ease;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            user-select: none;
         }
 
-        .trivia-option:hover {
-            border-color: var(--dorado);
+        .trivia-option .opt-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
             background: rgba(200, 162, 74, 0.15);
+            border: 1px solid var(--dorado);
+            color: var(--dorado-claro);
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+
+        .trivia-option .opt-text {
+            flex-grow: 1;
+            line-height: 1.3;
+        }
+
+        .trivia-option .opt-icon {
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+
+        .trivia-option:hover:not(:disabled) {
+            border-color: var(--dorado);
+            background: rgba(200, 162, 74, 0.2);
+            transform: translateY(-1px);
         }
 
         .trivia-option.correct {
-            border-color: var(--verde-claro);
-            background: rgba(47, 143, 104, 0.3);
-            color: var(--dorado-claro);
+            border-color: #2ECC71 !important;
+            background: rgba(46, 204, 113, 0.25) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .trivia-option.correct .opt-letter {
+            background: #2ECC71;
+            border-color: #2ECC71;
+            color: #062E25;
+        }
+
+        .trivia-option.correct .opt-icon {
+            color: #2ECC71;
         }
 
         .trivia-option.incorrect {
-            border-color: #8B4513;
-            background: rgba(139, 69, 19, 0.2);
-            opacity: 0.6;
+            border-color: #E74C3C !important;
+            background: rgba(231, 76, 60, 0.22) !important;
+            color: #FDEDEC !important;
+            opacity: 0.85;
+        }
+
+        .trivia-option.incorrect .opt-letter {
+            background: #E74C3C;
+            border-color: #E74C3C;
+            color: #FFFFFF;
+        }
+
+        .trivia-option.incorrect .opt-icon {
+            color: #E74C3C;
         }
 
         .trivia-result {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 14px;
+            padding: 8px 14px;
+            border-radius: 8px;
             font-family: var(--font-sans);
-            font-size: 0.85rem;
-            color: var(--dorado-claro);
+            font-size: 0.82rem;
             display: none;
+            line-height: 1.4;
+        }
+
+        .trivia-result.correct {
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            color: #A3E4D7;
+        }
+
+        .trivia-result.incorrect {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            color: #FADBD8;
         }
 
         .trivia-nav {
@@ -1540,6 +1611,9 @@
         </svg>
     </div>
 
+    <!-- Partículas doradas de fondo -->
+    <div class="particles-container" id="particles"></div>
+
     <!-- Contenedor principal del deck -->
     <div class="deck-container" id="deckContainer">
 
@@ -1861,7 +1935,7 @@
                     <div class="trivia-question" id="trivia-question"></div>
                     <div class="trivia-options" id="trivia-options"></div>
                     <div class="trivia-result" id="trivia-result"></div>
-                    <div class="trivia-nav">
+                    <div class="trivia-nav" id="trivia-nav">
                         <button class="trivia-nav-btn" id="trivia-prev" disabled>
                             <i class="fas fa-arrow-left"></i> Anterior
                         </button>
@@ -2196,6 +2270,7 @@
        ================================================================ */
     (() => {
         const container = document.getElementById('particles');
+        if (!container) return;
         for (let i = 0; i < 20; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
@@ -2250,64 +2325,152 @@
         const counterEl = document.getElementById('trivia-counter');
         const prevBtn = document.getElementById('trivia-prev');
         const nextBtn = document.getElementById('trivia-next');
+        const navEl = document.getElementById('trivia-nav');
+
+        if (!questionEl || !optionsEl || !counterEl || !prevBtn || !nextBtn) return;
+
+        const letters = ['A', 'B', 'C', 'D'];
 
         function renderQuestion() {
             const q = triviaQuestions[currentQ];
             counterEl.textContent = `Pregunta ${currentQ + 1} de ${triviaQuestions.length}`;
             questionEl.textContent = q.question;
             optionsEl.innerHTML = '';
-            resultEl.style.display = 'none';
+            
+            const hasAnswered = answers[currentQ] !== null;
+
+            if (!hasAnswered) {
+                resultEl.style.display = 'none';
+                resultEl.className = 'trivia-result';
+            } else {
+                const isCorrect = answers[currentQ] === q.correct;
+                resultEl.className = `trivia-result ${isCorrect ? 'correct' : 'incorrect'}`;
+                resultEl.innerHTML = isCorrect 
+                    ? '<i class="fas fa-check-circle"></i> ¡Correcto! Sabes mucho de Angie ✨' 
+                    : `<i class="fas fa-info-circle"></i> La respuesta correcta es: <strong>${escapeHtml(q.options[q.correct])}</strong>`;
+                resultEl.style.display = 'block';
+            }
 
             q.options.forEach((opt, i) => {
                 const btn = document.createElement('button');
+                btn.type = 'button';
                 btn.className = 'trivia-option';
-                btn.textContent = opt;
 
-                if (answers[currentQ] !== null) {
-                    btn.style.pointerEvents = 'none';
-                    if (i === q.correct) btn.classList.add('correct');
-                    if (answers[currentQ] === i && i !== q.correct) btn.classList.add('incorrect');
+                if (hasAnswered) {
+                    btn.disabled = true;
+                    if (i === q.correct) {
+                        btn.classList.add('correct');
+                    } else if (answers[currentQ] === i) {
+                        btn.classList.add('incorrect');
+                    }
                 }
 
+                const iconHtml = hasAnswered 
+                    ? (i === q.correct 
+                        ? '<i class="fas fa-check-circle opt-icon"></i>' 
+                        : (answers[currentQ] === i ? '<i class="fas fa-times-circle opt-icon"></i>' : '<span class="opt-icon"></span>'))
+                    : '<span class="opt-icon"></span>';
+
+                btn.innerHTML = `
+                    <span class="opt-letter">${letters[i] || (i + 1)}</span>
+                    <span class="opt-text">${escapeHtml(opt)}</span>
+                    ${iconHtml}
+                `;
+
                 btn.addEventListener('click', () => {
+                    if (answers[currentQ] !== null) return;
                     answers[currentQ] = i;
                     renderQuestion();
-                    if (i === q.correct) {
-                        resultEl.textContent = '¡Correcto! 🎉';
-                    } else {
-                        resultEl.textContent = `No exactamente... La respuesta era: ${q.options[q.correct]}`;
+
+                    // Si no es la última pregunta, avanzar suavemente
+                    if (currentQ < triviaQuestions.length - 1) {
+                        setTimeout(() => {
+                            if (currentQ < triviaQuestions.length - 1 && answers[currentQ] !== null) {
+                                currentQ++;
+                                renderQuestion();
+                            }
+                        }, 1300);
                     }
-                    resultEl.style.display = 'block';
                 });
 
                 optionsEl.appendChild(btn);
             });
 
             prevBtn.disabled = currentQ === 0;
-            nextBtn.textContent = currentQ === triviaQuestions.length - 1 ? 'Resultados' : 'Siguiente ›';
-
-            if (currentQ === triviaQuestions.length - 1 && answers.every(a => a !== null)) {
-                nextBtn.addEventListener('click', showResults, { once: true });
+            
+            if (currentQ === triviaQuestions.length - 1) {
+                nextBtn.innerHTML = 'Ver Resultados <i class="fas fa-trophy"></i>';
+            } else {
+                nextBtn.innerHTML = 'Siguiente <i class="fas fa-arrow-right"></i>';
             }
         }
 
         function showResults() {
-            const correct = answers.filter((a, i) => a === triviaQuestions[i].correct).length;
-            questionEl.textContent = '¡Resultados!';
-            optionsEl.innerHTML = '';
-            counterEl.textContent = '';
-            resultEl.textContent = `Acertaste ${correct} de ${triviaQuestions.length}. ${correct >= 3 ? '¡Me conoces bien! 💛' : '¡Hay que conocernos más! 😊'}`;
-            resultEl.style.display = 'block';
+            const correctCount = answers.filter((a, i) => a === triviaQuestions[i].correct).length;
+            const total = triviaQuestions.length;
+            
+            counterEl.textContent = 'Trivia Finalizada';
+            questionEl.textContent = '¡Resultados de la Trivia!';
+            
+            let badge = '✨';
+            let msg = '';
+            if (correctCount >= 4) {
+                badge = '👑';
+                msg = '¡Increíble! Eres de las personas que mejor conocen a Angie. ¡Qué gran amistad!';
+            } else if (correctCount >= 2) {
+                badge = '💛';
+                msg = '¡Muy bien! Conoces grandes detalles de Angie, ¡esta fiesta será inolvidable!';
+            } else {
+                badge = '🌸';
+                msg = '¡Qué lindo que nos acompañes! En esta noche mágica vas a conocerla mucho más.';
+            }
+
+            optionsEl.innerHTML = `
+                <div style="text-align: center; padding: 12px 6px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">${badge}</div>
+                    <div style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--dorado-claro); margin-bottom: 6px;">
+                        ${correctCount} de ${total} Aciertos
+                    </div>
+                    <p style="font-family: var(--font-sans); font-size: 0.85rem; color: var(--crema); line-height: 1.5; opacity: 0.95; margin-bottom: 18px;">
+                        ${msg}
+                    </p>
+                    <button type="button" class="trivia-nav-btn" id="trivia-restart" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; font-size: 0.85rem;">
+                        <i class="fas fa-redo"></i> Volver a jugar
+                    </button>
+                </div>
+            `;
+            
+            resultEl.style.display = 'none';
+            if (navEl) navEl.style.display = 'none';
+
+            const restartBtn = document.getElementById('trivia-restart');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', () => {
+                    currentQ = 0;
+                    answers = new Array(triviaQuestions.length).fill(null);
+                    if (navEl) navEl.style.display = 'flex';
+                    renderQuestion();
+                });
+            }
         }
 
         prevBtn.addEventListener('click', () => {
-            if (currentQ > 0) { currentQ--; renderQuestion(); }
+            if (currentQ > 0) {
+                currentQ--;
+                renderQuestion();
+            }
         });
 
         nextBtn.addEventListener('click', () => {
-            if (currentQ < triviaQuestions.length - 1) { currentQ++; renderQuestion(); }
+            if (currentQ < triviaQuestions.length - 1) {
+                currentQ++;
+                renderQuestion();
+            } else {
+                showResults();
+            }
         });
 
+        // Iniciar la trivia
         renderQuestion();
     })();
 
@@ -2800,7 +2963,7 @@
 
         // Tocar la pantalla hace que nazca una mariposa dorada que vuela hacia arriba
         window.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('button, input, textarea, select, a, .trivia-option-btn')) return;
+            if (e.target.closest('button, input, textarea, select, a, .trivia-option, .trivia-option-btn')) return;
             if (butterflies.length < 20) {
                 butterflies.push(new Butterfly(true, e.clientX, e.clientY));
             }

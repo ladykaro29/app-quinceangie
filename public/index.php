@@ -2706,28 +2706,38 @@
         const triviaQuestions = [
             {
                 question: '¿Cuál es el color favorito de Angie?',
-                options: ['Rosa', 'Verde esmeralda', 'Azul', 'Morado'],
-                correct: 1
+                options: ['Rosa', 'Verde esmeralda', 'Azul cielo', 'Morado'],
+                correct: 1,
+                correctMsg: '¡Exacto! El verde esmeralda es su favorito y la temática de esta noche mágica 💚✨',
+                wrongMsg: 'La respuesta correcta es: <strong>Verde esmeralda</strong> 💚'
             },
             {
-                question: '¿Qué actividad disfruta más Angie?',
-                options: ['Bailar', 'Pintar', 'Leer', 'Cocinar'],
-                correct: 0
+                question: '¿Cuál es la actividad favorita de Angie?',
+                options: ['La repostería', 'Pintar', 'Bailar', 'Fotografía'],
+                correct: 0,
+                correctMsg: '¡Así es! A Angie le fascina la repostería y hornear delicias con amor 🧁🎂',
+                wrongMsg: 'La respuesta correcta es: <strong>La repostería</strong> 🧁🎂'
             },
             {
                 question: '¿Cuál es la comida favorita de Angie?',
-                options: ['Pizza', 'Sushi', 'Arepas', 'Pasta'],
-                correct: 2
+                options: ['Pizza', 'Pasticho', 'Hamburguesa', 'Sushi'],
+                correct: 1,
+                correctMsg: '¡Totalmente! El pasticho es su plato preferido e irresistible 🍝🧀',
+                wrongMsg: 'La respuesta correcta es: <strong>Pasticho</strong> 🍝🧀'
             },
             {
-                question: '¿Qué tipo de música prefiere Angie?',
-                options: ['Reggaetón', 'Pop', 'Vallenato', 'Todas las anteriores'],
-                correct: 3
+                question: '¿Cuál es el género musical favorito de Angie?',
+                options: ['Reggaetón', 'Pop', 'Salsa', 'Baladas'],
+                correct: 0,
+                correctMsg: '¡A romper la pista! El reggaetón es su ritmo favorito para bailar y disfrutar 🎶🔥',
+                wrongMsg: 'La respuesta correcta es: <strong>Reggaetón</strong> 🎶🔥'
             },
             {
                 question: '¿Cuándo es el cumpleaños de Angie?',
                 options: ['23 de Septiembre', '3 de Octubre', '15 de Septiembre', '28 de Septiembre'],
-                correct: 0
+                correct: 0,
+                correctMsg: '¡Exacto! Nació el 23 de septiembre y lo celebramos en grande el 3 de octubre 🎂🎉',
+                wrongMsg: 'Su cumpleaños es el <strong>23 de septiembre</strong> (¡y la fiesta el 3 de octubre!) 🎂'
             }
         ];
 
@@ -2762,18 +2772,12 @@
                 resultEl.className = `trivia-result ${isCorrect ? 'correct' : 'incorrect'}`;
                 
                 let feedback = '';
-                if (currentQ === 4) {
-                    if (isCorrect) {
-                        feedback = '<i class="fas fa-check-circle"></i> ¡Exacto! Nació el 23 de septiembre y lo celebramos en grande el 3 de octubre 🎂✨';
-                    } else if (answers[currentQ] === 1) {
-                        feedback = '<i class="fas fa-info-circle"></i> ¡El 3 de octubre es la fiesta! Pero su cumpleaños real es el <strong>23 de septiembre</strong> 🎂';
-                    } else {
-                        feedback = '<i class="fas fa-info-circle"></i> Su cumpleaños es el <strong>23 de septiembre</strong> (¡y la fiesta el 3 de octubre!) 🎂';
-                    }
+                if (currentQ === 4 && !isCorrect && answers[currentQ] === 1) {
+                    feedback = '<i class="fas fa-info-circle"></i> ¡El 3 de octubre es la fiesta! Pero su cumpleaños real es el <strong>23 de septiembre</strong> 🎂';
+                } else if (isCorrect) {
+                    feedback = `<i class="fas fa-check-circle"></i> ${q.correctMsg}`;
                 } else {
-                    feedback = isCorrect 
-                        ? '<i class="fas fa-check-circle"></i> ¡Correcto! Sabes mucho de Angie ✨' 
-                        : `<i class="fas fa-info-circle"></i> La respuesta correcta es: <strong>${escapeHtml(q.options[q.correct])}</strong>`;
+                    feedback = `<i class="fas fa-info-circle"></i> ${q.wrongMsg}`;
                 }
                 resultEl.innerHTML = feedback;
                 resultEl.style.display = 'block';

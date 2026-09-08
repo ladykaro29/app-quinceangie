@@ -471,6 +471,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_cancion']) && 
         exit;
     } catch (\Exception $e) {}
 }
+
+// Eliminar participante / invitado
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_invitado'])) {
+    $act = $_POST['action_invitado'];
+    $invitadoId = (int)($_POST['invitado_id'] ?? 0);
+
+    try {
+        $pdo = getDBConnection();
+
+        if ($act === 'delete' && $invitadoId > 0) {
+            // Eliminar acompañantes asociados primero
+            $stmtDelAcomp = $pdo->prepare('DELETE FROM acompanantes WHERE invitado_id = :id');
+            $stmtDelAcomp->execute([':id' => $invitadoId]);
+
+            // Eliminar invitado
+            $stmtDelInv = $pdo->prepare('DELETE FROM invitados WHERE id = :id');
+            $stmtDelInv->execute([':id' => $invitadoId]);
+
+        } elseif ($act === 'delete_test_guests') {
+            // Eliminar registros que contengan 'prueba' o 'test' en el nombre del titular
+            $stmtGetTest = $pdo->query("SELECT id FROM invitados WHERE LOWER(nombre_completo) LIKE '%prueba%' OR LOWER(nombre_completo) LIKE '%test%'");
+            $testIds = $stmtGetTest->fetchAll(PDO::FETCH_COLUMN);
+
+            if (!empty($testIds)) {
+                $inClause = implode(',', array_map('intval', $testIds));
+                $pdo->exec("DELETE FROM acompanantes WHERE invitado_id IN ($inClause)");
+                $pdo->exec("DELETE FROM invitados WHERE id IN ($inClause)");
+            }
+
+        } elseif ($act === 'delete_all_guests') {
+            // Eliminar todos los registros de prueba para reiniciar la lista de invitados
+            $pdo->exec("DELETE FROM acompanantes");
+            $pdo->exec("DELETE FROM invitados");
+        }
+
+        header('Location: index.php?tab=invitados');
+        exit;
+    } catch (\Exception $e) {}
+}
+
 try {
     $pdo = getDBConnection();
     populateMissingRaffleCodes($pdo);
@@ -1240,14 +1280,26 @@ try {
                     Última actualización: <?= date('d/m/Y H:i') ?>
                 </span>
             </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                 <button type="button" class="action-btn" id="btnOpenRaffle" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
                     <i class="fas fa-gift"></i> Sorteo de Rifa en Vivo
                 </button>
                 <a href="?export=csv" class="action-btn primary">
                     <i class="fas fa-file-csv"></i> Exportar CSV
                 </a>
-                <a href="" class="action-btn">
+                <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar los invitados que contengan \'prueba\' o \'test\' en el nombre?');" style="display: inline;">
+                    <input type="hidden" name="action_invitado" value="delete_test_guests">
+                    <button type="submit" class="action-btn" style="border-color: #ff9999; color: #ffb3b3;" title="Borrar registros con nombre de prueba">
+                        <i class="fas fa-user-minus"></i> Borrar Invitados de Prueba
+                    </button>
+                </form>
+                <form method="POST" onsubmit="return confirm('⚠️ ATENCIÓN: ¿Seguro que deseas eliminar TODOS los invitados registrados para reiniciar la lista desde cero para el evento?');" style="display: inline;">
+                    <input type="hidden" name="action_invitado" value="delete_all_guests">
+                    <button type="submit" class="action-btn" style="border-color: #ef4444; color: #fca5a5; font-size: 0.76rem;" title="Vaciar lista completa de invitados">
+                        <i class="fas fa-trash-alt"></i> Limpiar Toda la Lista
+                    </button>
+                </form>
+                <a href="?tab=invitados" class="action-btn">
                     <i class="fas fa-sync-alt"></i> Actualizar
                 </a>
             </div>
@@ -1277,6 +1329,7 @@ try {
                         <th>Acompañantes</th>
                         <th>Total Personas</th>
                         <th>Fecha</th>
+                        <th style="text-align: right; width: 90px;">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1333,6 +1386,15 @@ try {
                             <td class="date-cell">
                                 <?= date('d/m/Y', strtotime($inv['created_at'])) ?><br>
                                 <?= date('H:i', strtotime($inv['created_at'])) ?>
+                            </td>
+                            <td style="text-align: right;">
+                                <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar a <?= addslashes(htmlspecialchars($inv['nombre_completo'])) ?> y sus pases asociados?');" style="display: inline;">
+                                    <input type="hidden" name="action_invitado" value="delete">
+                                    <input type="hidden" name="invitado_id" value="<?= $inv['id'] ?>">
+                                    <button type="submit" class="action-btn" style="padding: 5px 10px; font-size: 0.72rem; border-color: #ff6b6b; color: #ff9999;" title="Eliminar registro">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

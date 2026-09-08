@@ -362,7 +362,66 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     }
 }
 
-// Obtener datos para la tabla y sorteo de rifa
+// Descargar todas las fotos en ZIP
+if (isset($_GET['export']) && $_GET['export'] === 'fotos_zip') {
+    try {
+        $pdo = getDBConnection();
+        $stmtFotos = $pdo->query('SELECT archivo, nombre_invitado, created_at FROM fotos_fiesta WHERE visible = 1');
+        $fotos = $stmtFotos->fetchAll();
+
+        if (empty($fotos)) {
+            exit('No hay fotos para descargar aún.');
+        }
+
+        $uploadDir = __DIR__ . '/../database/uploads/fotos';
+        $zipName = 'fotos_xv_angie_' . date('Y-m-d_His') . '.zip';
+
+        if (class_exists('ZipArchive')) {
+            $zip = new ZipArchive();
+            $tempZip = tempnam(sys_get_temp_dir(), 'zip');
+            if ($zip->open($tempZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+                foreach ($fotos as $f) {
+                    $filePath = $uploadDir . '/' . $f['archivo'];
+                    if (file_exists($filePath)) {
+                        $sanitizedName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $f['nombre_invitado']);
+                        $zipEntryName = date('Ymd_Hi', strtotime($f['created_at'])) . '_' . $sanitizedName . '_' . $f['archivo'];
+                        $zip->addFile($filePath, $zipEntryName);
+                    }
+                }
+                $zip->close();
+
+                header('Content-Type: application/zip');
+                header('Content-Disposition: attachment; filename="' . $zipName . '"');
+                header('Content-Length: ' . filesize($tempZip));
+                readfile($tempZip);
+                @unlink($tempZip);
+                exit;
+            }
+        }
+        exit('Extensión ZipArchive no disponible en el servidor PHP.');
+    } catch (\Exception $e) {
+        exit('Error generando ZIP: ' . htmlspecialchars($e->getMessage()));
+    }
+}
+
+// Ocultar / Eliminar foto
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
+    $fotoId = (int)($_POST['foto_id'] ?? 0);
+    $act = $_POST['action_foto'];
+
+    try {
+        $pdo = getDBConnection();
+        if ($act === 'delete' && $fotoId > 0) {
+            $stmt = $pdo->prepare('DELETE FROM fotos_fiesta WHERE id = :id');
+            $stmt->execute([':id' => $fotoId]);
+        } elseif ($act === 'toggle_visibility' && $fotoId > 0) {
+            $stmt = $pdo->prepare('UPDATE fotos_fiesta SET visible = 1 - visible WHERE id = :id');
+            $stmt->execute([':id' => $fotoId]);
+        }
+        header('Location: index.php?tab=fotos');
+        exit;
+    } catch (\Exception $e) {}
+}
 try {
     $pdo = getDBConnection();
     populateMissingRaffleCodes($pdo);
@@ -426,12 +485,19 @@ try {
         }
     }
 
+    // Cargar fotos de la fiesta para moderación
+    $stmtFotosAdmin = $pdo->query('SELECT id, nombre_invitado, mensaje, archivo, likes, ip, visible, created_at FROM fotos_fiesta ORDER BY created_at DESC');
+    $fotosFiesta = $stmtFotosAdmin->fetchAll();
+    $totalFotosFiesta = count($fotosFiesta);
+
     $dbError = null;
 } catch (\PDOException $e) {
     $dbError = $e->getMessage();
     $invitados = [];
     $acompPorInvitado = [];
     $todosBoletosRifa = [];
+    $fotosFiesta = [];
+    $totalFotosFiesta = 0;
     $totalRegistros = $totalConfirmados = $totalNoAsistiran = $totalPersonas = 0;
 }
 ?>
@@ -920,34 +986,133 @@ try {
         </div>
     </div>
 
-    <!-- Acciones -->
-    <div class="actions-bar">
-        <div>
-            <span style="font-size: 0.8rem; color: var(--dorado-claro); opacity: 0.6;">
-                Última actualización: <?= date('d/m/Y H:i') ?>
-            </span>
-        </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button type="button" class="action-btn" id="btnOpenRaffle" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
-                <i class="fas fa-gift"></i> Sorteo de Rifa en Vivo
-            </button>
-            <a href="?export=csv" class="action-btn primary">
-                <i class="fas fa-file-csv"></i> Exportar CSV
-            </a>
-            <a href="" class="action-btn">
-                <i class="fas fa-sync-alt"></i> Actualizar
-            </a>
-        </div>
+    <!-- Pestañas de Navegación del Panel -->
+    <?php $activeTab = $_GET['tab'] ?? 'invitados'; ?>
+    <div style="max-width: 1200px; margin: 0 auto 16px auto; display: flex; gap: 10px; border-bottom: 2px solid rgba(200, 162, 74, 0.2); padding-bottom: 10px;">
+        <a href="?tab=invitados" class="action-btn <?= $activeTab !== 'fotos' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-users"></i> Lista de Invitados (<?= $totalConfirmados ?>)
+        </a>
+        <a href="?tab=fotos" class="action-btn <?= $activeTab === 'fotos' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-camera-retro"></i> Fotos en Vivo de la Fiesta (<?= $totalFotosFiesta ?>)
+        </a>
     </div>
 
-    <!-- Buscador en tiempo real de invitados -->
-    <div style="max-width: 1200px; margin: 0 auto 16px auto; position: relative;">
-        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--dorado); font-size: 0.95rem; pointer-events: none;"></i>
-        <input type="text" id="guestSearchInput" placeholder="🔍 Buscar invitado por nombre, acompañante o código de rifa..." style="width: 100%; box-sizing: border-box; padding: 12px 18px 12px 45px; border-radius: 25px; border: 1.5px solid rgba(200, 162, 74, 0.35); background: rgba(6, 46, 37, 0.7); color: #FFF; font-family: 'Montserrat', sans-serif; font-size: 0.88rem; outline: none; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
-    </div>
+    <?php if ($activeTab === 'fotos'): ?>
+        <!-- ============================================================
+             SECCIÓN DE FOTOS EN VIVO (MODERACIÓN Y DESCARGA)
+             ============================================================ -->
+        <div class="actions-bar">
+            <div>
+                <span style="font-size: 0.85rem; color: var(--dorado-claro);">
+                    📸 Total de fotos subidas: <strong><?= $totalFotosFiesta ?></strong>
+                </span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="../public/en-vivo.php" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none;">
+                    <i class="fas fa-tv"></i> Abrir Modo Proyector
+                </a>
+                <a href="?export=fotos_zip" class="action-btn primary">
+                    <i class="fas fa-file-archive"></i> Descargar Todas en ZIP
+                </a>
+                <a href="?tab=fotos" class="action-btn">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </a>
+            </div>
+        </div>
 
-    <!-- Tabla de invitados -->
-    <div class="table-container">
+        <div style="max-width: 1200px; margin: 0 auto 30px auto;">
+            <?php if (empty($fotosFiesta)): ?>
+                <div class="table-container">
+                    <div class="empty-state">
+                        <i class="fas fa-camera-retro"></i>
+                        <p>Aún no se han subido fotos a la fiesta.</p>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px;">
+                    <?php foreach ($fotosFiesta as $f): 
+                        $fotoUrl = '../api/foto.php?f=' . rawurlencode($f['archivo']);
+                    ?>
+                        <div style="background: rgba(6, 46, 37, 0.7); border: 1.5px solid <?= $f['visible'] ? 'rgba(200, 162, 74, 0.35)' : 'rgba(220, 50, 50, 0.5)' ?>; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.3); backdrop-filter: blur(8px);">
+                            <div style="width: 100%; height: 210px; background: #000; overflow: hidden; position: relative;">
+                                <img src="<?= $fotoUrl ?>" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
+                                <?php if (!$f['visible']): ?>
+                                    <div style="position: absolute; top: 10px; left: 10px; background: rgba(220, 38, 38, 0.9); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+                                        OCULTA AL PÚBLICO
+                                    </div>
+                                <?php endif; ?>
+                                <div style="position: absolute; bottom: 8px; right: 10px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                                    ❤️ <?= (int)$f['likes'] ?> likes
+                                </div>
+                            </div>
+                            <div style="padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--dorado-claro); font-weight: 700;">
+                                        <?= htmlspecialchars($f['nombre_invitado']) ?>
+                                    </div>
+                                    <?php if (!empty($f['mensaje'])): ?>
+                                        <div style="font-size: 0.82rem; color: #EEE; font-style: italic; margin-top: 4px;">
+                                            "<?= htmlspecialchars($f['mensaje']) ?>"
+                                        </div>
+                                    <?php endif; ?>
+                                    <div style="font-size: 0.7rem; color: var(--dorado-claro); opacity: 0.6; margin-top: 6px;">
+                                        🕒 <?= date('d/m/Y H:i', strtotime($f['created_at'])) ?>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 6px; margin-top: 12px; border-top: 1px solid rgba(200, 162, 74, 0.15); padding-top: 10px;">
+                                    <form method="POST" style="flex: 1;">
+                                        <input type="hidden" name="action_foto" value="toggle_visibility">
+                                        <input type="hidden" name="foto_id" value="<?= $f['id'] ?>">
+                                        <button type="submit" class="action-btn" style="width: 100%; padding: 6px 8px; font-size: 0.75rem;">
+                                            <?= $f['visible'] ? '<i class="fas fa-eye-slash"></i> Ocultar' : '<i class="fas fa-eye"></i> Mostrar' ?>
+                                        </button>
+                                    </form>
+                                    <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar definitivamente esta foto?');" style="flex: 1;">
+                                        <input type="hidden" name="action_foto" value="delete">
+                                        <input type="hidden" name="foto_id" value="<?= $f['id'] ?>">
+                                        <button type="submit" class="action-btn" style="width: 100%; padding: 6px 8px; font-size: 0.75rem; border-color: #ff6b6b; color: #ff9999;">
+                                            <i class="fas fa-trash-alt"></i> Borrar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+    <?php else: ?>
+        <!-- ============================================================
+             SECCIÓN DE INVITADOS (POR DEFECTO)
+             ============================================================ -->
+        <div class="actions-bar">
+            <div>
+                <span style="font-size: 0.8rem; color: var(--dorado-claro); opacity: 0.6;">
+                    Última actualización: <?= date('d/m/Y H:i') ?>
+                </span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="action-btn" id="btnOpenRaffle" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
+                    <i class="fas fa-gift"></i> Sorteo de Rifa en Vivo
+                </button>
+                <a href="?export=csv" class="action-btn primary">
+                    <i class="fas fa-file-csv"></i> Exportar CSV
+                </a>
+                <a href="" class="action-btn">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </a>
+            </div>
+        </div>
+
+        <!-- Buscador en tiempo real de invitados -->
+        <div style="max-width: 1200px; margin: 0 auto 16px auto; position: relative;">
+            <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--dorado); font-size: 0.95rem; pointer-events: none;"></i>
+            <input type="text" id="guestSearchInput" placeholder="🔍 Buscar invitado por nombre, acompañante o código de rifa..." style="width: 100%; box-sizing: border-box; padding: 12px 18px 12px 45px; border-radius: 25px; border: 1.5px solid rgba(200, 162, 74, 0.35); background: rgba(6, 46, 37, 0.7); color: #FFF; font-family: 'Montserrat', sans-serif; font-size: 0.88rem; outline: none; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+        </div>
+
+        <!-- Tabla de invitados -->
+        <div class="table-container">
         <?php if (empty($invitados)): ?>
             <div class="empty-state">
                 <i class="fas fa-user-friends"></i>
@@ -1027,6 +1192,7 @@ try {
             </table>
         <?php endif; ?>
     </div>
+    <?php endif; ?>
 
     <div class="footer">
         Panel de Administración — XV Años Angie Karolina Avendaño Rivera — 2026

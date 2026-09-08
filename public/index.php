@@ -2132,6 +2132,308 @@
             0% { opacity: 0.95; transform: scale(1); }
             100% { opacity: 0; transform: scale(0.2) translateY(18px); }
         }
+        /* ============================================================
+           TARJETA 12: GALERÍA DE FOTOS EN VIVO (LIVE PARTY ALBUM)
+           ============================================================ */
+        .live-photos-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .btn-camera-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+            padding: 13px 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #C8A24A 60%, #8B6914 100%);
+            color: #041B16;
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 30px;
+            box-shadow: 0 6px 20px rgba(200, 162, 74, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+        }
+
+        .btn-camera-upload:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-camera-upload:active {
+            transform: translateY(1px);
+        }
+
+        .live-tv-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.76rem;
+            color: var(--dorado-claro);
+            text-decoration: none;
+            padding: 4px 12px;
+            background: rgba(200, 162, 74, 0.12);
+            border: 1px solid rgba(200, 162, 74, 0.3);
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .live-tv-link:hover {
+            background: rgba(200, 162, 74, 0.25);
+            color: #FFF;
+        }
+
+        .live-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 6px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(200, 162, 74, 0.2);
+            scrollbar-width: thin;
+            scrollbar-color: var(--dorado) transparent;
+        }
+
+        .live-gallery-item {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px solid rgba(200, 162, 74, 0.35);
+            background: #000;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .live-gallery-item:hover {
+            transform: scale(1.04);
+            border-color: var(--dorado-brillante);
+            z-index: 2;
+        }
+
+        .live-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .live-item-badge {
+            position: absolute;
+            bottom: 3px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.65);
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 0.62rem;
+            color: #FFD700;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .live-gallery-empty {
+            grid-column: 1 / -1;
+            padding: 30px 10px;
+            text-align: center;
+            color: var(--dorado-claro);
+            opacity: 0.8;
+            font-size: 0.84rem;
+        }
+
+        .live-gallery-empty i {
+            font-size: 2rem;
+            color: var(--dorado);
+            display: block;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        /* Modal Subir Foto */
+        .photo-upload-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 16px;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .photo-upload-box {
+            background: linear-gradient(145deg, #062E25, #004D38);
+            border: 2px solid var(--dorado);
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            padding: 22px 18px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(200, 162, 74, 0.15);
+            text-align: center;
+            position: relative;
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 94vh;
+            overflow-y: auto;
+        }
+
+        .photo-preview-wrap {
+            width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(200, 162, 74, 0.4);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-preview-wrap img {
+            max-width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+        }
+
+        .upload-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1.5px solid rgba(200, 162, 74, 0.35);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #FFF;
+            font-family: var(--font-sans);
+            font-size: 0.88rem;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .upload-input:focus {
+            border-color: var(--dorado);
+            box-shadow: 0 0 10px rgba(200, 162, 74, 0.3);
+        }
+
+        /* Lightbox Visor de Foto */
+        .photo-lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+            padding: 16px;
+            box-sizing: border-box;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #FFF;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .lightbox-close:hover {
+            background: var(--dorado);
+            color: #062E25;
+            transform: scale(1.1);
+        }
+
+        .lightbox-img {
+            max-width: 90vw;
+            max-height: 65vh;
+            object-fit: contain;
+            border-radius: 14px;
+            border: 2px solid var(--dorado);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+        }
+
+        .lightbox-details {
+            margin-top: 14px;
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .lightbox-author {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            color: var(--dorado-brillante);
+            font-weight: 700;
+        }
+
+        .lightbox-msg {
+            font-size: 0.9rem;
+            color: #EEE;
+            font-style: italic;
+            margin: 4px 0 10px 0;
+        }
+
+        .btn-like-photo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(220, 38, 38, 0.25);
+            border: 1.5px solid #ef4444;
+            color: #fca5a5;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-like-photo:hover {
+            background: #ef4444;
+            color: #FFF;
+            transform: scale(1.05);
+        }
+
+        .btn-like-photo.liked {
+            background: #ef4444;
+            color: #FFF;
+        }
     </style>
 </head>
 <body>
@@ -2747,9 +3049,59 @@
         </div>
 
         <!-- ============================================
-             TARJETA 12: GRACIAS & FOTO DE ANGIE
+             TARJETA 12: FOTOS DE LA FIESTA EN VIVO
              ============================================ -->
         <div class="card-slide hidden" data-slide="11">
+            <div class="card" style="padding: 22px 18px;">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon" style="margin-bottom: 6px;">
+                    <i class="fas fa-camera-retro"></i>
+                </div>
+                <div class="card-title-script" style="font-size: 2.2rem; margin-bottom: 2px;">Momentos Mágicos</div>
+                <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px;">FOTOS DE LA FIESTA EN VIVO</div>
+                <div class="gold-divider" style="margin: 8px auto 12px auto;"></div>
+
+                <p class="card-text" style="font-size: 0.84rem; line-height: 1.45; margin-bottom: 12px;">
+                    ¡Sé parte del álbum oficial de mi fiesta! Captura momentos especiales desde tu celular y compártelos en tiempo real. ✨
+                </p>
+
+                <div class="live-photos-container">
+                    <button type="button" class="btn-camera-upload" id="btnOpenPhotoUpload">
+                        <i class="fas fa-camera"></i> Subir Foto en Vivo
+                    </button>
+
+                    <a href="en-vivo.php" target="_blank" class="live-tv-link">
+                        <i class="fas fa-tv"></i> Ver Pantalla en Vivo (Modo Proyector)
+                    </a>
+
+                    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding: 0 4px;">
+                        <span style="font-size: 0.75rem; color: var(--dorado-claro); font-weight: 600;">
+                            📸 Galería Comunitaria (<span id="liveGalleryCount">0</span>)
+                        </span>
+                        <button type="button" id="btnRefreshGallery" style="background: none; border: none; color: var(--dorado); cursor: pointer; font-size: 0.78rem; display: flex; align-items: center; gap: 4px;">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+
+                    <!-- Mosaico de fotos en vivo -->
+                    <div class="live-gallery-grid" id="liveGalleryGrid">
+                        <div class="live-gallery-empty" id="liveGalleryEmpty">
+                            <i class="fas fa-images"></i>
+                            Aún no hay fotos. ¡Toca el botón arriba y sé el primero en subir un recuerdo!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 13: GRACIAS & FOTO DE ANGIE
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="12">
             <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 16px;">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2814,6 +3166,56 @@
         <source src="musica.m4a" type="audio/mp4">
         <source src="public/musica.m4a" type="audio/mp4">
     </audio>
+
+    <!-- Modal de Subida de Fotos en Vivo -->
+    <div id="photoUploadModal" class="photo-upload-modal" style="display: none;">
+        <div class="photo-upload-box">
+            <button type="button" class="lightbox-close" id="btnCloseUploadModal" style="top: 12px; right: 12px; width: 32px; height: 32px; font-size: 1rem;">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--dorado-brillante); font-weight: 700; margin-bottom: 2px;">
+                📸 Compartir Recuerdo
+            </div>
+            <div style="font-size: 0.78rem; color: var(--dorado-claro); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;">
+                XV Años Angie Karolina
+            </div>
+
+            <input type="file" id="filePhotoInput" accept="image/*" capture="environment" style="display: none;">
+
+            <div class="photo-preview-wrap" id="uploadPreviewWrap" style="display: none;">
+                <img id="imgUploadPreview" src="" alt="Vista previa de foto">
+            </div>
+
+            <input type="text" class="upload-input" id="uploadGuestName" placeholder="Tu nombre y apellido" maxlength="100">
+            <textarea class="upload-input" id="uploadGuestMsg" placeholder="Dedicatoria o mensaje para Angie (opcional)..." rows="2" maxlength="300" style="resize: none;"></textarea>
+
+            <div id="uploadStatusMsg" style="font-size: 0.8rem; margin-bottom: 10px; min-height: 18px;"></div>
+
+            <button type="button" class="btn-camera-upload" id="btnSubmitPhoto" style="width: 100%; max-width: 100%; padding: 12px;">
+                <i class="fas fa-paper-plane"></i> Publicar en el Álbum
+            </button>
+        </div>
+    </div>
+
+    <!-- Visor de Foto a Pantalla Completa (Lightbox) -->
+    <div id="photoLightbox" class="photo-lightbox" style="display: none;">
+        <button type="button" class="lightbox-close" id="btnCloseLightbox">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <img id="lightboxImg" class="lightbox-img" src="" alt="Foto en vivo ampliada">
+
+        <div class="lightbox-details">
+            <div class="lightbox-author" id="lightboxAuthor">Invitado</div>
+            <div class="lightbox-msg" id="lightboxMsg">"¡Felicidades Angie!"</div>
+            <div>
+                <button type="button" class="btn-like-photo" id="btnLikePhoto">
+                    <i class="fas fa-heart"></i> <span id="lightboxLikesCount">0</span> Me encanta
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
     /* ================================================================
@@ -3881,6 +4283,267 @@
         div.textContent = text;
         return div.innerHTML;
     }
+
+    /* ================================================================
+       GALERÍA DE FOTOS EN VIVO (LIVE PARTY ALBUM LOGIC)
+       ================================================================ */
+    (() => {
+        let livePhotos = [];
+        let likedPhotoIds = new Set();
+        let selectedFileBase64 = null;
+        let selectedPhotoForLightbox = null;
+
+        const btnOpenPhotoUpload = document.getElementById('btnOpenPhotoUpload');
+        const photoUploadModal = document.getElementById('photoUploadModal');
+        const btnCloseUploadModal = document.getElementById('btnCloseUploadModal');
+        const filePhotoInput = document.getElementById('filePhotoInput');
+        const uploadPreviewWrap = document.getElementById('uploadPreviewWrap');
+        const imgUploadPreview = document.getElementById('imgUploadPreview');
+        const uploadGuestName = document.getElementById('uploadGuestName');
+        const uploadGuestMsg = document.getElementById('uploadGuestMsg');
+        const btnSubmitPhoto = document.getElementById('btnSubmitPhoto');
+        const uploadStatusMsg = document.getElementById('uploadStatusMsg');
+
+        const liveGalleryGrid = document.getElementById('liveGalleryGrid');
+        const liveGalleryEmpty = document.getElementById('liveGalleryEmpty');
+        const liveGalleryCount = document.getElementById('liveGalleryCount');
+        const btnRefreshGallery = document.getElementById('btnRefreshGallery');
+
+        const photoLightbox = document.getElementById('photoLightbox');
+        const btnCloseLightbox = document.getElementById('btnCloseLightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxAuthor = document.getElementById('lightboxAuthor');
+        const lightboxMsg = document.getElementById('lightboxMsg');
+        const btnLikePhoto = document.getElementById('btnLikePhoto');
+        const lightboxLikesCount = document.getElementById('lightboxLikesCount');
+
+        // Pre-llenar el nombre si el usuario ya lo escribió en el formulario RSVP
+        function getStoredGuestName() {
+            const rsvpInput = document.getElementById('rsvp-nombre');
+            if (rsvpInput && rsvpInput.value.trim()) {
+                return rsvpInput.value.trim();
+            }
+            try {
+                return localStorage.getItem('angie_rsvp_name') || '';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        // Abrir modal de subida
+        btnOpenPhotoUpload?.addEventListener('click', () => {
+            if (!uploadGuestName.value.trim()) {
+                uploadGuestName.value = getStoredGuestName();
+            }
+            uploadStatusMsg.textContent = '';
+            filePhotoInput.click();
+        });
+
+        // Al seleccionar archivo con la cámara o galería del celular
+        filePhotoInput?.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            // Compresión del lado del cliente vía Canvas HTML5 (8-12MP a ~1400px JPEG de 350KB)
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDimension = 1400;
+
+                    if (width > height && width > maxDimension) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else if (height > maxDimension) {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    selectedFileBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                    imgUploadPreview.src = selectedFileBase64;
+                    uploadPreviewWrap.style.display = 'flex';
+                    photoUploadModal.style.display = 'flex';
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Cerrar modal de subida
+        btnCloseUploadModal?.addEventListener('click', () => {
+            photoUploadModal.style.display = 'none';
+            selectedFileBase64 = null;
+            filePhotoInput.value = '';
+        });
+
+        // Enviar foto
+        btnSubmitPhoto?.addEventListener('click', async () => {
+            if (!selectedFileBase64) {
+                uploadStatusMsg.textContent = 'Por favor selecciona una foto primero.';
+                uploadStatusMsg.style.color = '#ff9999';
+                return;
+            }
+
+            const nombre = uploadGuestName.value.trim() || 'Invitado Especial';
+            const mensaje = uploadGuestMsg.value.trim();
+
+            btnSubmitPhoto.disabled = true;
+            btnSubmitPhoto.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+            uploadStatusMsg.textContent = 'Enviando foto a la fiesta...';
+            uploadStatusMsg.style.color = '#FFE680';
+
+            try {
+                // Guardar nombre en localStorage para próximas fotos
+                try { localStorage.setItem('angie_rsvp_name', nombre); } catch(e){}
+
+                const formData = new FormData();
+                formData.append('nombre_invitado', nombre);
+                formData.append('mensaje', mensaje);
+                formData.append('foto_base64', selectedFileBase64);
+
+                const res = await fetch('api/fotos.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (data && data.success) {
+                    uploadStatusMsg.textContent = '✨ ¡Foto compartida con éxito!';
+                    uploadStatusMsg.style.color = '#A7F3D0';
+
+                    setTimeout(() => {
+                        photoUploadModal.style.display = 'none';
+                        selectedFileBase64 = null;
+                        filePhotoInput.value = '';
+                        uploadGuestMsg.value = '';
+                        btnSubmitPhoto.disabled = false;
+                        btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar en el Álbum';
+                        fetchLivePhotos();
+                    }, 800);
+                } else {
+                    throw new Error(data.error || 'Error al subir la foto');
+                }
+            } catch (err) {
+                btnSubmitPhoto.disabled = false;
+                btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Intentar de Nuevo';
+                uploadStatusMsg.textContent = 'Error: ' + err.message;
+                uploadStatusMsg.style.color = '#ff9999';
+            }
+        });
+
+        // Obtener fotos desde la API
+        async function fetchLivePhotos() {
+            try {
+                const res = await fetch('api/fotos.php?limit=60&t=' + Date.now());
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.fotos)) {
+                    livePhotos = data.fotos;
+                    renderLiveGallery();
+                }
+            } catch (err) {
+                console.warn('Error al cargar fotos:', err);
+            }
+        }
+
+        // Renderizar el mosaico de la galería
+        function renderLiveGallery() {
+            liveGalleryCount.textContent = livePhotos.length;
+
+            if (livePhotos.length === 0) {
+                liveGalleryGrid.innerHTML = `
+                    <div class="live-gallery-empty" id="liveGalleryEmpty">
+                        <i class="fas fa-images"></i>
+                        Aún no hay fotos. ¡Toca el botón arriba y sé el primero en subir un recuerdo!
+                    </div>
+                `;
+                return;
+            }
+
+            liveGalleryGrid.innerHTML = '';
+            livePhotos.forEach((photo) => {
+                const item = document.createElement('div');
+                item.className = 'live-gallery-item';
+                item.innerHTML = `
+                    <img src="${photo.url}" alt="${photo.nombre_invitado}" loading="lazy">
+                    <div class="live-item-badge">
+                        <i class="fas fa-heart" style="color: #ef4444;"></i> ${photo.likes || 0}
+                    </div>
+                `;
+                item.addEventListener('click', () => openLightbox(photo));
+                liveGalleryGrid.appendChild(item);
+            });
+        }
+
+        // Abrir visor a pantalla completa
+        function openLightbox(photo) {
+            selectedPhotoForLightbox = photo;
+            lightboxImg.src = photo.url;
+            lightboxAuthor.textContent = photo.nombre_invitado || 'Invitado Especial';
+            lightboxMsg.textContent = photo.mensaje ? `"${photo.mensaje}"` : '✨ ¡Celebrando los XV de Angie Karolina!';
+            lightboxLikesCount.textContent = photo.likes || 0;
+
+            const isLiked = likedPhotoIds.has(photo.id);
+            btnLikePhoto.classList.toggle('liked', isLiked);
+
+            photoLightbox.style.display = 'flex';
+        }
+
+        // Cerrar visor
+        btnCloseLightbox?.addEventListener('click', () => {
+            photoLightbox.style.display = 'none';
+            selectedPhotoForLightbox = null;
+        });
+
+        // Like a la foto
+        btnLikePhoto?.addEventListener('click', async () => {
+            if (!selectedPhotoForLightbox) return;
+            const id = selectedPhotoForLightbox.id;
+            if (likedPhotoIds.has(id)) return;
+
+            likedPhotoIds.add(id);
+            btnLikePhoto.classList.add('liked');
+
+            try {
+                const res = await fetch('api/fotos.php?action=like', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    selectedPhotoForLightbox.likes = data.likes;
+                    lightboxLikesCount.textContent = data.likes;
+                    // Actualizar en el arreglo local
+                    const p = livePhotos.find(x => x.id === id);
+                    if (p) p.likes = data.likes;
+                    renderLiveGallery();
+                }
+            } catch (err) {
+                console.warn('Error al dar like:', err);
+            }
+        });
+
+        // Botón refrescar
+        btnRefreshGallery?.addEventListener('click', () => {
+            const icon = btnRefreshGallery.querySelector('i');
+            if (icon) icon.classList.add('fa-spin');
+            fetchLivePhotos().finally(() => {
+                setTimeout(() => { if (icon) icon.classList.remove('fa-spin'); }, 500);
+            });
+        });
+
+        // Cargar fotos al inicio y refrescar periódicamente cada 25 segundos
+        fetchLivePhotos();
+        setInterval(fetchLivePhotos, 25000);
+    })();
     </script>
 </body>
 </html>

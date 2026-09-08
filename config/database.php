@@ -167,6 +167,17 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             FOREIGN KEY (invitado_id) REFERENCES invitados(id) ON DELETE CASCADE
         );");
 
+        $pdo->exec("CREATE TABLE IF NOT EXISTS fotos_fiesta (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre_invitado TEXT NOT NULL,
+            mensaje TEXT NULL,
+            archivo TEXT NOT NULL,
+            likes INTEGER NOT NULL DEFAULT 0,
+            ip TEXT NULL,
+            visible INTEGER NOT NULL DEFAULT 1,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );");
+
     } else {
         // Tablas para MySQL
         try {
@@ -187,6 +198,19 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
                 nombre_completo VARCHAR(150) NOT NULL,
                 codigo_rifa VARCHAR(20) NULL UNIQUE,
                 INDEX idx_acomp_codigo_rifa (codigo_rifa)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS fotos_fiesta (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre_invitado VARCHAR(150) NOT NULL,
+                mensaje TEXT NULL,
+                archivo VARCHAR(255) NOT NULL,
+                likes INT NOT NULL DEFAULT 0,
+                ip VARCHAR(45) NULL,
+                visible TINYINT(1) NOT NULL DEFAULT 1,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_visible (visible),
+                INDEX idx_created_at (created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         } catch (\Exception $e) {}
 

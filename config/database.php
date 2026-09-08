@@ -156,6 +156,8 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             nombre_completo TEXT NOT NULL,
             asistira INTEGER NOT NULL DEFAULT 1,
             codigo_rifa TEXT UNIQUE,
+            asistio_evento INTEGER NOT NULL DEFAULT 0,
+            checkin_at DATETIME NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );");
 
@@ -186,6 +188,23 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );");
 
+        // Migración SQLite asistio_evento
+        try {
+            $cols = $pdo->query("PRAGMA table_info(invitados)")->fetchAll(PDO::FETCH_ASSOC);
+            $hasAsistio = false;
+            $hasCheckinAt = false;
+            foreach ($cols as $col) {
+                if ($col['name'] === 'asistio_evento') $hasAsistio = true;
+                if ($col['name'] === 'checkin_at') $hasCheckinAt = true;
+            }
+            if (!$hasAsistio) {
+                $pdo->exec("ALTER TABLE invitados ADD COLUMN asistio_evento INTEGER NOT NULL DEFAULT 0");
+            }
+            if (!$hasCheckinAt) {
+                $pdo->exec("ALTER TABLE invitados ADD COLUMN checkin_at DATETIME NULL");
+            }
+        } catch (\Exception $e) {}
+
     } else {
         // Tablas para MySQL
         try {
@@ -194,8 +213,11 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
                 nombre_completo VARCHAR(150) NOT NULL,
                 asistira TINYINT(1) NOT NULL DEFAULT 1,
                 codigo_rifa VARCHAR(20) NULL UNIQUE,
+                asistio_evento TINYINT(1) NOT NULL DEFAULT 0,
+                checkin_at DATETIME NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_asistira (asistira),
+                INDEX idx_asistio_evento (asistio_evento),
                 INDEX idx_codigo_rifa (codigo_rifa),
                 INDEX idx_created_at (created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
@@ -231,7 +253,7 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         } catch (\Exception $e) {}
 
-        // Migración de columnas de rifa en MySQL
+        // Migración de columnas de rifa y check-in en MySQL
         try {
             $stmt = $pdo->query("SHOW COLUMNS FROM invitados LIKE 'codigo_rifa'");
             if (!$stmt->fetch()) {
@@ -243,6 +265,13 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             $stmt = $pdo->query("SHOW COLUMNS FROM acompanantes LIKE 'codigo_rifa'");
             if (!$stmt->fetch()) {
                 $pdo->exec("ALTER TABLE acompanantes ADD COLUMN codigo_rifa VARCHAR(20) NULL UNIQUE AFTER nombre_completo");
+            }
+        } catch (\Exception $e) {}
+
+        try {
+            $stmt = $pdo->query("SHOW COLUMNS FROM invitados LIKE 'asistio_evento'");
+            if (!$stmt->fetch()) {
+                $pdo->exec("ALTER TABLE invitados ADD COLUMN asistio_evento TINYINT(1) NOT NULL DEFAULT 0 AFTER codigo_rifa, ADD COLUMN checkin_at DATETIME NULL AFTER asistio_evento");
             }
         } catch (\Exception $e) {}
     }

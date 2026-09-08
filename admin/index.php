@@ -500,6 +500,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_invitado'])) {
                 $pdo->exec("DELETE FROM invitados WHERE id IN ($inClause)");
             }
 
+        } elseif ($act === 'toggle_checkin' && $invitadoId > 0) {
+            // Alternar estado de asistencia real a la fiesta (Check-in)
+            $stmtCur = $pdo->prepare('SELECT asistio_evento FROM invitados WHERE id = :id');
+            $stmtCur->execute([':id' => $invitadoId]);
+            $current = (int)$stmtCur->fetchColumn();
+            $nuevo = 1 - $current;
+            $checkinAt = $nuevo ? date('Y-m-d H:i:s') : null;
+
+            $stmtUpd = $pdo->prepare('UPDATE invitados SET asistio_evento = :st, checkin_at = :ca WHERE id = :id');
+            $stmtUpd->execute([':st' => $nuevo, ':ca' => $checkinAt, ':id' => $invitadoId]);
+
         } elseif ($act === 'delete_all_guests') {
             // Eliminar todos los registros de prueba para reiniciar la lista de invitados
             $pdo->exec("DELETE FROM acompanantes");
@@ -516,7 +527,7 @@ try {
     populateMissingRaffleCodes($pdo);
 
     $stmtInvitados = $pdo->query(
-        'SELECT id, nombre_completo, asistira, codigo_rifa, created_at 
+        'SELECT id, nombre_completo, asistira, codigo_rifa, asistio_evento, checkin_at, created_at 
          FROM invitados ORDER BY created_at DESC'
     );
     $invitados = $stmtInvitados->fetchAll();
@@ -540,6 +551,8 @@ try {
     $totalConfirmados = 0;
     $totalNoAsistiran = 0;
     $totalPersonas = 0;
+    $totalAsistieronReal = 0;
+    $totalPersonasPresentes = 0;
     $todosBoletosRifa = [];
 
     foreach ($invitados as $inv) {
@@ -547,6 +560,11 @@ try {
         if ($inv['asistira']) {
             $totalConfirmados++;
             $totalPersonas += 1 + count($acomps);
+
+            if (!empty($inv['asistio_evento'])) {
+                $totalAsistieronReal++;
+                $totalPersonasPresentes += 1 + count($acomps);
+            }
 
             if (!empty($inv['codigo_rifa'])) {
                 $todosBoletosRifa[] = [
@@ -613,6 +631,7 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root {
             --verde-oscuro: #062E25;
@@ -808,6 +827,29 @@ try {
             background: rgba(139, 69, 19, 0.2);
             color: #D4A26A;
             border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+
+        .badge-present {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.5));
+            color: #6EE7B7;
+            border: 1.5px solid #10B981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+            font-weight: 700;
+        }
+
+        .badge-absent {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--dorado-claro);
+            border: 1px dashed rgba(200, 162, 74, 0.4);
+            opacity: 0.75;
+        }
+
+        .badge-present:hover, .badge-absent:hover {
+            transform: scale(1.05);
+        }
+
+        .row-checked-in td {
+            background: rgba(16, 185, 129, 0.04);
         }
 
         .companion-list {
@@ -1076,6 +1118,10 @@ try {
             <div class="stat-number"><?= $totalPersonas ?></div>
             <div class="stat-label">Personas Esperadas</div>
         </div>
+        <div class="stat-card" style="border-color: rgba(47, 143, 104, 0.6); background: linear-gradient(145deg, rgba(47, 143, 104, 0.25), rgba(6, 46, 37, 0.85));">
+            <div class="stat-number" style="color: #6EE7B7; text-shadow: 0 0 15px rgba(110, 231, 183, 0.5);"><?= $totalAsistieronReal ?> <span style="font-size: 1.1rem; opacity: 0.8;">(<?= $totalPersonasPresentes ?> pers.)</span></div>
+            <div class="stat-label" style="color: #A7F3D0;">🎉 Asistieron a la Fiesta</div>
+        </div>
         <div class="stat-card" style="border-color: rgba(255, 215, 0, 0.45); background: linear-gradient(145deg, rgba(200, 162, 74, 0.18), rgba(6, 46, 37, 0.8));">
             <div class="stat-number" style="color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);"><?= count($todosBoletosRifa) ?></div>
             <div class="stat-label" style="color: #FFE680;">🎟️ Boletos en Rifa</div>
@@ -1084,16 +1130,23 @@ try {
 
     <!-- Pestañas de Navegación del Panel -->
     <?php $activeTab = $_GET['tab'] ?? 'invitados'; ?>
-    <div style="max-width: 1200px; margin: 0 auto 16px auto; display: flex; gap: 10px; border-bottom: 2px solid rgba(200, 162, 74, 0.2); padding-bottom: 10px; flex-wrap: wrap;">
-        <a href="?tab=invitados" class="action-btn <?= $activeTab === 'invitados' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-users"></i> Lista de Invitados (<?= $totalConfirmados ?>)
-        </a>
-        <a href="?tab=fotos" class="action-btn <?= $activeTab === 'fotos' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-camera-retro"></i> Fotos en Vivo (<?= $totalFotosFiesta ?>)
-        </a>
-        <a href="?tab=canciones" class="action-btn <?= $activeTab === 'canciones' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-music"></i> Playlist Sugerida (<?= $totalCanciones ?>)
-        </a>
+    <div style="max-width: 1200px; margin: 0 auto 16px auto; display: flex; gap: 10px; border-bottom: 2px solid rgba(200, 162, 74, 0.2); padding-bottom: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="?tab=invitados" class="action-btn <?= $activeTab === 'invitados' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-users"></i> Lista de Invitados (<?= $totalConfirmados ?>)
+            </a>
+            <a href="?tab=fotos" class="action-btn <?= $activeTab === 'fotos' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-camera-retro"></i> Fotos en Vivo (<?= $totalFotosFiesta ?>)
+            </a>
+            <a href="?tab=canciones" class="action-btn <?= $activeTab === 'canciones' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-music"></i> Playlist Sugerida (<?= $totalCanciones ?>)
+            </a>
+        </div>
+        <div>
+            <button type="button" class="action-btn" id="btnOpenScannerTop" style="background: linear-gradient(135deg, #10B981, #059669); color: #FFF; font-weight: 700; border: none; padding: 10px 22px; border-radius: 25px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45); cursor: pointer;">
+                <i class="fas fa-qrcode"></i> Escanear QR Recepción
+            </button>
+        </div>
     </div>
 
     <?php if ($activeTab === 'fotos'): ?>
@@ -1281,8 +1334,11 @@ try {
                 </span>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <button type="button" class="action-btn" id="btnOpenScanner" style="background: linear-gradient(135deg, #10B981, #059669); color: #FFF; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                    <i class="fas fa-qrcode"></i> Escanear QR en Entrada
+                </button>
                 <button type="button" class="action-btn" id="btnOpenRaffle" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
-                    <i class="fas fa-gift"></i> Sorteo de Rifa en Vivo
+                    <i class="fas fa-gift"></i> Sorteo de Rifa
                 </button>
                 <a href="?export=csv" class="action-btn primary">
                     <i class="fas fa-file-csv"></i> Exportar CSV
@@ -1290,13 +1346,13 @@ try {
                 <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar los invitados que contengan \'prueba\' o \'test\' en el nombre?');" style="display: inline;">
                     <input type="hidden" name="action_invitado" value="delete_test_guests">
                     <button type="submit" class="action-btn" style="border-color: #ff9999; color: #ffb3b3;" title="Borrar registros con nombre de prueba">
-                        <i class="fas fa-user-minus"></i> Borrar Invitados de Prueba
+                        <i class="fas fa-user-minus"></i> Borrar Pruebas
                     </button>
                 </form>
                 <form method="POST" onsubmit="return confirm('⚠️ ATENCIÓN: ¿Seguro que deseas eliminar TODOS los invitados registrados para reiniciar la lista desde cero para el evento?');" style="display: inline;">
                     <input type="hidden" name="action_invitado" value="delete_all_guests">
                     <button type="submit" class="action-btn" style="border-color: #ef4444; color: #fca5a5; font-size: 0.76rem;" title="Vaciar lista completa de invitados">
-                        <i class="fas fa-trash-alt"></i> Limpiar Toda la Lista
+                        <i class="fas fa-trash-alt"></i> Limpiar Todo
                     </button>
                 </form>
                 <a href="?tab=invitados" class="action-btn">
@@ -1324,11 +1380,12 @@ try {
                     <tr>
                         <th>#</th>
                         <th>Nombre Titular</th>
-                        <th>¿Asistirá?</th>
+                        <th>¿Confirmó?</th>
+                        <th style="text-align: center;">¿Asistió a la Fiesta?</th>
                         <th>Boletos de Rifa</th>
                         <th>Acompañantes</th>
                         <th>Total Personas</th>
-                        <th>Fecha</th>
+                        <th>Fecha Registro</th>
                         <th style="text-align: right; width: 90px;">Acción</th>
                     </tr>
                 </thead>
@@ -1336,15 +1393,36 @@ try {
                     <?php foreach ($invitados as $i => $inv): 
                         $acomps = $acompPorInvitado[$inv['id']] ?? [];
                         $totalPersonasRow = $inv['asistira'] ? 1 + count($acomps) : 0;
+                        $asistioReal = !empty($inv['asistio_evento']);
                     ?>
-                        <tr>
+                        <tr id="guest-row-<?= $inv['id'] ?>" class="<?= $asistioReal ? 'row-checked-in' : '' ?>">
                             <td style="color: var(--dorado); opacity: 0.5;"><?= $i + 1 ?></td>
-                            <td><strong><?= htmlspecialchars($inv['nombre_completo']) ?></strong></td>
+                            <td>
+                                <strong><?= htmlspecialchars($inv['nombre_completo']) ?></strong>
+                                <?php if ($asistioReal && !empty($inv['checkin_at'])): ?>
+                                    <div style="font-size: 0.68rem; color: #6EE7B7; margin-top: 2px;">
+                                        <i class="fas fa-clock"></i> Entrada: <?= date('d/m H:i', strtotime($inv['checkin_at'])) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if ($inv['asistira']): ?>
                                     <span class="badge badge-yes"><i class="fas fa-check"></i> Sí</span>
                                 <?php else: ?>
                                     <span class="badge badge-no"><i class="fas fa-times"></i> No</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="checkin-status-cell" style="text-align: center;">
+                                <?php if ($inv['asistira']): ?>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action_invitado" value="toggle_checkin">
+                                        <input type="hidden" name="invitado_id" value="<?= $inv['id'] ?>">
+                                        <button type="submit" class="badge <?= $asistioReal ? 'badge-present' : 'badge-absent' ?>" style="cursor: pointer; border: none; font-size: 0.75rem; padding: 5px 12px; transition: transform 0.2s;" title="Clic para alternar estado de asistencia">
+                                            <?= $asistioReal ? '<i class="fas fa-check-double"></i> ASISTIÓ' : '<i class="fas fa-hourglass-start"></i> PENDIENTE' ?>
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <span style="opacity: 0.4; font-size: 0.75rem;">No Asistirá</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -1406,6 +1484,70 @@ try {
 
     <div class="footer">
         Panel de Administración — XV Años Angie Karolina Avendaño Rivera — 2026
+    </div>
+
+    <!-- ============================================================
+         MODAL ESCÁNER DE CÓDIGOS QR (CHECK-IN DE INVITADOS EN VIVO)
+         ============================================================ -->
+    <div id="scannerModal" class="raffle-modal-backdrop" style="display: none;">
+        <div class="raffle-modal-window" style="max-width: 540px;">
+            <div class="raffle-modal-header">
+                <div>
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.45rem; color: #6EE7B7; margin: 0;">
+                        <i class="fas fa-qrcode"></i> Escáner de Pases VIP
+                    </h3>
+                    <div style="font-size: 0.8rem; color: var(--dorado-claro); opacity: 0.85;">Recepción y Control de Entrada a la Fiesta</div>
+                </div>
+                <button type="button" class="raffle-close-btn" id="btnCloseScanner" title="Cerrar">&times;</button>
+            </div>
+
+            <div class="raffle-modal-body">
+                <!-- Visor de Cámara para Escaneo en Vivo -->
+                <div style="position: relative; border-radius: 14px; overflow: hidden; border: 2px solid var(--dorado); background: #000; min-height: 250px; margin-bottom: 15px;">
+                    <div id="qrReaderView" style="width: 100%;"></div>
+                    <div id="scannerLoading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--dorado-claro); font-size: 0.88rem; gap: 10px;">
+                        <i class="fas fa-camera fa-spin fa-2x" style="color: var(--dorado);"></i>
+                        <span>Iniciando cámara...</span>
+                    </div>
+                </div>
+
+                <!-- Opciones de entrada manual o búsqueda rápida -->
+                <div style="margin-bottom: 14px; display: flex; gap: 8px;">
+                    <input type="text" id="manualQrInput" placeholder="O ingresa código/nombre: ej. RIFA-4438..." style="flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--dorado); background: rgba(0,0,0,0.5); color: #FFF; font-size: 0.86rem; outline: none;">
+                    <button type="button" id="btnVerifyManual" class="action-btn primary" style="padding: 10px 18px; font-size: 0.86rem; border-radius: 8px;">
+                        <i class="fas fa-search"></i> Verificar
+                    </button>
+                </div>
+
+                <!-- Tarjeta de Resultado de Verificación -->
+                <div id="scannerResultBox" style="display: none; padding: 16px; border-radius: 12px; margin-bottom: 12px; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <div id="resultStatusIcon" style="font-size: 2.2rem;"></div>
+                        <div>
+                            <div id="resultGuestName" style="font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: #FFF;"></div>
+                            <div id="resultStatusBadge" style="display: inline-block; padding: 3px 10px; border-radius: 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;"></div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-top: 10px; line-height: 1.5;">
+                        <div id="resultPassesCount" style="color: var(--dorado-claro); font-weight: 600;"></div>
+                        <div id="resultCompanions" style="color: #DDD; font-size: 0.78rem; margin-top: 4px;"></div>
+                        <div id="resultRaffleCode" style="color: #FFE680; font-family: monospace; font-size: 0.85rem; margin-top: 4px;"></div>
+                        <div id="resultCheckinTime" style="color: #9CA3AF; font-size: 0.72rem; margin-top: 4px;"></div>
+                    </div>
+
+                    <div style="margin-top: 12px; display: flex; gap: 10px;">
+                        <button type="button" id="btnToggleCheckinResult" class="action-btn" style="flex: 1; justify-content: center; padding: 8px; font-size: 0.8rem;">
+                            Cambiar Estado
+                        </button>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.75rem; color: var(--dorado-claro); opacity: 0.7; text-align: center;">
+                    💡 Apunta la cámara del teléfono o computadora al código QR del Pase VIP del invitado para registrar su llegada al instante.
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ============================================================
@@ -1688,6 +1830,286 @@ try {
                 const text = row.innerText.toLowerCase();
                 row.style.display = text.includes(term) ? '' : 'none';
             });
+        });
+
+        // ============================================================
+        // CONTROLADOR DEL ESCÁNER DE QR (RECEPCIÓN Y CHECK-IN EN VIVO)
+        // ============================================================
+        const scannerModal = document.getElementById('scannerModal');
+        const btnOpenScanner = document.getElementById('btnOpenScanner');
+        const btnOpenScannerTop = document.getElementById('btnOpenScannerTop');
+        const btnCloseScanner = document.getElementById('btnCloseScanner');
+        const scannerLoading = document.getElementById('scannerLoading');
+        const scannerResultBox = document.getElementById('scannerResultBox');
+        const manualQrInput = document.getElementById('manualQrInput');
+        const btnVerifyManual = document.getElementById('btnVerifyManual');
+        const btnToggleCheckinResult = document.getElementById('btnToggleCheckinResult');
+
+        let html5QrScanner = null;
+        let isScanningActive = false;
+        let lastScannedGuest = null;
+        let scanThrottleTimer = null;
+
+        function playCheckinBeep(isWarning = false) {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                if (isWarning) {
+                    // Doble beep bajo para indicar ya registrado
+                    [330, 260].forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
+                        gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.12);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.18);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + idx * 0.12);
+                        osc.stop(ctx.currentTime + idx * 0.12 + 0.2);
+                    });
+                } else {
+                    // Tono alegre ascendente de confirmación de entrada
+                    [523.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+                        gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + idx * 0.08);
+                        osc.stop(ctx.currentTime + idx * 0.08 + 0.28);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function openScannerModal() {
+            scannerModal.style.display = 'flex';
+            scannerResultBox.style.display = 'none';
+            if (manualQrInput) manualQrInput.value = '';
+            if (scannerLoading) {
+                scannerLoading.style.display = 'flex';
+                scannerLoading.innerHTML = '<i class="fas fa-camera fa-spin fa-2x" style="color: var(--dorado);"></i><span>Iniciando cámara...</span>';
+            }
+
+            // Iniciar cámara con Html5Qrcode
+            if (typeof Html5Qrcode !== 'undefined') {
+                try {
+                    if (html5QrScanner) {
+                        try { await html5QrScanner.stop(); } catch(e){}
+                    }
+                    html5QrScanner = new Html5Qrcode("qrReaderView");
+                    await html5QrScanner.start(
+                        { facingMode: "environment" },
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 },
+                            aspectRatio: 1.0
+                        },
+                        (decodedText) => {
+                            // On Scan Success
+                            handleScannedQr(decodedText);
+                        },
+                        (errorMessage) => {
+                            // Ignore scan frame failures
+                        }
+                    );
+                    if (scannerLoading) scannerLoading.style.display = 'none';
+                    isScanningActive = true;
+                } catch (err) {
+                    console.warn('Error iniciando cámara:', err);
+                    if (scannerLoading) {
+                        scannerLoading.innerHTML = `
+                            <i class="fas fa-exclamation-triangle fa-2x" style="color: #F87171;"></i>
+                            <span style="max-width: 80%; text-align: center;">No se pudo acceder a la cámara o no hay permisos. Puedes ingresar el código o nombre manualmente.</span>
+                        `;
+                    }
+                }
+            } else {
+                if (scannerLoading) {
+                    scannerLoading.innerHTML = '<span>Librería de escaneo no disponible. Utiliza el buscador manual.</span>';
+                }
+            }
+        }
+
+        async function stopScannerModal() {
+            if (html5QrScanner && isScanningActive) {
+                try {
+                    await html5QrScanner.stop();
+                    html5QrScanner.clear();
+                } catch (e) {}
+                isScanningActive = false;
+            }
+            scannerModal.style.display = 'none';
+        }
+
+        function handleScannedQr(codeText) {
+            if (!codeText) return;
+            // Throttle de 2.5 segundos para no re-escanear el mismo código repetidamente de inmediato
+            if (scanThrottleTimer) return;
+            scanThrottleTimer = setTimeout(() => { scanThrottleTimer = null; }, 2500);
+
+            verifyGuestCode(codeText, 'checkin');
+        }
+
+        async function verifyGuestCode(codeText, action = 'checkin') {
+            try {
+                const res = await fetch('../api/checkin.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qr_text: codeText, action: action })
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    showScannerError(data.error || 'Código no encontrado');
+                    return;
+                }
+
+                lastScannedGuest = data.invitado;
+                renderScannerResult(data);
+                playCheckinBeep(data.already_checked);
+
+                // Actualizar la fila en la tabla de invitados sin recargar toda la página
+                updateTableRowCheckin(data.invitado);
+
+            } catch (err) {
+                console.error(err);
+                showScannerError('Error al contactar el servidor de verificación.');
+            }
+        }
+
+        function showScannerError(msg) {
+            scannerResultBox.style.display = 'block';
+            scannerResultBox.style.border = '2px solid #EF4444';
+            scannerResultBox.style.background = 'rgba(239, 68, 68, 0.15)';
+            
+            document.getElementById('resultStatusIcon').innerHTML = '<i class="fas fa-times-circle" style="color: #EF4444;"></i>';
+            document.getElementById('resultGuestName').textContent = 'Pase no válido';
+            document.getElementById('resultStatusBadge').textContent = 'NO ENCONTRADO';
+            document.getElementById('resultStatusBadge').style.background = 'rgba(239, 68, 68, 0.3)';
+            document.getElementById('resultStatusBadge').style.color = '#FCA5A5';
+            
+            document.getElementById('resultPassesCount').textContent = msg;
+            document.getElementById('resultCompanions').textContent = 'Verifica que el código pertenezca a la invitación de Angie.';
+            document.getElementById('resultRaffleCode').textContent = '';
+            document.getElementById('resultCheckinTime').textContent = '';
+            if (btnToggleCheckinResult) btnToggleCheckinResult.style.display = 'none';
+        }
+
+        function renderScannerResult(data) {
+            const inv = data.invitado;
+            const isAsistio = inv.asistio_evento;
+            const already = data.already_checked;
+
+            scannerResultBox.style.display = 'block';
+
+            if (isAsistio) {
+                scannerResultBox.style.border = already ? '2px solid #F59E0B' : '2px solid #10B981';
+                scannerResultBox.style.background = already ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+                
+                document.getElementById('resultStatusIcon').innerHTML = already 
+                    ? '<i class="fas fa-info-circle" style="color: #F59E0B;"></i>' 
+                    : '<i class="fas fa-check-circle" style="color: #10B981;"></i>';
+                
+                document.getElementById('resultGuestName').textContent = inv.nombre_completo;
+                
+                const badge = document.getElementById('resultStatusBadge');
+                badge.textContent = already ? 'YA HABÍA INGRESADO' : '¡ASISTENCIA REGISTRADA!';
+                badge.style.background = already ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.3)';
+                badge.style.color = already ? '#FDE68A' : '#6EE7B7';
+
+            } else {
+                scannerResultBox.style.border = '2px solid #6B7280';
+                scannerResultBox.style.background = 'rgba(107, 114, 128, 0.15)';
+                
+                document.getElementById('resultStatusIcon').innerHTML = '<i class="fas fa-user-clock" style="color: #9CA3AF;"></i>';
+                document.getElementById('resultGuestName').textContent = inv.nombre_completo;
+                
+                const badge = document.getElementById('resultStatusBadge');
+                badge.textContent = 'ESTADO: PENDIENTE';
+                badge.style.background = 'rgba(107, 114, 128, 0.3)';
+                badge.style.color = '#E5E7EB';
+            }
+
+            // Pases y Acompañantes
+            const passes = inv.total_personas || 1;
+            document.getElementById('resultPassesCount').innerHTML = `
+                <i class="fas fa-users" style="color: var(--dorado);"></i> <strong>Total de personas permitidas: ${passes}</strong>
+            `;
+
+            const compNames = (inv.acompanantes && inv.acompanantes.length > 0)
+                ? 'Acompañantes registrados: ' + inv.acompanantes.map(a => a.nombre_completo || a.nombre).join(', ')
+                : 'Sin acompañantes adicionales registrados.';
+            document.getElementById('resultCompanions').textContent = compNames;
+
+            // Boleto de rifa
+            document.getElementById('resultRaffleCode').innerHTML = inv.codigo_rifa
+                ? `🎟️ Boleto Rifa Titular: <strong>${escapeHtml(inv.codigo_rifa)}</strong>`
+                : '';
+
+            // Hora de checkin
+            document.getElementById('resultCheckinTime').textContent = inv.checkin_at
+                ? `Registrado el: ${inv.checkin_at}`
+                : 'Aún no tiene hora de entrada registrada.';
+
+            if (btnToggleCheckinResult) {
+                btnToggleCheckinResult.style.display = 'block';
+                btnToggleCheckinResult.innerHTML = isAsistio 
+                    ? '<i class="fas fa-undo"></i> Marcar como NO Asistió (Deshacer)' 
+                    : '<i class="fas fa-check-double"></i> Registrar Entrada a la Fiesta';
+                btnToggleCheckinResult.className = isAsistio ? 'action-btn danger' : 'action-btn primary';
+            }
+        }
+
+        function updateTableRowCheckin(inv) {
+            if (!inv || !inv.id) return;
+            const row = document.getElementById('guest-row-' + inv.id);
+            if (!row) return;
+
+            const cell = row.querySelector('.checkin-status-cell');
+            if (cell) {
+                const isPresent = inv.asistio_evento;
+                const form = cell.querySelector('form');
+                if (form) {
+                    const btn = form.querySelector('button');
+                    if (btn) {
+                        btn.className = `badge ${isPresent ? 'badge-present' : 'badge-absent'}`;
+                        btn.innerHTML = isPresent 
+                            ? '<i class="fas fa-check-double"></i> ASISTIÓ' 
+                            : '<i class="fas fa-hourglass-start"></i> PENDIENTE';
+                    }
+                }
+            }
+        }
+
+        // Event listeners del escáner
+        btnOpenScanner?.addEventListener('click', openScannerModal);
+        btnOpenScannerTop?.addEventListener('click', openScannerModal);
+        btnCloseScanner?.addEventListener('click', stopScannerModal);
+        scannerModal?.addEventListener('click', (e) => {
+            if (e.target === scannerModal) stopScannerModal();
+        });
+
+        btnVerifyManual?.addEventListener('click', () => {
+            const val = manualQrInput?.value.trim();
+            if (val) verifyGuestCode(val, 'checkin');
+        });
+
+        manualQrInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = manualQrInput.value.trim();
+                if (val) verifyGuestCode(val, 'checkin');
+            }
+        });
+
+        btnToggleCheckinResult?.addEventListener('click', () => {
+            if (!lastScannedGuest) return;
+            verifyGuestCode(lastScannedGuest.id, 'toggle');
         });
 
         function escapeHtml(str) {

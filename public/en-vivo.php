@@ -58,11 +58,12 @@ require_once __DIR__ . '/../config/database.php';
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 36px;
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(200, 162, 74, 0.35);
-            z-index: 10;
+            padding: 14px 28px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(14px);
+            border-bottom: 1.5px solid rgba(200, 162, 74, 0.4);
+            z-index: 25;
+            position: relative;
         }
 
         .brand-title {
@@ -76,6 +77,7 @@ require_once __DIR__ . '/../config/database.php';
             height: 44px;
             filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
             animation: pulse 3s ease-in-out infinite;
+            flex-shrink: 0;
         }
 
         @keyframes pulse {
@@ -93,10 +95,18 @@ require_once __DIR__ . '/../config/database.php';
 
         .brand-text span {
             font-family: 'Cinzel Decorative', serif;
-            font-size: 0.8rem;
-            letter-spacing: 3px;
+            font-size: 0.78rem;
+            letter-spacing: 2.5px;
             color: var(--dorado-claro);
             text-transform: uppercase;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
         .live-badge {
@@ -135,25 +145,27 @@ require_once __DIR__ . '/../config/database.php';
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px 20px;
             overflow: hidden;
+            gap: 24px;
         }
 
         .photo-card {
-            max-width: 820px;
-            width: 90%;
-            max-height: calc(100vh - 170px);
-            background: rgba(6, 46, 37, 0.75);
-            border: 2.5px solid var(--dorado);
-            border-radius: 24px;
+            max-width: 800px;
+            width: 100%;
+            max-height: calc(100vh - 160px);
+            background: rgba(6, 46, 37, 0.82);
+            border: 2px solid var(--dorado);
+            border-radius: 22px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(200, 162, 74, 0.25);
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
             backdrop-filter: blur(16px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            z-index: 10;
         }
 
         .photo-img-wrap {
@@ -163,94 +175,194 @@ require_once __DIR__ . '/../config/database.php';
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border-radius: 16px;
+            border-radius: 14px;
             background: #000;
-            max-height: 60vh;
+            max-height: 56vh;
+            border: 1px solid rgba(200, 162, 74, 0.25);
         }
 
         .photo-img-wrap img {
             max-width: 100%;
-            max-height: 58vh;
+            max-height: 55vh;
             object-fit: contain;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: transform 0.5s ease;
         }
 
         .photo-meta {
             width: 100%;
-            margin-top: 14px;
+            margin-top: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid rgba(200, 162, 74, 0.3);
-            padding-top: 12px;
+            border-top: 1px solid rgba(200, 162, 74, 0.35);
+            padding-top: 10px;
+            gap: 12px;
         }
 
         .guest-info {
             text-align: left;
+            flex: 1;
+            min-width: 0;
         }
 
         .guest-name {
             font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: var(--dorado-brillante);
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .guest-msg {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             color: #FFFDF5;
             font-style: italic;
-            margin-top: 3px;
-            opacity: 0.9;
+            margin-top: 2px;
+            opacity: 0.92;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .likes-pill {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             background: rgba(200, 162, 74, 0.2);
             border: 1px solid var(--dorado);
-            padding: 6px 14px;
+            padding: 5px 14px;
             border-radius: 20px;
             color: var(--dorado-brillante);
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            flex-shrink: 0;
         }
 
-        /* QR lateral para invitar a subir fotos */
+        /* QR para invitar a subir fotos (Elegante y no invasivo) */
         .qr-floating {
             position: absolute;
-            bottom: 25px;
-            right: 30px;
-            background: rgba(4, 27, 22, 0.9);
+            bottom: 20px;
+            right: 24px;
+            background: rgba(4, 27, 22, 0.92);
             border: 2px solid var(--dorado);
-            border-radius: 20px;
-            padding: 14px;
+            border-radius: 18px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            z-index: 20;
+            gap: 6px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 20px rgba(200, 162, 74, 0.25);
+            backdrop-filter: blur(12px);
+            z-index: 30;
+            transition: all 0.3s ease;
         }
 
         .qr-floating img {
-            width: 110px;
-            height: 110px;
-            border-radius: 10px;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
             background: #fff;
             padding: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .qr-text {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             color: var(--dorado-claro);
-            font-weight: 600;
+            font-weight: 700;
             text-align: center;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
+            line-height: 1.25;
+        }
+
+        /* Adaptación responsiva especial para móviles y pantallas verticales */
+        @media (max-width: 768px) {
+            .live-header {
+                padding: 10px 14px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .brand-text h1 {
+                font-size: 1.6rem;
+            }
+
+            .brand-text span {
+                font-size: 0.65rem;
+                letter-spacing: 1.5px;
+            }
+
+            .brand-crown {
+                width: 34px;
+                height: 34px;
+            }
+
+            .live-badge {
+                padding: 4px 10px;
+                font-size: 0.72rem;
+                letter-spacing: 1px;
+            }
+
+            .stage-container {
+                padding: 10px;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 12px;
+                overflow-y: auto;
+            }
+
+            .photo-card {
+                width: 100%;
+                max-width: 100%;
+                max-height: none;
+                padding: 12px;
+                margin-bottom: 95px; /* Espacio reservado para que el QR flotante nunca tape el texto ni los likes */
+            }
+
+            .photo-img-wrap {
+                max-height: 48vh;
+            }
+
+            .photo-img-wrap img {
+                max-height: 47vh;
+            }
+
+            .guest-name {
+                font-size: 1.15rem;
+            }
+
+            .guest-msg {
+                font-size: 0.85rem;
+            }
+
+            .qr-floating {
+                position: fixed;
+                bottom: 12px;
+                right: 12px;
+                padding: 8px 10px;
+                border-radius: 14px;
+                flex-direction: row;
+                gap: 10px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.85);
+            }
+
+            .qr-floating img {
+                width: 60px;
+                height: 60px;
+                padding: 3px;
+            }
+
+            .qr-text {
+                font-size: 0.65rem;
+                text-align: left;
+                line-height: 1.3;
+            }
         }
 
         /* Estado vacío */
@@ -283,14 +395,11 @@ require_once __DIR__ . '/../config/database.php';
 
         /* Botón de pantalla completa */
         .fullscreen-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--dorado);
             color: var(--dorado);
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -309,10 +418,6 @@ require_once __DIR__ . '/../config/database.php';
 </head>
 <body>
 
-    <button class="fullscreen-btn" id="btnFs" title="Pantalla Completa">
-        <i class="fas fa-expand"></i>
-    </button>
-
     <header class="live-header">
         <div class="brand-title">
             <svg class="brand-crown" viewBox="0 0 64 64">
@@ -328,9 +433,14 @@ require_once __DIR__ . '/../config/database.php';
             </div>
         </div>
 
-        <div class="live-badge">
-            <span class="live-dot"></span>
-            EN VIVO
+        <div class="header-actions">
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                EN VIVO
+            </div>
+            <button class="fullscreen-btn" id="btnFs" title="Pantalla Completa">
+                <i class="fas fa-expand"></i>
+            </button>
         </div>
     </header>
 

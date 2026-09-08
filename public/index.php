@@ -2434,6 +2434,28 @@
             background: #ef4444;
             color: #FFF;
         }
+
+        .btn-download-lightbox {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(200, 162, 74, 0.2);
+            border: 1.5px solid var(--dorado);
+            color: var(--dorado-claro);
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-download-lightbox:hover {
+            background: var(--dorado);
+            color: #062E25;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -3209,10 +3231,13 @@
         <div class="lightbox-details">
             <div class="lightbox-author" id="lightboxAuthor">Invitado</div>
             <div class="lightbox-msg" id="lightboxMsg">"¡Felicidades Angie!"</div>
-            <div>
+            <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
                 <button type="button" class="btn-like-photo" id="btnLikePhoto">
                     <i class="fas fa-heart"></i> <span id="lightboxLikesCount">0</span> Me encanta
                 </button>
+                <a href="#" id="btnDownloadLightboxPhoto" class="btn-download-lightbox" download="foto_angie_xv.jpg" target="_blank">
+                    <i class="fas fa-download"></i> Descargar
+                </a>
             </div>
         </div>
     </div>
@@ -4549,6 +4574,8 @@
             });
         }
 
+        const btnDownloadLightboxPhoto = document.getElementById('btnDownloadLightboxPhoto');
+
         // Abrir visor a pantalla completa
         function openLightbox(photo) {
             selectedPhotoForLightbox = photo;
@@ -4556,6 +4583,12 @@
             lightboxAuthor.textContent = photo.nombre_invitado || 'Invitado Especial';
             lightboxMsg.textContent = photo.mensaje ? `"${photo.mensaje}"` : '✨ ¡Celebrando los XV de Angie Karolina!';
             lightboxLikesCount.textContent = photo.likes || 0;
+
+            if (btnDownloadLightboxPhoto) {
+                const downloadUrl = photo.url + (photo.url.includes('?') ? '&' : '?') + 'download=1';
+                btnDownloadLightboxPhoto.href = downloadUrl;
+                btnDownloadLightboxPhoto.download = (photo.archivo || 'foto_angie_xv.jpg');
+            }
 
             const isLiked = likedPhotoIds.has(photo.id);
             btnLikePhoto.classList.toggle('liked', isLiked);

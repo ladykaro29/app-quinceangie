@@ -33,8 +33,14 @@ $contentType = $mimes[$ext] ?? 'application/octet-stream';
 // Cache HTTP para máximo rendimiento y ahorro de datos
 header('Content-Type: ' . $contentType);
 header('Content-Length: ' . filesize($filepath));
-header('Cache-Control: public, max-age=86400, immutable');
-header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 86400) . ' GMT');
+
+// Si se pide descarga forzada
+if (isset($_GET['download']) && $_GET['download'] == '1') {
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+} else {
+    header('Cache-Control: public, max-age=86400, immutable');
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 86400) . ' GMT');
+}
 
 readfile($filepath);
 exit;

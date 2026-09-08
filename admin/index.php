@@ -411,9 +411,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
 
     try {
         $pdo = getDBConnection();
+        $uploadDir = __DIR__ . '/../database/uploads/fotos';
+
         if ($act === 'delete' && $fotoId > 0) {
+            // Obtener el nombre del archivo para borrarlo físicamente del disco
+            $stmtF = $pdo->prepare('SELECT archivo FROM fotos_fiesta WHERE id = :id');
+            $stmtF->execute([':id' => $fotoId]);
+            $archivo = $stmtF->fetchColumn();
+            if ($archivo) {
+                $filePath = $uploadDir . '/' . basename($archivo);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
             $stmt = $pdo->prepare('DELETE FROM fotos_fiesta WHERE id = :id');
             $stmt->execute([':id' => $fotoId]);
+        } elseif ($act === 'delete_test_photos') {
+            // Eliminar fotos que contengan palabras de prueba o eliminar lote de pruebas
+            $stmtTest = $pdo->query("SELECT id, archivo FROM fotos_fiesta WHERE LOWER(nombre_invitado) LIKE '%prueba%' OR LOWER(nombre_invitado) LIKE '%test%' OR LOWER(mensaje) LIKE '%prueba%' OR LOWER(mensaje) LIKE '%test%'");
+            $testFotos = $stmtTest->fetchAll();
+            foreach ($testFotos as $tf) {
+                $filePath = $uploadDir . '/' . basename($tf['archivo']);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                $delStmt = $pdo->prepare('DELETE FROM fotos_fiesta WHERE id = :id');
+                $delStmt->execute([':id' => $tf['id']]);
+            }
+        } elseif ($act === 'delete_all_photos') {
+            // Purgar todas las fotos existentes (limpieza total de pruebas)
+            $stmtAll = $pdo->query("SELECT id, archivo FROM fotos_fiesta");
+            $allFotos = $stmtAll->fetchAll();
+            foreach ($allFotos as $af) {
+                $filePath = $uploadDir . '/' . basename($af['archivo']);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+            $pdo->exec("DELETE FROM fotos_fiesta");
         } elseif ($act === 'toggle_visibility' && $fotoId > 0) {
             $stmt = $pdo->prepare('UPDATE fotos_fiesta SET visible = 1 - visible WHERE id = :id');
             $stmt->execute([':id' => $fotoId]);
@@ -1031,13 +1066,25 @@ try {
                     📸 Total de fotos subidas: <strong><?= $totalFotosFiesta ?></strong>
                 </span>
             </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                 <a href="../public/en-vivo.php" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none;">
                     <i class="fas fa-tv"></i> Abrir Modo Proyector
                 </a>
                 <a href="?export=fotos_zip" class="action-btn primary">
-                    <i class="fas fa-file-archive"></i> Descargar Todas en ZIP
+                    <i class="fas fa-file-archive"></i> Descargar Todas (ZIP)
                 </a>
+                <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar las fotos que contienen \'prueba\' o \'test\'?');" style="display: inline;">
+                    <input type="hidden" name="action_foto" value="delete_test_photos">
+                    <button type="submit" class="action-btn" style="border-color: #ff9999; color: #ffb3b3;" title="Eliminar fotos que dicen 'prueba' o 'test'">
+                        <i class="fas fa-broom"></i> Borrar Fotos de Prueba
+                    </button>
+                </form>
+                <form method="POST" onsubmit="return confirm('⚠️ ATENCIÓN: ¿Seguro que deseas eliminar TODAS las fotos subidas actualmente para iniciar desde cero?');" style="display: inline;">
+                    <input type="hidden" name="action_foto" value="delete_all_photos">
+                    <button type="submit" class="action-btn" style="border-color: #ef4444; color: #fca5a5; font-size: 0.76rem;" title="Vaciar todo el álbum para el día de la fiesta">
+                        <i class="fas fa-trash-alt"></i> Limpiar Todo el Álbum
+                    </button>
+                </form>
                 <a href="?tab=fotos" class="action-btn">
                     <i class="fas fa-sync-alt"></i> Actualizar
                 </a>
@@ -1053,9 +1100,10 @@ try {
                     </div>
                 </div>
             <?php else: ?>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px;">
                     <?php foreach ($fotosFiesta as $f): 
                         $fotoUrl = '../api/foto.php?f=' . rawurlencode($f['archivo']);
+                        $fotoDownloadUrl = '../api/foto.php?f=' . rawurlencode($f['archivo']) . '&download=1';
                     ?>
                         <div style="background: rgba(6, 46, 37, 0.7); border: 1.5px solid <?= $f['visible'] ? 'rgba(200, 162, 74, 0.35)' : 'rgba(220, 50, 50, 0.5)' ?>; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.3); backdrop-filter: blur(8px);">
                             <div style="width: 100%; height: 210px; background: #000; overflow: hidden; position: relative;">
@@ -1083,7 +1131,15 @@ try {
                                         🕒 <?= date('d/m/Y H:i', strtotime($f['created_at'])) ?>
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 6px; margin-top: 12px; border-top: 1px solid rgba(200, 162, 74, 0.15); padding-top: 10px;">
+
+                                <!-- Botón de descarga individual directa -->
+                                <div style="margin-top: 10px;">
+                                    <a href="<?= $fotoDownloadUrl ?>" download="<?= htmlspecialchars($f['archivo']) ?>" class="action-btn primary" style="width: 100%; justify-content: center; padding: 7px 10px; font-size: 0.78rem; text-decoration: none; box-sizing: border-box;">
+                                        <i class="fas fa-download"></i> Descargar Foto
+                                    </a>
+                                </div>
+
+                                <div style="display: flex; gap: 6px; margin-top: 8px; border-top: 1px solid rgba(200, 162, 74, 0.15); padding-top: 8px;">
                                     <form method="POST" style="flex: 1;">
                                         <input type="hidden" name="action_foto" value="toggle_visibility">
                                         <input type="hidden" name="foto_id" value="<?= $f['id'] ?>">
@@ -1091,7 +1147,7 @@ try {
                                             <?= $f['visible'] ? '<i class="fas fa-eye-slash"></i> Ocultar' : '<i class="fas fa-eye"></i> Mostrar' ?>
                                         </button>
                                     </form>
-                                    <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar definitivamente esta foto?');" style="flex: 1;">
+                                    <form method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar definitivamente esta foto y su archivo?');" style="flex: 1;">
                                         <input type="hidden" name="action_foto" value="delete">
                                         <input type="hidden" name="foto_id" value="<?= $f['id'] ?>">
                                         <button type="submit" class="action-btn" style="width: 100%; padding: 6px 8px; font-size: 0.75rem; border-color: #ff6b6b; color: #ff9999;">

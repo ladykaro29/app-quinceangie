@@ -1,7 +1,11 @@
 FROM php:8.2-apache
 
-# Instalar extensiones requeridas por la aplicación (MySQL y SQLite)
-RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite
+# Instalar dependencias del sistema y extensiones requeridas (MySQL y SQLite)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libsqlite3-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Habilitar módulos necesarios de Apache
 RUN a2enmod rewrite headers

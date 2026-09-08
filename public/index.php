@@ -3,6 +3,17 @@
  * Invitación XV Años - Angie Karolina Avendaño Rivera
  * Página principal de la invitación digital
  */
+
+// Detectar esquema y host para generar URL absoluta de imagen para WhatsApp y redes
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
+    || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) 
+    || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') 
+    ? 'https://' : 'http://';
+
+$host = $_SERVER['HTTP_HOST'] ?? 'kickoff-invitacionangie.0gxuxx.easypanel.host';
+$baseUrl = rtrim($protocol . $host, '/');
+$shareImageUrl = $baseUrl . '/angie-portada.jpg';
+$pageUrl = $baseUrl . '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -12,6 +23,25 @@
     <title>Mis XV Años - Angie Karolina Avendaño Rivera</title>
     <meta name="description" content="Invitación digital a la celebración de XV años de Angie Karolina Avendaño Rivera. 3 de octubre de 2026, Mérida, Venezuela.">
     <meta name="theme-color" content="#062E25">
+
+    <!-- Open Graph / WhatsApp / Facebook / Telegram Preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= htmlspecialchars($pageUrl) ?>">
+    <meta property="og:title" content="Mis XV Años - Angie Karolina Avendaño Rivera">
+    <meta property="og:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este 3 de Octubre de 2026 para una noche mágica e inolvidable.">
+    <meta property="og:image" content="<?= htmlspecialchars($shareImageUrl) ?>">
+    <meta property="og:image:secure_url" content="<?= htmlspecialchars($shareImageUrl) ?>">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="Angie Karolina Avendaño Rivera - Mis XV Años">
+    <meta property="og:locale" content="es_LA">
+    <meta property="og:site_name" content="Mis XV Años - Angie Karolina">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?= htmlspecialchars($pageUrl) ?>">
+    <meta name="twitter:title" content="Mis XV Años - Angie Karolina Avendaño Rivera">
+    <meta name="twitter:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este 3 de Octubre de 2026 para una noche mágica e inolvidable.">
+    <meta name="twitter:image" content="<?= htmlspecialchars($shareImageUrl) ?>">
 
     <!-- Favicon: Corona Real Dorada y Esmeralda -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23062E25' stroke='%23C8A24A' stroke-width='2.5'/%3E%3Cpath d='M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z' fill='%23FFD700' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Cpath d='M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z' fill='%23C8A24A'/%3E%3Ccircle cx='17' cy='23' r='2.8' fill='%23FFFDF5'/%3E%3Ccircle cx='24' cy='32' r='2.2' fill='%23FFFDF5'/%3E%3Ccircle cx='32' cy='14' r='3.6' fill='%23FFFDF5'/%3E%3Ccircle cx='40' cy='32' r='2.2' fill='%23FFFDF5'/%3E%3Ccircle cx='47' cy='23' r='2.8' fill='%23FFFDF5'/%3E%3Cpolygon points='32,25 36,32 32,39 28,32' fill='%23006B4F' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Ccircle cx='22' cy='45' r='1.8' fill='%23006B4F'/%3E%3Ccircle cx='32' cy='47' r='2.2' fill='%23006B4F'/%3E%3Ccircle cx='42' cy='45' r='1.8' fill='%23006B4F'/%3E%3C/svg%3E">

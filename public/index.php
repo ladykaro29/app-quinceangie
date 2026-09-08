@@ -31,6 +31,9 @@
     <!-- Generador de Códigos QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    <!-- YouTube IFrame API (Pre-carga para disponibilidad inmediata) -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <style>
         /* ============================================================
            VARIABLES Y RESET
@@ -126,10 +129,11 @@
             border-radius: 20px;
             width: 100%;
             max-width: var(--card-max-width);
-            max-height: 90vh;
+            max-height: calc(100vh - 40px);
+            max-height: calc(100dvh - 40px);
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 35px 25px;
+            padding: 35px 25px 110px 25px;
             position: relative;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
                         0 0 30px rgba(200, 162, 74, 0.15),
@@ -276,50 +280,55 @@
            ============================================================ */
         .nav-arrows {
             position: fixed;
-            bottom: 25px;
+            bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 20px;
-            z-index: 100;
+            gap: 16px;
+            z-index: 120;
+            pointer-events: auto;
         }
 
         .nav-arrow {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 2px solid var(--dorado);
-            background: rgba(6, 46, 37, 0.8);
+            border: 1.5px solid var(--dorado);
+            background: rgba(6, 46, 37, 0.92);
             color: var(--dorado);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 15px;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+            touch-action: manipulation;
         }
 
         .nav-arrow:hover {
             background: var(--dorado);
             color: var(--verde-oscuro);
-            transform: scale(1.1);
+            transform: scale(1.08);
         }
 
         .nav-arrow:disabled {
-            opacity: 0.3;
+            opacity: 0.25;
             cursor: not-allowed;
             transform: none;
         }
 
         .nav-dots {
             position: fixed;
-            bottom: 80px;
+            bottom: 58px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 8px;
-            z-index: 100;
+            gap: 6px;
+            z-index: 120;
+            pointer-events: auto;
         }
 
         .nav-dot {
@@ -1735,15 +1744,58 @@
             color: #FFF;
         }
 
+        /* Acompañantes Header */
+        .rsvp-companions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        #rsvp-passes-badge {
+            color: var(--dorado);
+            font-size: 0.74rem;
+            font-weight: 600;
+            background: rgba(200, 162, 74, 0.15);
+            border: 1px solid rgba(200, 162, 74, 0.35);
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
         /* ============================================================
            RESPONSIVE
            ============================================================ */
         @media (max-width: 480px) {
+            .card {
+                padding: 28px 18px 105px 18px;
+            }
+
+            .nav-arrows {
+                bottom: 12px;
+                gap: 12px;
+            }
+
+            .nav-arrow {
+                width: 38px;
+                height: 38px;
+                font-size: 14px;
+            }
+
+            .nav-dots {
+                bottom: 54px;
+                gap: 5px;
+            }
+
             .audio-toggle {
                 top: 14px;
                 right: 14px;
                 width: 44px;
                 height: 44px;
+                z-index: 300;
             }
 
             .audio-tooltip {
@@ -1752,6 +1804,7 @@
                 max-width: calc(100vw - 80px);
                 font-size: 0.68rem;
                 padding: 5px 11px;
+                z-index: 299;
             }
 
             .admin-link-btn {
@@ -1759,12 +1812,13 @@
                 left: 14px;
                 width: 36px;
                 height: 36px;
+                z-index: 300;
             }
         }
 
         @media (max-width: 380px) {
             .card {
-                padding: 25px 18px;
+                padding: 24px 14px 100px 14px;
             }
 
             .cover-name {
@@ -2403,9 +2457,9 @@
 
                     <!-- Sección de acompañantes (visible solo si confirma que sí asistirá) -->
                     <div class="rsvp-companions-section" id="rsvp-companions-section">
-                        <div class="rsvp-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span>Acompañantes</span>
-                            <span id="rsvp-passes-badge" style="color: var(--dorado); font-size: 0.72rem; text-transform: none; font-weight: 600;">1 persona (Solo tú)</span>
+                        <div class="rsvp-companions-header">
+                            <span class="rsvp-label" style="margin-bottom: 0;">Acompañantes</span>
+                            <span id="rsvp-passes-badge">1 persona (Solo tú)</span>
                         </div>
                         <p style="font-size: 0.73rem; color: rgba(255, 248, 236, 0.7); margin-bottom: 12px; text-align: center; line-height: 1.4;">
                             ¿Vienes con alguien más? Agrega a tus acompañantes para que queden incluidos en tu pase QR:
@@ -2554,8 +2608,8 @@
         <i class="fas fa-lock"></i>
     </a>
 
-    <!-- Contenedor oculto del reproductor de audio YouTube (Dentro del viewport para compatibilidad móvil iOS/Android) -->
-    <div id="youtube-audio-container" style="position:fixed;bottom:0;right:0;width:2px;height:2px;overflow:hidden;opacity:0.001;pointer-events:none;z-index:-10;">
+    <!-- Contenedor del reproductor de audio YouTube (Dimensionado para permitir reproducción en móviles) -->
+    <div id="youtube-audio-container" style="position:fixed;bottom:10px;right:10px;width:120px;height:120px;overflow:hidden;opacity:0.002;pointer-events:none;z-index:-10;">
         <div id="youtube-player"></div>
     </div>
 
@@ -3265,17 +3319,10 @@
             if (!isPlaying && userWantsMusic) {
                 showTooltip('🎵 Toca la pantalla o el disco para activar música', 4000);
             }
-        }, 1500);
+        }, 1200);
 
-        // Cargar YouTube IFrame API de forma asíncrona y segura
-        if (!window.YT) {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        }
-
-        window.onYouTubeIframeAPIReady = function() {
+        function createYTPlayer() {
+            if (player) return;
             try {
                 player = new YT.Player('youtube-player', {
                     height: '200',
@@ -3283,6 +3330,7 @@
                     videoId: '9rxjb_Meoms',
                     playerVars: {
                         'autoplay': 1,
+                        'mute': 1, // Crucial para permitir arranque silencioso en navegadores móviles
                         'controls': 0,
                         'disablekb': 1,
                         'fs': 0,
@@ -3291,61 +3339,89 @@
                         'modestbranding': 1,
                         'playsinline': 1,
                         'rel': 0,
-                        'iv_load_policy': 3,
-                        'origin': window.location.origin
+                        'iv_load_policy': 3
                     },
                     events: {
                         'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
+                        'onStateChange': onPlayerStateChange,
+                        'onError': onPlayerError
                     }
                 });
             } catch (err) {
                 console.warn('YouTube Player init error:', err);
             }
-        };
+        }
+
+        if (window.YT && window.YT.Player) {
+            createYTPlayer();
+        } else {
+            const prevReady = window.onYouTubeIframeAPIReady;
+            window.onYouTubeIframeAPIReady = function() {
+                if (typeof prevReady === 'function') prevReady();
+                createYTPlayer();
+            };
+        }
 
         function onPlayerReady(event) {
             isPlayerReady = true;
             try {
-                event.target.setVolume(80);
-                if (userWantsMusic) {
-                    event.target.playVideo();
-                }
+                // Iniciar reproductor en silencio para superar las políticas de bloqueo móvil
+                event.target.mute();
+                event.target.playVideo();
             } catch (e) {
-                console.warn('onPlayerReady error:', e);
+                console.warn('onPlayerReady playVideo error:', e);
             }
+        }
+
+        function onPlayerError(event) {
+            console.warn('YouTube Player error:', event.data);
+            showTooltip('🎵 Toca el disco para escuchar música', 3500);
         }
 
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                userWantsMusic = true;
-                toggle.classList.add('playing');
-                icon.className = 'fas fa-compact-disc';
-                showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
-                // Cuando ya está sonando, removemos los listeners globales de gestos
-                detachGestureListeners();
+                const isMuted = player && typeof player.isMuted === 'function' ? player.isMuted() : false;
+                if (!isMuted) {
+                    isPlaying = true;
+                    userWantsMusic = true;
+                    toggle.classList.add('playing');
+                    icon.className = 'fas fa-compact-disc';
+                    showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
+                    detachGestureListeners();
+                }
             } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
                 isPlaying = false;
                 toggle.classList.remove('playing');
                 icon.className = 'fas fa-volume-mute';
                 if (event.data === YT.PlayerState.ENDED && userWantsMusic && player && typeof player.playVideo === 'function') {
-                    // Garantizar reproducción en bucle continuo
                     player.playVideo();
                 }
             }
         }
 
-        function playMusic() {
-            if (!isPlayerReady || !player || typeof player.playVideo !== 'function') {
+        function unmuteAndPlay() {
+            if (!player || typeof player.playVideo !== 'function') {
                 userWantsMusic = true;
-                showTooltip('🎵 Iniciando música...', 2500);
                 return;
             }
             try {
+                if (typeof player.unMute === 'function') {
+                    player.unMute();
+                }
+                if (typeof player.setVolume === 'function') {
+                    player.setVolume(85);
+                }
                 player.playVideo();
+                userWantsMusic = true;
             } catch (e) {
-                console.warn('playMusic error:', e);
+                console.warn('unmuteAndPlay error:', e);
+            }
+        }
+
+        function playMusic() {
+            unmuteAndPlay();
+            if (!isPlayerReady) {
+                showTooltip('🎵 Iniciando música...', 2000);
             }
         }
 
@@ -3378,9 +3454,6 @@
                 showTooltip('Música en pausa', 2000);
             } else {
                 userWantsMusic = true;
-                if (!isPlayerReady) {
-                    showTooltip('🎵 Cargando música... Iniciará enseguida', 2500);
-                }
                 playMusic();
             }
         }
@@ -3388,13 +3461,13 @@
         toggle.addEventListener('click', handleToggleAction);
         toggle.addEventListener('touchend', handleToggleAction, { passive: false });
 
-        // Detección de gestos del usuario en pantalla para desbloquear audio en móviles
+        // Detección de gestos del usuario en pantalla para desmutear y activar en móviles
         function onGlobalUserGesture(e) {
             if (e && e.target && (toggle.contains(e.target) || e.target === toggle)) {
                 return;
             }
-            if (!isPlaying && userWantsMusic) {
-                playMusic();
+            if (userWantsMusic) {
+                unmuteAndPlay();
             }
         }
 
@@ -3416,13 +3489,13 @@
         // Enlace con la navegación del deck y botones
         const navNext = document.getElementById('nextBtn');
         const navPrev = document.getElementById('prevBtn');
-        if (navNext) navNext.addEventListener('click', () => { if (!isPlaying && userWantsMusic) playMusic(); });
-        if (navPrev) navPrev.addEventListener('click', () => { if (!isPlaying && userWantsMusic) playMusic(); });
+        if (navNext) navNext.addEventListener('click', () => { if (userWantsMusic) unmuteAndPlay(); });
+        if (navPrev) navPrev.addEventListener('click', () => { if (userWantsMusic) unmuteAndPlay(); });
 
         const deckContainer = document.getElementById('deckContainer');
         if (deckContainer) {
             deckContainer.addEventListener('touchend', () => {
-                if (!isPlaying && userWantsMusic) playMusic();
+                if (userWantsMusic) unmuteAndPlay();
             }, { passive: true });
         }
     })();

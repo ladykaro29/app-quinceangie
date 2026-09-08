@@ -95,6 +95,32 @@ try {
             $acompanantes[] = $nombre;
         }
 
+        // 1. Validar que no haya nombres repetidos en la misma lista de acompañantes
+        $normAcomp = [];
+        foreach ($acompanantes as $acomp) {
+            $normKey = mb_strtolower(preg_replace('/\s+/', ' ', trim($acomp)));
+            if (isset($normAcomp[$normKey])) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error'   => "El acompañante \"$acomp\" está repetido en la lista."
+                ]);
+                exit;
+            }
+            $normAcomp[$normKey] = true;
+
+            // Tampoco puede llamarse exactamente igual al titular
+            $normTitular = mb_strtolower(preg_replace('/\s+/', ' ', trim($nombreCompleto)));
+            if ($normKey === $normTitular) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error'   => "El acompañante \"$acomp\" no puede tener el mismo nombre del titular."
+                ]);
+                exit;
+            }
+        }
+
         if (count($acompanantes) > $maxAcompanantes) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => "Máximo $maxAcompanantes acompañantes permitidos."]);
@@ -102,8 +128,82 @@ try {
         }
     }
 
-    // Conectar a la BD e insertar con transacción
+    // Conectar a la BD
     $pdo = getDBConnection();
+
+    // 2. VALIDAR SI EL INVITADO TITULAR YA ESTÁ REGISTRADO EN LA BASE DE DATOS
+    // Normalizar para comparación sin importar mayúsculas/minúsculas ni espacios múltiples
+    $nombreLimpio = trim(preg_replace('/\s+/', ' ', $nombreCompleto));
+
+    $stmtCheck = $pdo->prepare('SELECT id, nombre_completo, asistira, codigo_rifa FROM invitados WHERE LOWER(TRIM(nombre_completo)) = LOWER(:nombre) LIMIT 1');
+    $stmtCheck->execute([':nombre' => $nombreLimpio]);
+    $existente = $stmtCheck->fetch();
+
+    if ($existente) {
+        // El invitado ya se había registrado previamente
+        $idPrevio = (int)$existente['id'];
+        $asistiraPrevio = (bool)$existente['asistira'];
+        $codigoPrevio = $existente['codigo_rifa'];
+
+        // Cargar sus acompañantes y boletos ya registrados para devolver su Pase VIP existente
+        $stmtAcompsExistentes = $pdo->prepare('SELECT nombre_completo, codigo_rifa FROM acompanantes WHERE invitado_id = :id ORDER BY id ASC');
+        $stmtAcompsExistentes->execute([':id' => $idPrevio]);
+        $acompsExistentes = $stmtAcompsExistentes->fetchAll();
+
+        $boletosPrevios = [];
+        $nombresAcompsPrevios = [];
+        if ($asistiraPrevio && $codigoPrevio) {
+            $boletosPrevios[] = [
+                'nombre'     => $existente['nombre_completo'],
+                'codigo'     => $codigoPrevio,
+                'es_titular' => true
+            ];
+        }
+        foreach ($acompsExistentes as $ac) {
+            $nombresAcompsPrevios[] = $ac['nombre_completo'];
+            if ($asistiraPrevio && !empty($ac['codigo_rifa'])) {
+                $boletosPrevios[] = [
+                    'nombre'     => $ac['nombre_completo'],
+                    'codigo'     => $ac['codigo_rifa'],
+                    'es_titular' => false
+                ];
+            }
+        }
+
+        $qrCodePrevio = 'XVANGIE-' . str_pad($idPrevio, 4, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($existente['nombre_completo'] . $idPrevio . 'angie2026'), 0, 6));
+
+        // Retornar aviso amigable con su pase ya generado (o error explicativo si no asiste)
+        http_response_code(200);
+        echo json_encode([
+            'success'           => true,
+            'ya_registrado'     => true,
+            'id'                => $idPrevio,
+            'nombre'            => $existente['nombre_completo'],
+            'asistira'          => $asistiraPrevio,
+            'acompanantes'      => $nombresAcompsPrevios,
+            'total_pases'       => $asistiraPrevio ? (1 + count($nombresAcompsPrevios)) : 0,
+            'qr_code'           => $qrCodePrevio,
+            'boletos_rifa'      => $boletosPrevios,
+            'total_confirmados' => 0,
+            'message'           => '✨ ' . $existente['nombre_completo'] . ', ya tenías una confirmación registrada previamente. Aquí tienes tu Pase VIP y tus números de rifa asignados.'
+        ]);
+        exit;
+    }
+
+    // 3. VALIDAR SI EL NOMBRE YA FUE REGISTRADO COMO ACOMPAÑANTE DE OTRO INVITADO
+    $stmtCheckAcomp = $pdo->prepare('SELECT a.nombre_completo, i.nombre_completo AS titular FROM acompanantes a INNER JOIN invitados i ON a.invitado_id = i.id WHERE LOWER(TRIM(a.nombre_completo)) = LOWER(:nombre) LIMIT 1');
+    $stmtCheckAcomp->execute([':nombre' => $nombreLimpio]);
+    $comoAcomp = $stmtCheckAcomp->fetch();
+
+    if ($comoAcomp) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error'   => "El invitado \"{$comoAcomp['nombre_completo']}\" ya está confirmado como acompañante de {$comoAcomp['titular']}."
+        ]);
+        exit;
+    }
+
     $pdo->beginTransaction();
 
     try {

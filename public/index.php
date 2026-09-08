@@ -3745,7 +3745,15 @@
                     form.style.display = 'none';
                     successDiv.classList.add('visible');
 
-                    if (selectedAttendance) {
+                    // Si ya estaba registrado previamente, mostrar aviso sutil
+                    if (data.ya_registrado) {
+                        const noticeEl = document.getElementById('rsvp-success-title');
+                        if (noticeEl) {
+                            noticeEl.textContent = '¡Ya estabas registrado!';
+                        }
+                    }
+
+                    if (selectedAttendance || data.asistira) {
                         // Rellenar datos del Pase VIP
                         const vipTicket = document.getElementById('vipTicket');
                         const guestNameEl = document.getElementById('ticketGuestName');

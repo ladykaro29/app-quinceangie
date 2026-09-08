@@ -381,6 +381,88 @@
             50% { transform: translateY(-7px) scale(1.03); }
         }
 
+        /* Marco elegante real para la foto de Angie en la Portada */
+        .cover-photo-container {
+            position: relative;
+            margin: 4px auto 10px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cover-photo-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 95px 95px 24px 24px; /* Forma de arco real señorial */
+            padding: 4.5px;
+            background: linear-gradient(135deg, #FFFDF5 0%, #FFE680 20%, #C8A24A 45%, #8B6914 75%, #E2CA7F 100%);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 
+                        0 0 30px rgba(200, 162, 74, 0.45),
+                        inset 0 0 10px rgba(255, 253, 245, 0.5);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .cover-photo-wrapper:hover {
+            transform: translateY(-3px) scale(1.025);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.8), 0 0 40px rgba(200, 162, 74, 0.65);
+        }
+
+        .cover-photo-frame {
+            position: relative;
+            width: 170px;
+            max-width: 52vw;
+            aspect-ratio: 4 / 5;
+            border-radius: 90px 90px 20px 20px;
+            overflow: hidden;
+            background: #062E25;
+            border: 2px solid rgba(255, 253, 245, 0.35);
+        }
+
+        .cover-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 15%;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .cover-photo-wrapper:hover .cover-photo-img {
+            transform: scale(1.06);
+        }
+
+        .cover-photo-crown-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+            color: var(--verde-oscuro);
+            font-size: 1.1rem;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(200, 162, 74, 0.6);
+            border: 1.5px solid #FFFDF5;
+        }
+
+        .cover-photo-sheen {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 65%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: skewX(-22deg);
+            animation: photoSheen 5s infinite;
+            pointer-events: none;
+        }
+
         .cover-presents {
             font-family: var(--font-sans);
             font-size: 0.7rem;
@@ -2085,8 +2167,8 @@
                 <div class="corner-bl"></div>
                 <div class="corner-br"></div>
 
-                <div class="cover-tiara">
-                    <svg viewBox="0 0 140 85" class="tiara-svg" xmlns="http://www.w3.org/2000/svg">
+                <div class="cover-tiara" style="margin-bottom: -8px; z-index: 6;">
+                    <svg viewBox="0 0 140 85" class="tiara-svg" style="width: 88px;" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="tiaraGold" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#FFFDF5" />
@@ -2151,12 +2233,23 @@
                         <path d="M 94 19 L 95 23 L 99 24 L 95 25 L 94 29 L 93 25 L 89 24 L 93 23 Z" fill="#FFFFFF" opacity="0.85" />
                     </svg>
                 </div>
-                <div class="cover-presents">TE INVITO A CELEBRAR</div>
-                <div class="card-title-script cover-name">Angie Karolina</div>
-                <div class="gold-divider"></div>
-                <div class="cover-xv">XV AÑOS</div>
-                <div class="cover-date">3 · OCTUBRE · 2026</div>
-                <div class="cover-swipe">
+
+                <!-- Marco elegante real con la foto de Angie -->
+                <div class="cover-photo-container">
+                    <div class="cover-photo-wrapper">
+                        <div class="cover-photo-frame">
+                            <img src="angie-portada.jpg" alt="Angie Karolina - Mis XV Años" class="cover-photo-img" loading="eager">
+                            <div class="cover-photo-sheen"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cover-presents" style="margin-top: 4px;">TE INVITO A CELEBRAR</div>
+                <div class="card-title-script cover-name" style="font-size: 2.7rem; margin-bottom: 4px;">Angie Karolina</div>
+                <div class="gold-divider" style="margin: 6px auto 10px auto;"></div>
+                <div class="cover-xv" style="font-size: 2.6rem; letter-spacing: 6px; margin-bottom: 8px;">XV AÑOS</div>
+                <div class="cover-date" style="letter-spacing: 2.5px;">3 · OCTUBRE · 2026</div>
+                <div class="cover-swipe" style="margin-top: 14px;">
                     <i class="fas fa-chevron-down"></i><br>
                     Desliza para ver más
                 </div>

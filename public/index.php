@@ -547,6 +547,71 @@
         }
 
         /* ============================================================
+           TARJETA: ÉRASE UNA VEZ (EL CUENTO DE HADAS DE VALIENTE)
+           ============================================================ */
+        .fairytale-story-box {
+            text-align: center;
+            padding: 4px 6px;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        .story-paragraph {
+            font-family: var(--font-sans);
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: var(--crema);
+            opacity: 0.95;
+            margin-bottom: 12px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .story-drop-cap {
+            float: left;
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            line-height: 0.8;
+            padding-top: 4px;
+            padding-right: 8px;
+            padding-bottom: 2px;
+            color: var(--dorado-claro);
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(200, 162, 74, 0.7);
+        }
+
+        .story-highlight {
+            background: linear-gradient(135deg, rgba(200, 162, 74, 0.15), rgba(6, 46, 37, 0.4));
+            border-left: 2px solid var(--dorado);
+            border-right: 2px solid var(--dorado);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 14px 0;
+            font-family: var(--font-serif);
+            font-size: 0.92rem;
+            font-style: italic;
+            color: #FFFDF5;
+            line-height: 1.6;
+            box-shadow: inset 0 0 15px rgba(200, 162, 74, 0.1);
+        }
+
+        .story-conclusion {
+            font-family: var(--font-sans);
+            font-size: 0.84rem;
+            color: var(--dorado-claro);
+            line-height: 1.55;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .story-magic-spark {
+            display: inline-block;
+            color: var(--dorado);
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        /* ============================================================
            TARJETA 3 — INVITACIÓN FORMAL
            ============================================================ */
         .formal-text {
@@ -2099,9 +2164,46 @@
         </div>
 
         <!-- ============================================
-             TARJETA 2: CUENTA REGRESIVA
+             TARJETA 2: ÉRASE UNA VEZ (EL CUENTO DE MI VIDA)
              ============================================ -->
         <div class="card-slide hidden" data-slide="1">
+            <div class="card fairytale-card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <div class="card-icon" style="margin-bottom: 2px;">
+                    <i class="fas fa-book-open story-magic-spark"></i>
+                </div>
+                <div class="card-title-script" style="font-size: 2.3rem; margin-bottom: 0px;">Érase una vez...</div>
+                <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; margin-bottom: 8px;">EL COMIENZO DE MI HISTORIA</div>
+                <div class="gold-divider" style="margin-bottom: 12px;"></div>
+
+                <div class="fairytale-story-box">
+                    <p class="story-paragraph">
+                        <span class="story-drop-cap">D</span>icen que el destino está entrelazado en cada paso que damos, y que solo hace falta tener un corazón valiente para descubrir la magia de nuestra propia historia...
+                    </p>
+                    <p class="story-paragraph">
+                        Hace quince años comenzó el viaje más hermoso: la llegada de una pequeña niña que llenó de luz, risas y ternura la vida de sus amados padres, <strong>Edwin y Lady</strong>.
+                    </p>
+                    <p class="story-paragraph">
+                        Crecí rodeada de amor, soñando despierta y aprendiendo que la mayor aventura es ser auténtica y libre.
+                    </p>
+                    <div class="story-highlight">
+                        ✨ Hoy, con gratitud y emoción, dejo atrás mi niñez para abrazar con valentía mis <strong>XV Años</strong> y desplegar mis alas hacia el futuro.
+                    </div>
+                    <p class="story-conclusion">
+                        Y como en todo gran cuento de hadas, este sueño no estaría completo sin ti... ¡Acompáñame a celebrar!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             TARJETA 3: CUENTA REGRESIVA
+             ============================================ -->
+        <div class="card-slide hidden" data-slide="2">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2147,9 +2249,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 3: INVITACIÓN FORMAL
+             TARJETA 4: INVITACIÓN FORMAL
              ============================================ -->
-        <div class="card-slide hidden" data-slide="2">
+        <div class="card-slide hidden" data-slide="3">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2187,9 +2289,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 4: LUGAR Y FECHA
+             TARJETA 5: LUGAR Y FECHA
              ============================================ -->
-        <div class="card-slide hidden" data-slide="3">
+        <div class="card-slide hidden" data-slide="4">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2216,24 +2318,25 @@
                 </div>
 
                 <div class="info-block">
-                    <div class="info-label">📍 Lugar</div>
-                    <div class="info-value">
-                        Colegio de Médicos del<br>Estado Mérida
-                    </div>
-                    <div class="card-text" style="margin-top: 5px; font-size: 0.75rem;">
-                        Av. Urdaneta, Mérida 5101, Venezuela
-                    </div>
-                    <a href="https://www.google.com/maps/search/Colegio+de+Medicos+Merida+Venezuela+Av+Urdaneta" target="_blank" class="map-btn">
-                        <i class="fas fa-directions"></i> Cómo llegar
+                    <div class="info-label">📍 Lugar de la Recepción</div>
+                    <div class="info-value">Colegio de Médicos del Estado Mérida</div>
+                    <div class="info-address">Av. Urdaneta, Mérida, Venezuela</div>
+                </div>
+
+                <div class="map-btn-container">
+                    <a href="https://maps.google.com/?q=Colegio+de+Medicos+del+Estado+Merida+Av+Urdaneta+Merida+Venezuela" target="_blank" rel="noopener noreferrer" class="map-btn">
+                        <i class="fas fa-location-arrow"></i>
+                        <span>Abrir en Google Maps</span>
+                        <i class="fas fa-external-link-alt"></i>
                     </a>
                 </div>
             </div>
         </div>
 
         <!-- ============================================
-             TARJETA 5: DRESS CODE
+             TARJETA 6: DRESS CODE
              ============================================ -->
-        <div class="card-slide hidden" data-slide="4">
+        <div class="card-slide hidden" data-slide="5">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2268,9 +2371,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 6: ITINERARIO
+             TARJETA 7: ITINERARIO
              ============================================ -->
-        <div class="card-slide hidden" data-slide="5">
+        <div class="card-slide hidden" data-slide="6">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2310,9 +2413,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 7: TRIVIA
+             TARJETA 8: TRIVIA
              ============================================ -->
-        <div class="card-slide hidden" data-slide="6">
+        <div class="card-slide hidden" data-slide="7">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2344,9 +2447,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 8: PLAYLIST
+             TARJETA 9: PLAYLIST
              ============================================ -->
-        <div class="card-slide hidden" data-slide="7">
+        <div class="card-slide hidden" data-slide="8">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2379,9 +2482,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 9: PRESENTE & LLUVIA DE SOBRES
+             TARJETA 10: PRESENTE & LLUVIA DE SOBRES
              ============================================ -->
-        <div class="card-slide hidden" data-slide="8">
+        <div class="card-slide hidden" data-slide="9">
             <div class="card" style="padding: 30px 22px;">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2421,9 +2524,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 10: RSVP — CONFIRMA TU ASISTENCIA
+             TARJETA 11: RSVP — CONFIRMA TU ASISTENCIA
              ============================================ -->
-        <div class="card-slide hidden" data-slide="9">
+        <div class="card-slide hidden" data-slide="10">
             <div class="card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2551,9 +2654,9 @@
         </div>
 
         <!-- ============================================
-             TARJETA 11: GRACIAS & FOTO DE ANGIE
+             TARJETA 12: GRACIAS & FOTO DE ANGIE
              ============================================ -->
-        <div class="card-slide hidden" data-slide="10">
+        <div class="card-slide hidden" data-slide="11">
             <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 16px;">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>

@@ -1904,7 +1904,7 @@
             width: 100vw;
             height: 100vh;
             pointer-events: none;
-            z-index: 60;
+            z-index: 15;
             overflow: hidden;
         }
 
@@ -1912,14 +1912,15 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: var(--b-size, 44px);
-            height: var(--b-size, 44px);
+            width: var(--b-size, 32px);
+            height: var(--b-size, 32px);
             pointer-events: none;
             transform-style: preserve-3d;
             perspective: 600px;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95)) drop-shadow(0 0 18px rgba(200, 162, 74, 0.8));
+            filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.75)) drop-shadow(0 0 12px rgba(200, 162, 74, 0.5));
             will-change: transform;
             user-select: none;
+            opacity: 0.88;
         }
 
         .butterfly-inner {
@@ -3501,13 +3502,14 @@
     })();
 
     /* ================================================================
-       MARIPOSAS DORADAS VOLANDO (GOLDEN BUTTERFLIES LOGIC)
+       MARIPOSAS DORADAS EN LAS ESQUINAS (CORNER BUTTERFLIES LOGIC)
        ================================================================ */
     (() => {
         const container = document.getElementById('butterfliesContainer');
         if (!container) return;
 
-        const BUTTERFLY_COUNT = 12;
+        // Solo 4 mariposas sutiles (una por cada esquina) para no tapar la tarjeta
+        const BUTTERFLY_COUNT = 4;
         const butterflies = [];
 
         function createButterflyElement(size, flapSpeed) {
@@ -3558,46 +3560,71 @@
         function createSparkle(x, y) {
             const s = document.createElement('div');
             s.className = 'butterfly-sparkle';
-            s.style.left = (x + (Math.random() * 12 - 6)) + 'px';
-            s.style.top = (y + (Math.random() * 12 - 6)) + 'px';
+            s.style.left = (x + (Math.random() * 8 - 4)) + 'px';
+            s.style.top = (y + (Math.random() * 8 - 4)) + 'px';
             container.appendChild(s);
-            setTimeout(() => s.remove(), 1100);
+            setTimeout(() => s.remove(), 1000);
+        }
+
+        function getCornerBounds(cornerIndex, w, h) {
+            // Límites para mantener el aleteo en las esquinas y no sobre el contenido central
+            const maxW = Math.min(w * 0.22, 130);
+            const maxH = Math.min(h * 0.20, 130);
+            switch (cornerIndex) {
+                case 0: // Superior izquierda
+                    return { minX: 10, maxX: maxW, minY: 12, maxY: maxH };
+                case 1: // Superior derecha
+                    return { minX: w - maxW - 35, maxX: w - 45, minY: 12, maxY: maxH };
+                case 2: // Inferior izquierda
+                    return { minX: 10, maxX: maxW, minY: h - maxH - 35, maxY: h - 45 };
+                case 3: // Inferior derecha
+                default:
+                    return { minX: w - maxW - 35, maxX: w - 45, minY: h - maxH - 35, maxY: h - 45 };
+            }
         }
 
         class Butterfly {
-            constructor(isInteractive = false, startX, startY) {
-                this.isInteractive = isInteractive;
-                this.size = isInteractive ? 44 : (38 + Math.random() * 22);
-                this.flapSpeed = (0.16 + Math.random() * 0.10).toFixed(2);
+            constructor(cornerIndex) {
+                this.cornerIndex = cornerIndex;
+                this.size = 26 + Math.random() * 8; // Más pequeñas y delicadas
+                this.flapSpeed = (0.17 + Math.random() * 0.08).toFixed(2);
                 this.el = createButterflyElement(this.size, this.flapSpeed);
-                this.sparkleTimer = Math.floor(Math.random() * 20);
+                this.sparkleTimer = Math.floor(Math.random() * 30);
                 this.sinOffset = Math.random() * 100;
-                this.sinSpeed = 0.05 + Math.random() * 0.03;
-                this.speed = isInteractive ? (2.2 + Math.random() * 1.5) : (1.3 + Math.random() * 1.2);
+                this.sinSpeed = 0.04 + Math.random() * 0.03;
+                this.speed = 1.0 + Math.random() * 0.8;
                 this.vx = 0;
                 this.vy = 0;
                 this.angle = 0;
 
                 const w = Math.max(window.innerWidth, 360);
                 const h = Math.max(window.innerHeight, 600);
+                const bounds = getCornerBounds(this.cornerIndex, w, h);
 
-                if (isInteractive && startX !== undefined) {
-                    this.x = startX - this.size / 2;
-                    this.y = startY - this.size / 2;
-                    this.targetX = startX + (Math.random() - 0.5) * 200;
-                    this.targetY = -100;
-                } else {
-                    this.x = Math.random() * (w - 60) + 30;
-                    this.y = Math.random() * (h - 60) + 30;
-                    this.pickNewTarget();
-                }
+                this.x = bounds.minX + Math.random() * Math.max(10, bounds.maxX - bounds.minX);
+                this.y = bounds.minY + Math.random() * Math.max(10, bounds.maxY - bounds.minY);
+                this.pickNewTarget();
             }
 
             pickNewTarget() {
                 const w = Math.max(window.innerWidth, 360);
                 const h = Math.max(window.innerHeight, 600);
-                this.targetX = Math.random() * (w - 100) + 50;
-                this.targetY = Math.random() * (h - 100) + 50;
+
+                // 85% del tiempo permanece en su propia esquina; 15% recorre el borde hacia una esquina contigua
+                if (Math.random() < 0.15) {
+                    const adjacent = {
+                        0: [1, 2],
+                        1: [0, 3],
+                        2: [0, 3],
+                        3: [1, 2]
+                    };
+                    const choices = adjacent[this.cornerIndex] || [0];
+                    this.cornerIndex = choices[Math.floor(Math.random() * choices.length)];
+                }
+
+                const bounds = getCornerBounds(this.cornerIndex, w, h);
+                this.targetX = bounds.minX + Math.random() * Math.max(10, bounds.maxX - bounds.minX);
+                this.targetY = bounds.minY + Math.random() * Math.max(10, bounds.maxY - bounds.minY);
             }
 
             update() {
@@ -3608,11 +3635,7 @@
                 const dy = this.targetY - this.y;
                 const dist = Math.hypot(dx, dy);
 
-                if (dist < 70 || Math.random() < 0.008) {
-                    if (this.isInteractive && this.y < -50) {
-                        this.el.remove();
-                        return false;
-                    }
+                if (dist < 45 || Math.random() < 0.01) {
                     this.pickNewTarget();
                 }
 
@@ -3621,32 +3644,44 @@
                 const desiredVy = Math.sin(targetAngle) * this.speed;
 
                 // Suave aceleración hacia el destino
-                this.vx += (desiredVx - this.vx) * 0.06;
-                this.vy += (desiredVy - this.vy) * 0.06;
+                this.vx += (desiredVx - this.vx) * 0.05;
+                this.vy += (desiredVy - this.vy) * 0.05;
+
+                // Repulsión activa del centro de lectura de la tarjeta
+                const centerMinX = w * 0.22;
+                const centerMaxX = w * 0.78;
+                const centerMinY = h * 0.16;
+                const centerMaxY = h * 0.84;
+
+                if (this.x > centerMinX && this.x < centerMaxX && this.y > centerMinY && this.y < centerMaxY) {
+                    const pushX = (this.x < w / 2) ? -1.6 : 1.6;
+                    const pushY = (this.y < h / 2) ? -1.6 : 1.6;
+                    this.vx += pushX * 0.12;
+                    this.vy += pushY * 0.12;
+                    this.pickNewTarget();
+                }
 
                 this.sinOffset += this.sinSpeed;
-                const wobble = Math.sin(this.sinOffset) * 1.5;
+                const wobble = Math.sin(this.sinOffset) * 1.2;
 
                 this.x += this.vx;
                 this.y += this.vy + wobble;
 
-                // Mantener mariposas no interactivas dentro de los límites visibles
-                if (!this.isInteractive) {
-                    if (this.x < 10) { this.x = 10; this.pickNewTarget(); }
-                    if (this.x > w - this.size - 10) { this.x = w - this.size - 10; this.pickNewTarget(); }
-                    if (this.y < 10) { this.y = 10; this.pickNewTarget(); }
-                    if (this.y > h - this.size - 10) { this.y = h - this.size - 10; this.pickNewTarget(); }
-                }
+                // Mantener dentro de los bordes visibles
+                if (this.x < 8) { this.x = 8; this.vx *= -0.5; this.pickNewTarget(); }
+                if (this.x > w - this.size - 8) { this.x = w - this.size - 8; this.vx *= -0.5; this.pickNewTarget(); }
+                if (this.y < 8) { this.y = 8; this.vy *= -0.5; this.pickNewTarget(); }
+                if (this.y > h - this.size - 8) { this.y = h - this.size - 8; this.vy *= -0.5; this.pickNewTarget(); }
 
-                // Rotación suave orientada al vuelo
+                // Orientación de vuelo suave
                 const heading = Math.atan2(this.vy + wobble, this.vx) * (180 / Math.PI) + 90;
-                this.angle += (heading - this.angle) * 0.15;
+                this.angle += (heading - this.angle) * 0.12;
 
                 this.el.style.transform = `translate3d(${this.x.toFixed(1)}px, ${this.y.toFixed(1)}px, 0) rotate(${this.angle.toFixed(1)}deg)`;
 
-                // Destellos dorados cada cierto tiempo
+                // Destellos dorados suaves espaciados
                 this.sparkleTimer++;
-                if (this.sparkleTimer > 20) {
+                if (this.sparkleTimer > 35) {
                     this.sparkleTimer = 0;
                     createSparkle(this.x + this.size * 0.4, this.y + this.size * 0.4);
                 }
@@ -3655,30 +3690,19 @@
             }
         }
 
-        // Crear las 12 mariposas doradas iniciales
+        // Crear únicamente 4 mariposas (una en cada esquina)
         for (let i = 0; i < BUTTERFLY_COUNT; i++) {
-            butterflies.push(new Butterfly(false));
+            butterflies.push(new Butterfly(i));
         }
 
         // Bucle de animación a 60 FPS
         function animate() {
-            for (let i = butterflies.length - 1; i >= 0; i--) {
-                const alive = butterflies[i].update();
-                if (!alive) {
-                    butterflies.splice(i, 1);
-                }
+            for (let i = 0; i < butterflies.length; i++) {
+                butterflies[i].update();
             }
             requestAnimationFrame(animate);
         }
         requestAnimationFrame(animate);
-
-        // Tocar la pantalla hace que nazca una mariposa dorada que vuela hacia arriba
-        window.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('button, input, textarea, select, a, .trivia-option, .trivia-option-btn')) return;
-            if (butterflies.length < 20) {
-                butterflies.push(new Butterfly(true, e.clientX, e.clientY));
-            }
-        });
     })();
 
     /* ================================================================

@@ -31,6 +31,9 @@
     <!-- Generador de Códigos QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+    <!-- Captura de Ticket a Imagen (Pase VIP Completo) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <!-- YouTube IFrame API (Pre-carga para disponibilidad inmediata) -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -2534,7 +2537,7 @@
                         </div>
 
                         <button type="button" class="btn-ticket-download" id="btnDownloadTicket">
-                            <i class="fas fa-download"></i> Guardar Código QR
+                            <i class="fas fa-ticket-alt"></i> Descargar Pase VIP Completo
                         </button>
                     </div>
 
@@ -3216,25 +3219,65 @@
 
                         vipTicket.style.display = 'block';
 
-                        // Botón de descarga de código QR
+                        // Botón de descarga de Pase VIP (Ticket completo con diseño, QR y datos)
                         const downloadBtn = document.getElementById('btnDownloadTicket');
                         if (downloadBtn) {
                             downloadBtn.onclick = () => {
-                                const canvas = qrWrapper.querySelector('canvas');
-                                let url = '';
-                                if (canvas) {
-                                    url = canvas.toDataURL('image/png');
+                                const guestFileName = (data.nombre || nombre || 'Invitado').replace(/\s+/g, '_');
+
+                                const downloadQrFallback = () => {
+                                    const canvas = qrWrapper.querySelector('canvas');
+                                    let url = '';
+                                    if (canvas) {
+                                        url = canvas.toDataURL('image/png');
+                                    } else {
+                                        const img = qrWrapper.querySelector('img');
+                                        if (img) url = img.src;
+                                    }
+                                    if (url) {
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.download = `Pase_XV_Angie_${guestFileName}.png`;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        link.remove();
+                                    }
+                                };
+
+                                if (typeof html2canvas !== 'undefined' && vipTicket) {
+                                    const originalBtnHtml = downloadBtn.innerHTML;
+                                    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando Pase VIP...';
+                                    downloadBtn.disabled = true;
+
+                                    html2canvas(vipTicket, {
+                                        scale: 2,
+                                        backgroundColor: '#062E25',
+                                        useCORS: true,
+                                        allowTaint: true,
+                                        logging: false,
+                                        ignoreElements: (el) => el.id === 'btnDownloadTicket' || el.classList.contains('btn-ticket-download')
+                                    }).then((canvas) => {
+                                        const url = canvas.toDataURL('image/png');
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.download = `Pase_VIP_XV_Angie_${guestFileName}.png`;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        link.remove();
+
+                                        downloadBtn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Pase Descargado!';
+                                        setTimeout(() => {
+                                            downloadBtn.innerHTML = originalBtnHtml;
+                                            downloadBtn.disabled = false;
+                                        }, 2500);
+                                    }).catch((err) => {
+                                        console.warn('html2canvas error, fallback al QR:', err);
+                                        downloadQrFallback();
+                                        downloadBtn.innerHTML = originalBtnHtml;
+                                        downloadBtn.disabled = false;
+                                    });
                                 } else {
-                                    const img = qrWrapper.querySelector('img');
-                                    if (img) url = img.src;
-                                }
-                                if (url) {
-                                    const link = document.createElement('a');
-                                    link.href = url;
-                                    link.download = `Pase_XV_Angie_${(data.nombre || nombre).replace(/\s+/g, '_')}.png`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    link.remove();
+                                    downloadQrFallback();
                                 }
                             };
                         }

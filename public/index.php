@@ -34,8 +34,7 @@
     <!-- Captura de Ticket a Imagen (Pase VIP Completo) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- YouTube IFrame API (Pre-carga para disponibilidad inmediata) -->
-    <script src="https://www.youtube.com/iframe_api"></script>
+
 
     <style>
         /* ============================================================
@@ -2612,10 +2611,11 @@
         <i class="fas fa-lock"></i>
     </a>
 
-    <!-- Contenedor del reproductor de audio YouTube (Dimensionado para permitir reproducción en móviles) -->
-    <div id="youtube-audio-container" style="position:fixed;bottom:10px;right:10px;width:120px;height:120px;overflow:hidden;opacity:0.002;pointer-events:none;z-index:-10;">
-        <div id="youtube-player"></div>
-    </div>
+    <!-- Reproductor de Audio HTML5 Nativo (100% compatible con iOS y Android) -->
+    <audio id="bgMusic" loop preload="auto" playsinline webkit-playsinline>
+        <source src="musica.mp3" type="audio/mpeg">
+        <source src="musica.m4a" type="audio/mp4">
+    </audio>
 
     <script>
     /* ================================================================
@@ -3333,18 +3333,17 @@
     })();
 
     /* ================================================================
-       AUDIO (YouTube Background Player - "Valiente / Con toda libertad")
+       AUDIO (HTML5 Background Player - "Valiente / Con toda libertad")
        ================================================================ */
     (() => {
         const toggle = document.getElementById('audioToggle');
         const icon = document.getElementById('audioIcon');
         const tooltip = document.getElementById('audioTooltip');
-        if (!toggle || !icon) return;
+        const audio = document.getElementById('bgMusic');
+        if (!toggle || !icon || !audio) return;
 
-        let player = null;
         let isPlaying = false;
         let userWantsMusic = true;
-        let isPlayerReady = false;
         let tooltipTimeout = null;
         let lastToggleTimestamp = 0;
 
@@ -3358,129 +3357,53 @@
             }, duration);
         }
 
-        // Sugerencia inicial visible para activar música
+        function updatePlayState(playing) {
+            isPlaying = playing;
+            if (playing) {
+                toggle.classList.add('playing');
+                icon.className = 'fas fa-compact-disc';
+                detachGestureListeners();
+            } else {
+                toggle.classList.remove('playing');
+                icon.className = 'fas fa-volume-mute';
+            }
+        }
+
+        audio.addEventListener('play', () => {
+            updatePlayState(true);
+            showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
+        });
+
+        audio.addEventListener('pause', () => {
+            updatePlayState(false);
+        });
+
+        audio.addEventListener('ended', () => {
+            updatePlayState(false);
+        });
+
+        // Intentar reproducir con volumen óptimo
+        function tryPlay() {
+            if (!userWantsMusic) return;
+            audio.volume = 0.85;
+            const promise = audio.play();
+            if (promise !== undefined) {
+                promise.then(() => {
+                    updatePlayState(true);
+                }).catch((err) => {
+                    // En móviles espera al primer toque o deslizamiento
+                    console.log('Esperando interacción de usuario en móvil:', err);
+                });
+            }
+        }
+
+        // Sugerencia inicial
         setTimeout(() => {
             if (!isPlaying && userWantsMusic) {
-                showTooltip('🎵 Toca la pantalla o el disco para activar música', 4000);
+                showTooltip('🎵 Toca la pantalla para activar música', 4000);
             }
         }, 1200);
 
-        function createYTPlayer() {
-            if (player) return;
-            try {
-                player = new YT.Player('youtube-player', {
-                    height: '200',
-                    width: '200',
-                    videoId: '9rxjb_Meoms',
-                    playerVars: {
-                        'autoplay': 1,
-                        'mute': 1, // Crucial para permitir arranque silencioso en navegadores móviles
-                        'controls': 0,
-                        'disablekb': 1,
-                        'fs': 0,
-                        'loop': 1,
-                        'playlist': '9rxjb_Meoms',
-                        'modestbranding': 1,
-                        'playsinline': 1,
-                        'rel': 0,
-                        'iv_load_policy': 3
-                    },
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange,
-                        'onError': onPlayerError
-                    }
-                });
-            } catch (err) {
-                console.warn('YouTube Player init error:', err);
-            }
-        }
-
-        if (window.YT && window.YT.Player) {
-            createYTPlayer();
-        } else {
-            const prevReady = window.onYouTubeIframeAPIReady;
-            window.onYouTubeIframeAPIReady = function() {
-                if (typeof prevReady === 'function') prevReady();
-                createYTPlayer();
-            };
-        }
-
-        function onPlayerReady(event) {
-            isPlayerReady = true;
-            try {
-                // Iniciar reproductor en silencio para superar las políticas de bloqueo móvil
-                event.target.mute();
-                event.target.playVideo();
-            } catch (e) {
-                console.warn('onPlayerReady playVideo error:', e);
-            }
-        }
-
-        function onPlayerError(event) {
-            console.warn('YouTube Player error:', event.data);
-            showTooltip('🎵 Toca el disco para escuchar música', 3500);
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                const isMuted = player && typeof player.isMuted === 'function' ? player.isMuted() : false;
-                if (!isMuted) {
-                    isPlaying = true;
-                    userWantsMusic = true;
-                    toggle.classList.add('playing');
-                    icon.className = 'fas fa-compact-disc';
-                    showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
-                    detachGestureListeners();
-                }
-            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-                isPlaying = false;
-                toggle.classList.remove('playing');
-                icon.className = 'fas fa-volume-mute';
-                if (event.data === YT.PlayerState.ENDED && userWantsMusic && player && typeof player.playVideo === 'function') {
-                    player.playVideo();
-                }
-            }
-        }
-
-        function unmuteAndPlay() {
-            if (!player || typeof player.playVideo !== 'function') {
-                userWantsMusic = true;
-                return;
-            }
-            try {
-                if (typeof player.unMute === 'function') {
-                    player.unMute();
-                }
-                if (typeof player.setVolume === 'function') {
-                    player.setVolume(85);
-                }
-                player.playVideo();
-                userWantsMusic = true;
-            } catch (e) {
-                console.warn('unmuteAndPlay error:', e);
-            }
-        }
-
-        function playMusic() {
-            unmuteAndPlay();
-            if (!isPlayerReady) {
-                showTooltip('🎵 Iniciando música...', 2000);
-            }
-        }
-
-        function pauseMusic() {
-            userWantsMusic = false;
-            if (player && typeof player.pauseVideo === 'function') {
-                try {
-                    player.pauseVideo();
-                } catch (e) {
-                    console.warn('pauseMusic error:', e);
-                }
-            }
-        }
-
-        // Manejador del botón flotante de música (Soporta Click y Touchend en móviles)
         function handleToggleAction(e) {
             const now = Date.now();
             if (now - lastToggleTimestamp < 350) return;
@@ -3494,54 +3417,58 @@
             }
 
             if (isPlaying) {
-                pauseMusic();
+                userWantsMusic = false;
+                audio.pause();
                 showTooltip('Música en pausa', 2000);
             } else {
                 userWantsMusic = true;
-                playMusic();
+                tryPlay();
             }
         }
 
         toggle.addEventListener('click', handleToggleAction);
         toggle.addEventListener('touchend', handleToggleAction, { passive: false });
 
-        // Detección de gestos del usuario en pantalla para desmutear y activar en móviles
-        function onGlobalUserGesture(e) {
+        // Activación inmediata en el primer toque de pantalla o deslizamiento (crucial para móviles iOS/Android)
+        function onUserInteraction(e) {
             if (e && e.target && (toggle.contains(e.target) || e.target === toggle)) {
                 return;
             }
-            if (userWantsMusic) {
-                unmuteAndPlay();
+            if (userWantsMusic && !isPlaying) {
+                tryPlay();
             }
         }
 
-        const gestureEvents = ['pointerdown', 'touchstart', 'touchend', 'click'];
+        const gestureEvents = ['touchstart', 'touchend', 'pointerdown', 'click'];
         function attachGestureListeners() {
             gestureEvents.forEach(evt => {
-                document.addEventListener(evt, onGlobalUserGesture, { passive: true });
+                document.addEventListener(evt, onUserInteraction, { passive: true });
             });
         }
 
         function detachGestureListeners() {
             gestureEvents.forEach(evt => {
-                document.removeEventListener(evt, onGlobalUserGesture);
+                document.removeEventListener(evt, onUserInteraction);
             });
         }
 
         attachGestureListeners();
 
-        // Enlace con la navegación del deck y botones
+        // Enlace con la navegación de tarjetas
         const navNext = document.getElementById('nextBtn');
         const navPrev = document.getElementById('prevBtn');
-        if (navNext) navNext.addEventListener('click', () => { if (userWantsMusic) unmuteAndPlay(); });
-        if (navPrev) navPrev.addEventListener('click', () => { if (userWantsMusic) unmuteAndPlay(); });
+        if (navNext) navNext.addEventListener('click', () => { if (userWantsMusic && !isPlaying) tryPlay(); });
+        if (navPrev) navPrev.addEventListener('click', () => { if (userWantsMusic && !isPlaying) tryPlay(); });
 
         const deckContainer = document.getElementById('deckContainer');
         if (deckContainer) {
             deckContainer.addEventListener('touchend', () => {
-                if (userWantsMusic) unmuteAndPlay();
+                if (userWantsMusic && !isPlaying) tryPlay();
             }, { passive: true });
         }
+
+        // Intentar arranque automático
+        tryPlay();
     })();
 
     /* ================================================================

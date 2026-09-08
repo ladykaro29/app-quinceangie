@@ -178,6 +178,14 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );");
 
+        $pdo->exec("CREATE TABLE IF NOT EXISTS canciones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cancion TEXT NOT NULL,
+            nombre_invitado TEXT NULL,
+            ip TEXT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );");
+
     } else {
         // Tablas para MySQL
         try {
@@ -210,6 +218,15 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
                 visible TINYINT(1) NOT NULL DEFAULT 1,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_visible (visible),
+                INDEX idx_created_at (created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS canciones (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                cancion VARCHAR(255) NOT NULL,
+                nombre_invitado VARCHAR(150) NULL,
+                ip VARCHAR(45) NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_created_at (created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
         } catch (\Exception $e) {}

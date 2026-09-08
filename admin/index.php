@@ -422,6 +422,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
         exit;
     } catch (\Exception $e) {}
 }
+
+// Eliminar sugerencia de canción
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_cancion']) && $_POST['action_cancion'] === 'delete') {
+    $cancionId = (int)($_POST['cancion_id'] ?? 0);
+    try {
+        $pdo = getDBConnection();
+        if ($cancionId > 0) {
+            $stmt = $pdo->prepare('DELETE FROM canciones WHERE id = :id');
+            $stmt->execute([':id' => $cancionId]);
+        }
+        header('Location: index.php?tab=canciones');
+        exit;
+    } catch (\Exception $e) {}
+}
 try {
     $pdo = getDBConnection();
     populateMissingRaffleCodes($pdo);
@@ -490,6 +504,11 @@ try {
     $fotosFiesta = $stmtFotosAdmin->fetchAll();
     $totalFotosFiesta = count($fotosFiesta);
 
+    // Cargar canciones sugeridas por los invitados
+    $stmtCancionesAdmin = $pdo->query('SELECT id, cancion, nombre_invitado, created_at FROM canciones ORDER BY id DESC');
+    $cancionesSugeridas = $stmtCancionesAdmin->fetchAll();
+    $totalCanciones = count($cancionesSugeridas);
+
     $dbError = null;
 } catch (\PDOException $e) {
     $dbError = $e->getMessage();
@@ -498,6 +517,8 @@ try {
     $todosBoletosRifa = [];
     $fotosFiesta = [];
     $totalFotosFiesta = 0;
+    $cancionesSugeridas = [];
+    $totalCanciones = 0;
     $totalRegistros = $totalConfirmados = $totalNoAsistiran = $totalPersonas = 0;
 }
 ?>
@@ -988,12 +1009,15 @@ try {
 
     <!-- Pestañas de Navegación del Panel -->
     <?php $activeTab = $_GET['tab'] ?? 'invitados'; ?>
-    <div style="max-width: 1200px; margin: 0 auto 16px auto; display: flex; gap: 10px; border-bottom: 2px solid rgba(200, 162, 74, 0.2); padding-bottom: 10px;">
-        <a href="?tab=invitados" class="action-btn <?= $activeTab !== 'fotos' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+    <div style="max-width: 1200px; margin: 0 auto 16px auto; display: flex; gap: 10px; border-bottom: 2px solid rgba(200, 162, 74, 0.2); padding-bottom: 10px; flex-wrap: wrap;">
+        <a href="?tab=invitados" class="action-btn <?= $activeTab === 'invitados' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
             <i class="fas fa-users"></i> Lista de Invitados (<?= $totalConfirmados ?>)
         </a>
         <a href="?tab=fotos" class="action-btn <?= $activeTab === 'fotos' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-camera-retro"></i> Fotos en Vivo de la Fiesta (<?= $totalFotosFiesta ?>)
+            <i class="fas fa-camera-retro"></i> Fotos en Vivo (<?= $totalFotosFiesta ?>)
+        </a>
+        <a href="?tab=canciones" class="action-btn <?= $activeTab === 'canciones' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-music"></i> Playlist Sugerida (<?= $totalCanciones ?>)
         </a>
     </div>
 
@@ -1079,6 +1103,74 @@ try {
                         </div>
                     <?php endforeach; ?>
                 </div>
+            <?php endif; ?>
+        </div>
+
+    <?php elseif ($activeTab === 'canciones'): ?>
+        <!-- ============================================================
+             SECCIÓN DE CANCIONES SUGERIDAS (PLAYLIST)
+             ============================================================ -->
+        <div class="actions-bar">
+            <div>
+                <span style="font-size: 0.85rem; color: var(--dorado-claro);">
+                    🎵 Total de canciones sugeridas: <strong><?= $totalCanciones ?></strong>
+                </span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="?tab=canciones" class="action-btn">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </a>
+            </div>
+        </div>
+
+        <div class="table-container" style="max-width: 1200px; margin: 0 auto 30px auto;">
+            <?php if (empty($cancionesSugeridas)): ?>
+                <div class="empty-state">
+                    <i class="fas fa-music"></i>
+                    <p>Aún no hay canciones sugeridas por los invitados.</p>
+                </div>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Canción y Artista</th>
+                            <th>Sugerido Por</th>
+                            <th>Fecha</th>
+                            <th style="text-align: right; width: 100px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($cancionesSugeridas as $idx => $cs): ?>
+                            <tr>
+                                <td style="color: var(--dorado); opacity: 0.5;"><?= $idx + 1 ?></td>
+                                <td>
+                                    <strong style="color: var(--dorado-claro); font-size: 0.95rem;">
+                                        <i class="fas fa-music" style="color: var(--dorado); margin-right: 8px;"></i>
+                                        <?= htmlspecialchars($cs['cancion']) ?>
+                                    </strong>
+                                </td>
+                                <td>
+                                    <span style="color: #FFF; font-size: 0.85rem;">
+                                        <?= htmlspecialchars($cs['nombre_invitado'] ?: 'Invitado Especial') ?>
+                                    </span>
+                                </td>
+                                <td class="date-cell">
+                                    <?= date('d/m/Y H:i', strtotime($cs['created_at'])) ?>
+                                </td>
+                                <td style="text-align: right;">
+                                    <form method="POST" onsubmit="return confirm('¿Eliminar esta canción?');" style="display: inline;">
+                                        <input type="hidden" name="action_cancion" value="delete">
+                                        <input type="hidden" name="cancion_id" value="<?= $cs['id'] ?>">
+                                        <button type="submit" class="action-btn" style="padding: 4px 10px; font-size: 0.72rem; border-color: #ff6b6b; color: #ff9999;">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             <?php endif; ?>
         </div>
 

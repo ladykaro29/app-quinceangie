@@ -3565,30 +3565,76 @@
     })();
 
     /* ================================================================
-       PLAYLIST
+       PLAYLIST (SUGERIR CANCIONES CON PERSISTENCIA EN BD)
        ================================================================ */
     (() => {
         const input = document.getElementById('playlist-song-input');
         const addBtn = document.getElementById('playlist-add-btn');
         const list = document.getElementById('playlist-songs');
-        const songs = [];
 
-        function addSong() {
+        async function loadSongs() {
+            try {
+                const res = await fetch('api/canciones.php');
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.canciones)) {
+                    list.innerHTML = '';
+                    data.canciones.forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'playlist-song';
+                        div.innerHTML = `<i class="fas fa-music" style="color: var(--dorado); margin-right: 6px;"></i> <span>${escapeHtml(c.cancion)}</span>`;
+                        list.appendChild(div);
+                    });
+                }
+            } catch (e) {
+                console.warn('Error cargando playlist:', e);
+            }
+        }
+
+        async function addSong() {
             const song = input.value.trim();
             if (!song) return;
 
-            songs.push(song);
-            const div = document.createElement('div');
-            div.className = 'playlist-song';
-            div.innerHTML = `<i class="fas fa-music"></i> <span>${escapeHtml(song)}</span>`;
-            list.appendChild(div);
-            input.value = '';
+            let guestName = '';
+            const rsvpName = document.getElementById('rsvp-nombre');
+            if (rsvpName && rsvpName.value.trim()) {
+                guestName = rsvpName.value.trim();
+            } else {
+                try { guestName = localStorage.getItem('angie_rsvp_name') || ''; } catch(e){}
+            }
+
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('api/canciones.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cancion: song,
+                        nombre: guestName
+                    })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    input.value = '';
+                    loadSongs();
+                } else {
+                    alert(data.error || 'Error al agregar canción');
+                }
+            } catch (err) {
+                console.warn('Error al guardar canción:', err);
+            } finally {
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            }
         }
 
         addBtn.addEventListener('click', addSong);
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') addSong();
         });
+
+        loadSongs();
     })();
 
     /* ================================================================
@@ -3728,7 +3774,7 @@
             submitBtn.innerHTML = '<span class="spinner"></span> Confirmando...';
 
             try {
-                const response = await fetch('/api/confirmar.php', {
+                const response = await fetch('api/confirmar.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3745,15 +3791,16 @@
                     form.style.display = 'none';
                     successDiv.classList.add('visible');
 
-                    // Si ya estaba registrado previamente, mostrar aviso sutil
-                    if (data.ya_registrado) {
-                        const noticeEl = document.getElementById('rsvp-success-title');
-                        if (noticeEl) {
-                            noticeEl.textContent = '¡Ya estabas registrado!';
-                        }
+                    // Desplazar la tarjeta suavemente hacia arriba para que el pase sea visible de inmediato
+                    const cardParent = form.closest('.card');
+                    if (cardParent) {
+                        cardParent.scrollTo({ top: 0, behavior: 'smooth' });
                     }
 
-                    if (selectedAttendance || data.asistira) {
+                    // Determinar si asiste
+                    const isAttending = (data.asistira !== undefined) ? Boolean(data.asistira) : Boolean(selectedAttendance);
+
+                    if (isAttending) {
                         // Rellenar datos del Pase VIP
                         const vipTicket = document.getElementById('vipTicket');
                         const guestNameEl = document.getElementById('ticketGuestName');
@@ -3765,14 +3812,19 @@
 
                         guestNameEl.textContent = data.nombre || nombre;
 
-                        if (acompanantes.length > 0) {
+                        // Extraer acompañantes del backend o del formulario
+                        const finalAcomps = (data.acompanantes && Array.isArray(data.acompanantes) && data.acompanantes.length > 0)
+                            ? data.acompanantes
+                            : acompanantes;
+
+                        if (finalAcomps.length > 0) {
                             companionsRow.style.display = 'flex';
-                            companionsNamesEl.textContent = acompanantes.join(', ');
+                            companionsNamesEl.textContent = finalAcomps.join(', ');
                         } else {
                             companionsRow.style.display = 'none';
                         }
 
-                        const totalP = data.total_pases || (1 + acompanantes.length);
+                        const totalP = data.total_pases || (1 + finalAcomps.length);
                         totalPassesEl.textContent = `${totalP} ${totalP === 1 ? 'Persona' : 'Personas'}`;
 
                         const qrCodeId = data.qr_code || ('XVANGIE-' + (data.id || '001'));
@@ -3810,14 +3862,21 @@
                         qrWrapper.innerHTML = '';
 
                         if (typeof QRCode !== 'undefined') {
-                            new QRCode(qrWrapper, {
-                                text: qrPayload,
-                                width: 170,
-                                height: 170,
-                                colorDark: '#062E25',
-                                colorLight: '#FFFDF5',
-                                correctLevel: QRCode.CorrectLevel.M
-                            });
+                            try {
+                                new QRCode(qrWrapper, {
+                                    text: qrPayload,
+                                    width: 170,
+                                    height: 170,
+                                    colorDark: '#062E25',
+                                    colorLight: '#FFFDF5',
+                                    correctLevel: QRCode.CorrectLevel.M
+                                });
+                            } catch(e) {
+                                const qrImg = document.createElement('img');
+                                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=062E25&bgcolor=FFFDF5`;
+                                qrImg.alt = 'Código QR Pase VIP';
+                                qrWrapper.appendChild(qrImg);
+                            }
                         } else {
                             const qrImg = document.createElement('img');
                             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=062E25&bgcolor=FFFDF5`;

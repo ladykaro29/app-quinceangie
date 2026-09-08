@@ -2238,7 +2238,7 @@
                 <div class="cover-photo-container">
                     <div class="cover-photo-wrapper">
                         <div class="cover-photo-frame">
-                            <img src="angie-portada.jpg" alt="Angie Karolina - Mis XV Años" class="cover-photo-img" loading="eager">
+                            <img src="angie-portada.jpg" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/angie-portada.jpg';}" alt="Angie Karolina - Mis XV Años" class="cover-photo-img" loading="eager">
                             <div class="cover-photo-sheen"></div>
                         </div>
                     </div>
@@ -2762,7 +2762,7 @@
                 <!-- Marco dorado con la foto de Angie -->
                 <div class="angie-photo-wrapper">
                     <div class="angie-photo-frame">
-                        <img src="angie-xv.jpg" alt="Angie Karolina — Mis XV Años" class="angie-photo-img" loading="eager">
+                        <img src="angie-xv.jpg" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/angie-xv.jpg';}" alt="Angie Karolina — Mis XV Años" class="angie-photo-img" loading="eager">
                         <div class="angie-photo-sheen"></div>
                     </div>
                 </div>
@@ -2810,7 +2810,9 @@
     <!-- Reproductor de Audio HTML5 Nativo (100% compatible con iOS y Android) -->
     <audio id="bgMusic" loop preload="auto" playsinline webkit-playsinline>
         <source src="musica.mp3" type="audio/mpeg">
+        <source src="public/musica.mp3" type="audio/mpeg">
         <source src="musica.m4a" type="audio/mp4">
+        <source src="public/musica.m4a" type="audio/mp4">
     </audio>
 
     <script>

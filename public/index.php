@@ -1612,7 +1612,7 @@
             height: 44px;
             border-radius: 50%;
             border: 1.5px solid var(--dorado);
-            background: rgba(6, 46, 37, 0.85);
+            background: rgba(6, 46, 37, 0.88);
             color: var(--dorado);
             display: flex;
             align-items: center;
@@ -1621,9 +1621,27 @@
             z-index: 200;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        .audio-toggle:not(.playing) {
+            animation: audioInvite 2.6s infinite ease-in-out;
+        }
+
+        @keyframes audioInvite {
+            0%, 100% {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(200, 162, 74, 0.75), 0 0 0 4px rgba(200, 162, 74, 0.25);
+                transform: scale(1.06);
+            }
         }
 
         .audio-toggle:hover {
@@ -1672,8 +1690,12 @@
             transform: translateX(10px);
             transition: all 0.4s ease;
             white-space: nowrap;
+            max-width: calc(100vw - 90px);
+            text-overflow: ellipsis;
+            overflow: hidden;
             z-index: 199;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 4px 16px rgba(0,0,0,0.4);
         }
 
@@ -1716,6 +1738,30 @@
         /* ============================================================
            RESPONSIVE
            ============================================================ */
+        @media (max-width: 480px) {
+            .audio-toggle {
+                top: 14px;
+                right: 14px;
+                width: 44px;
+                height: 44px;
+            }
+
+            .audio-tooltip {
+                top: 18px;
+                right: 64px;
+                max-width: calc(100vw - 80px);
+                font-size: 0.68rem;
+                padding: 5px 11px;
+            }
+
+            .admin-link-btn {
+                top: 14px;
+                left: 14px;
+                width: 36px;
+                height: 36px;
+            }
+        }
+
         @media (max-width: 380px) {
             .card {
                 padding: 25px 18px;
@@ -2508,8 +2554,8 @@
         <i class="fas fa-lock"></i>
     </a>
 
-    <!-- Contenedor oculto del reproductor de audio YouTube -->
-    <div id="youtube-audio-container" style="position:fixed;top:-9999px;left:-9999px;width:200px;height:200px;opacity:0.01;pointer-events:none;z-index:-999;">
+    <!-- Contenedor oculto del reproductor de audio YouTube (Dentro del viewport para compatibilidad móvil iOS/Android) -->
+    <div id="youtube-audio-container" style="position:fixed;bottom:0;right:0;width:2px;height:2px;overflow:hidden;opacity:0.001;pointer-events:none;z-index:-10;">
         <div id="youtube-player"></div>
     </div>
 
@@ -3195,22 +3241,25 @@
 
         let player = null;
         let isPlaying = false;
-        let hasInteracted = false;
-        let playerReady = false;
+        let userWantsMusic = true;
+        let isPlayerReady = false;
+        let tooltipTimeout = null;
+        let lastToggleTimestamp = 0;
 
         function showTooltip(text, duration = 3500) {
             if (!tooltip) return;
+            if (tooltipTimeout) clearTimeout(tooltipTimeout);
             tooltip.textContent = text;
             tooltip.classList.add('visible');
-            setTimeout(() => {
+            tooltipTimeout = setTimeout(() => {
                 tooltip.classList.remove('visible');
             }, duration);
         }
 
-        // Sugerencia inicial para activar la música
+        // Sugerencia inicial visible para activar música
         setTimeout(() => {
-            if (!isPlaying) {
-                showTooltip('🎵 Toca para activar la música', 4000);
+            if (!isPlaying && userWantsMusic) {
+                showTooltip('🎵 Toca la pantalla o el disco para activar música', 4000);
             }
         }, 1500);
 
@@ -3229,7 +3278,7 @@
                     width: '200',
                     videoId: '9rxjb_Meoms',
                     playerVars: {
-                        'autoplay': 0,
+                        'autoplay': 1,
                         'controls': 0,
                         'disablekb': 1,
                         'fs': 0,
@@ -3238,7 +3287,8 @@
                         'modestbranding': 1,
                         'playsinline': 1,
                         'rel': 0,
-                        'iv_load_policy': 3
+                        'iv_load_policy': 3,
+                        'origin': window.location.origin
                     },
                     events: {
                         'onReady': onPlayerReady,
@@ -3251,29 +3301,31 @@
         };
 
         function onPlayerReady(event) {
-            playerReady = true;
+            isPlayerReady = true;
             try {
-                event.target.setVolume(75);
-                // Si el usuario ya interactuó con la página, reproducir de inmediato
-                if (hasInteracted) {
+                event.target.setVolume(80);
+                if (userWantsMusic) {
                     event.target.playVideo();
                 }
             } catch (e) {
-                console.warn(e);
+                console.warn('onPlayerReady error:', e);
             }
         }
 
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
                 isPlaying = true;
+                userWantsMusic = true;
                 toggle.classList.add('playing');
                 icon.className = 'fas fa-compact-disc';
                 showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
+                // Cuando ya está sonando, removemos los listeners globales de gestos
+                detachGestureListeners();
             } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
                 isPlaying = false;
                 toggle.classList.remove('playing');
                 icon.className = 'fas fa-volume-mute';
-                if (event.data === YT.PlayerState.ENDED && player && typeof player.playVideo === 'function') {
+                if (event.data === YT.PlayerState.ENDED && userWantsMusic && player && typeof player.playVideo === 'function') {
                     // Garantizar reproducción en bucle continuo
                     player.playVideo();
                 }
@@ -3281,43 +3333,94 @@
         }
 
         function playMusic() {
-            if (player && typeof player.playVideo === 'function') {
+            if (!isPlayerReady || !player || typeof player.playVideo !== 'function') {
+                userWantsMusic = true;
+                showTooltip('🎵 Iniciando música...', 2500);
+                return;
+            }
+            try {
                 player.playVideo();
+            } catch (e) {
+                console.warn('playMusic error:', e);
             }
         }
 
         function pauseMusic() {
+            userWantsMusic = false;
             if (player && typeof player.pauseVideo === 'function') {
-                player.pauseVideo();
+                try {
+                    player.pauseVideo();
+                } catch (e) {
+                    console.warn('pauseMusic error:', e);
+                }
             }
         }
 
-        // Control manual al hacer clic en el botón de música
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            hasInteracted = true;
+        // Manejador del botón flotante de música (Soporta Click y Touchend en móviles)
+        function handleToggleAction(e) {
+            const now = Date.now();
+            if (now - lastToggleTimestamp < 350) return;
+            lastToggleTimestamp = now;
+
+            if (e && e.cancelable && e.type === 'touchend') {
+                e.preventDefault();
+            }
+            if (e) {
+                e.stopPropagation();
+            }
+
             if (isPlaying) {
                 pauseMusic();
                 showTooltip('Música en pausa', 2000);
             } else {
+                userWantsMusic = true;
+                if (!isPlayerReady) {
+                    showTooltip('🎵 Cargando música... Iniciará enseguida', 2500);
+                }
                 playMusic();
             }
-        });
-
-        // Autoplay al primer toque o deslizamiento en cualquier parte de la invitación
-        function onFirstUserGesture() {
-            if (!hasInteracted) {
-                hasInteracted = true;
-                playMusic();
-            }
-            window.removeEventListener('pointerdown', onFirstUserGesture);
-            window.removeEventListener('touchstart', onFirstUserGesture);
-            window.removeEventListener('click', onFirstUserGesture);
         }
 
-        window.addEventListener('pointerdown', onFirstUserGesture, { passive: true, once: true });
-        window.addEventListener('touchstart', onFirstUserGesture, { passive: true, once: true });
-        window.addEventListener('click', onFirstUserGesture, { passive: true, once: true });
+        toggle.addEventListener('click', handleToggleAction);
+        toggle.addEventListener('touchend', handleToggleAction, { passive: false });
+
+        // Detección de gestos del usuario en pantalla para desbloquear audio en móviles
+        function onGlobalUserGesture(e) {
+            if (e && e.target && (toggle.contains(e.target) || e.target === toggle)) {
+                return;
+            }
+            if (!isPlaying && userWantsMusic) {
+                playMusic();
+            }
+        }
+
+        const gestureEvents = ['pointerdown', 'touchstart', 'touchend', 'click'];
+        function attachGestureListeners() {
+            gestureEvents.forEach(evt => {
+                document.addEventListener(evt, onGlobalUserGesture, { passive: true });
+            });
+        }
+
+        function detachGestureListeners() {
+            gestureEvents.forEach(evt => {
+                document.removeEventListener(evt, onGlobalUserGesture);
+            });
+        }
+
+        attachGestureListeners();
+
+        // Enlace con la navegación del deck y botones
+        const navNext = document.getElementById('nextBtn');
+        const navPrev = document.getElementById('prevBtn');
+        if (navNext) navNext.addEventListener('click', () => { if (!isPlaying && userWantsMusic) playMusic(); });
+        if (navPrev) navPrev.addEventListener('click', () => { if (!isPlaying && userWantsMusic) playMusic(); });
+
+        const deckContainer = document.getElementById('deckContainer');
+        if (deckContainer) {
+            deckContainer.addEventListener('touchend', () => {
+                if (!isPlaying && userWantsMusic) playMusic();
+            }, { passive: true });
+        }
     })();
 
     /* ================================================================

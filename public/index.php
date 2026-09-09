@@ -2849,7 +2849,7 @@ $pageUrl = $baseUrl . '/';
                     </div>
                     <div class="timeline-item">
                         <div class="timeline-time">9:30 PM</div>
-                        <div class="timeline-event">Brindis y cena</div>
+                        <div class="timeline-event">Brindis y pasapalos</div>
                     </div>
                     <div class="timeline-item">
                         <div class="timeline-time">10:30 PM</div>

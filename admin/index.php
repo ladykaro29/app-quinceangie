@@ -1079,6 +1079,9 @@ try {
             </span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="../public/libro-recuerdos.php" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: linear-gradient(135deg, rgba(200, 162, 74, 0.3), rgba(6, 46, 37, 0.6)); border-color: var(--dorado); color: var(--dorado-claro);">
+                <i class="fas fa-book-open"></i> Libro de Recuerdos ✨
+            </a>
             <a href="../" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem;">
                 <i class="fas fa-external-link-alt"></i> Ver Invitación
             </a>

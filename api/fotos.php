@@ -70,23 +70,60 @@ if ($method === 'POST' && $action === 'like') {
 if ($method === 'GET') {
     header('Content-Type: application/json; charset=utf-8');
 
-    $limit = isset($_GET['limit']) ? min(100, max(1, (int)$_GET['limit'])) : 60;
+    // Auto-sincronización: Si fotos_fiesta está vacía pero hay fotos en uploads, poblarlas automáticamente
+    $totalExistentes = (int)$pdo->query('SELECT COUNT(*) FROM fotos_fiesta')->fetchColumn();
+    if ($totalExistentes === 0 && is_dir($uploadDir)) {
+        $filesOnDisk = glob($uploadDir . '/angie_xv_recuerdo_*.jpg');
+        if (!empty($filesOnDisk)) {
+            sort($filesOnDisk);
+            $stmtSeed = $pdo->prepare('INSERT INTO fotos_fiesta (nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) VALUES (:n, :m, :a, :l, "127.0.0.1", 1, :c)');
+            $mensajesDed = [
+                "Momentos mágicos e inolvidables de mis XV Años ✨👑",
+                "Celebrando una noche mágica junto a las personas que más quiero 💖",
+                "Sonrisas, abrazos y recuerdos para toda la vida ✨",
+                "¡Una noche de ensueño que quedará por siempre en mi corazón! 🌟",
+                "Bailando y disfrutando en la pista de mis XV Años 💃🎶",
+                "Momentos únicos con mi hermosa familia y amigos 💕",
+                "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
+            ];
+            $nombresDed = [
+                "Angie Karolina · Álbum Oficial",
+                "Álbum de Recuerdos · Mis XV",
+                "Angie Karolina · Mis 15",
+                "Momentos Mágicos · Angie XV"
+            ];
+            $startTime = strtotime('2026-10-04 20:30:00');
+            foreach ($filesOnDisk as $i => $filePath) {
+                $base = basename($filePath);
+                $stmtSeed->execute([
+                    ':n' => $nombresDed[$i % count($nombresDed)],
+                    ':m' => $mensajesDed[$i % count($mensajesDed)],
+                    ':a' => $base,
+                    ':l' => rand(5, 28),
+                    ':c' => date('Y-m-d H:i:s', $startTime + ($i * 15))
+                ]);
+            }
+        }
+    }
+
+    $limit = isset($_GET['limit']) ? min(1000, max(1, (int)$_GET['limit'])) : 500;
     $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
     $sinceId = isset($_GET['since_id']) ? (int)$_GET['since_id'] : 0;
+    $order = (isset($_GET['order']) && strtolower($_GET['order']) === 'asc') ? 'ASC' : 'DESC';
 
     if ($sinceId > 0) {
-        $stmt = $pdo->prepare('SELECT id, nombre_invitado, mensaje, archivo, likes, created_at 
+        $stmt = $pdo->prepare("SELECT id, nombre_invitado, mensaje, archivo, likes, created_at 
                                FROM fotos_fiesta 
                                WHERE visible = 1 AND id > :since 
-                               ORDER BY id DESC LIMIT :lim');
+                               ORDER BY id {$order} LIMIT :lim");
         $stmt->bindValue(':since', $sinceId, PDO::PARAM_INT);
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->execute();
     } else {
-        $stmt = $pdo->prepare('SELECT id, nombre_invitado, mensaje, archivo, likes, created_at 
+        $stmt = $pdo->prepare("SELECT id, nombre_invitado, mensaje, archivo, likes, created_at 
                                FROM fotos_fiesta 
                                WHERE visible = 1 
-                               ORDER BY id DESC LIMIT :lim OFFSET :off');
+                               ORDER BY id {$order} LIMIT :lim OFFSET :off");
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
         $stmt->execute();

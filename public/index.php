@@ -2206,6 +2206,153 @@ $pageUrl = $baseUrl . '/';
             transform: translateY(1px);
         }
 
+        .btn-gallery-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 320px;
+            padding: 11px 18px;
+            background: rgba(200, 162, 74, 0.16);
+            color: var(--dorado-brillante);
+            font-family: var(--font-serif);
+            font-weight: 600;
+            font-size: 0.88rem;
+            letter-spacing: 0.8px;
+            border: 1.5px solid rgba(200, 162, 74, 0.6);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .btn-gallery-upload:hover {
+            background: rgba(200, 162, 74, 0.3);
+            border-color: var(--dorado-brillante);
+            transform: translateY(-1px);
+            color: #FFF;
+        }
+
+        .btn-gallery-upload:active {
+            transform: translateY(1px);
+        }
+
+        .live-photo-actions-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .live-steps-guide {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 320px;
+            margin: 2px auto 10px auto;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px dashed rgba(200, 162, 74, 0.35);
+            border-radius: 12px;
+            font-size: 0.72rem;
+            color: var(--crema);
+        }
+
+        .live-step-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: var(--font-sans);
+            opacity: 0.92;
+        }
+
+        .live-step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            background: var(--dorado);
+            color: #041B16;
+            font-weight: 700;
+            font-size: 0.68rem;
+            border-radius: 50%;
+        }
+
+        .quick-msg-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .quick-chip {
+            background: rgba(200, 162, 74, 0.12);
+            border: 1px solid rgba(200, 162, 74, 0.4);
+            color: var(--dorado-claro);
+            font-size: 0.74rem;
+            padding: 4px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .quick-chip:hover, .quick-chip.active {
+            background: var(--dorado);
+            color: #041B16;
+            border-color: var(--dorado);
+            font-weight: 600;
+        }
+
+        .multi-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 6px;
+            max-height: 145px;
+            overflow-y: auto;
+            padding: 4px;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(200, 162, 74, 0.25);
+        }
+
+        .multi-preview-thumb {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(200, 162, 74, 0.4);
+        }
+
+        .multi-preview-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .multi-preview-thumb .thumb-del {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0,0,0,0.7);
+            color: #ff8888;
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
         .live-tv-link {
             display: inline-flex;
             align-items: center;
@@ -2230,7 +2377,7 @@ $pageUrl = $baseUrl . '/';
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             width: 100%;
-            max-height: 250px;
+            max-height: 340px;
             overflow-y: auto;
             padding: 6px;
             border-radius: 14px;
@@ -2238,6 +2385,7 @@ $pageUrl = $baseUrl . '/';
             border: 1px solid rgba(200, 162, 74, 0.2);
             scrollbar-width: thin;
             scrollbar-color: var(--dorado) transparent;
+            scroll-behavior: smooth;
         }
 
         .live-gallery-item {
@@ -2373,8 +2521,8 @@ $pageUrl = $baseUrl . '/';
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.94);
+            backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -2383,6 +2531,7 @@ $pageUrl = $baseUrl . '/';
             padding: 16px;
             box-sizing: border-box;
             animation: fadeIn 0.25s ease;
+            user-select: none;
         }
 
         .lightbox-close {
@@ -2392,21 +2541,79 @@ $pageUrl = $baseUrl . '/';
             background: rgba(255, 255, 255, 0.15);
             border: none;
             color: #FFF;
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            z-index: 100005;
         }
 
         .lightbox-close:hover {
             background: var(--dorado);
             color: #062E25;
             transform: scale(1.1);
+        }
+
+        .lightbox-counter {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: var(--dorado-claro);
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(200, 162, 74, 0.4);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 100005;
+        }
+
+        .lightbox-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.65);
+            border: 1.5px solid var(--dorado);
+            color: #FFF;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            z-index: 100002;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-nav-btn:hover {
+            background: var(--dorado);
+            color: #062E25;
+            transform: translateY(-50%) scale(1.12);
+        }
+
+        .lightbox-prev {
+            left: 20px;
+        }
+
+        .lightbox-next {
+            right: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .lightbox-prev { left: 8px; width: 38px; height: 38px; font-size: 1rem; }
+            .lightbox-next { right: 8px; width: 38px; height: 38px; font-size: 1rem; }
+            .lightbox-counter { top: 16px; left: 14px; font-size: 0.75rem; padding: 3px 10px; }
+            .lightbox-close { top: 14px; right: 14px; width: 36px; height: 36px; font-size: 1.1rem; }
         }
 
         .lightbox-img {
@@ -2416,6 +2623,7 @@ $pageUrl = $baseUrl . '/';
             border-radius: 14px;
             border: 2px solid var(--dorado);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+            transition: opacity 0.2s ease;
         }
 
         .lightbox-details {
@@ -3121,10 +3329,36 @@ $pageUrl = $baseUrl . '/';
                     ¡Sé parte del álbum oficial de mi fiesta! Captura momentos especiales desde tu celular y compártelos en tiempo real. ✨
                 </p>
 
+                <!-- Guía rápida de 3 pasos -->
+                <div class="live-steps-guide">
+                    <div class="live-step-item">
+                        <span class="live-step-num">1</span>
+                        <span>Toma foto / Galería</span>
+                    </div>
+                    <div style="opacity: 0.4;">➔</div>
+                    <div class="live-step-item">
+                        <span class="live-step-num">2</span>
+                        <span>Dedicatoria</span>
+                    </div>
+                    <div style="opacity: 0.4;">➔</div>
+                    <div class="live-step-item">
+                        <span class="live-step-num">3</span>
+                        <span>¡En Pantalla! ✨</span>
+                    </div>
+                </div>
+
                 <div class="live-photos-container">
-                    <button type="button" class="btn-camera-upload" id="btnOpenPhotoUpload">
-                        <i class="fas fa-camera"></i> Subir Foto en Vivo
-                    </button>
+                    <div class="live-photo-actions-wrap">
+                        <a href="libro-recuerdos.php" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #FFD700 0%, #C8A24A 60%, #9B7824 100%); color: #041B16; font-family: var(--font-serif); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.8px; border-radius: 30px; text-decoration: none; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); text-transform: uppercase; transition: transform 0.25s;">
+                            <i class="fas fa-book-open"></i> Libro de Recuerdos & Videos ✨
+                        </a>
+                        <button type="button" class="btn-camera-upload" id="btnOpenPhotoUpload">
+                            <i class="fas fa-camera"></i> Tomar Foto Ahora
+                        </button>
+                        <button type="button" class="btn-gallery-upload" id="btnOpenGalleryUpload">
+                            <i class="fas fa-images"></i> Elegir de la Galería / Carrete
+                        </button>
+                    </div>
 
                     <a href="en-vivo.php" target="_blank" class="live-tv-link">
                         <i class="fas fa-tv"></i> Ver Pantalla en Vivo (Modo Proyector)
@@ -3233,14 +3467,36 @@ $pageUrl = $baseUrl . '/';
                 XV Años Angie Karolina
             </div>
 
+            <!-- Inputs ocultos para Cámara directa y para Galería múltiple -->
             <input type="file" id="filePhotoInput" accept="image/*" capture="environment" style="display: none;">
+            <input type="file" id="fileGalleryInput" accept="image/*" multiple style="display: none;">
 
+            <!-- Contenedor de previsualización (individual o múltiple) -->
             <div class="photo-preview-wrap" id="uploadPreviewWrap" style="display: none;">
                 <img id="imgUploadPreview" src="" alt="Vista previa de foto">
             </div>
+            <div class="multi-preview-grid" id="multiPreviewGrid" style="display: none;"></div>
+
+            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;">
+                <button type="button" id="btnAddMorePhotos" style="display: none; background: rgba(200, 162, 74, 0.2); border: 1px dashed var(--dorado); color: var(--dorado-claro); font-size: 0.74rem; padding: 4px 10px; border-radius: 12px; cursor: pointer;">
+                    <i class="fas fa-plus"></i> Añadir más fotos
+                </button>
+            </div>
 
             <input type="text" class="upload-input" id="uploadGuestName" placeholder="Tu nombre y apellido" maxlength="100">
-            <textarea class="upload-input" id="uploadGuestMsg" placeholder="Dedicatoria o mensaje para Angie (opcional)..." rows="2" maxlength="300" style="resize: none;"></textarea>
+            
+            <!-- Frases rápidas de un toque -->
+            <div style="text-align: left; font-size: 0.72rem; color: var(--dorado-claro); margin: 2px 0 6px 2px; opacity: 0.85;">
+                <i class="fas fa-magic"></i> Dedicatorias rápidas:
+            </div>
+            <div class="quick-msg-chips">
+                <span class="quick-chip" data-msg="¡Felicidades Angie! 🎉">¡Felicidades Angie! 🎉</span>
+                <span class="quick-chip" data-msg="Te ves hermosa ✨👑">Te ves hermosa ✨👑</span>
+                <span class="quick-chip" data-msg="¡Noche inolvidable! 💃🥂">¡Noche inolvidable! 💃🥂</span>
+                <span class="quick-chip" data-msg="Los mejores 15 años 💖">Los mejores 15 💖</span>
+            </div>
+
+            <textarea class="upload-input" id="uploadGuestMsg" placeholder="Escribe un mensaje o elige una dedicatoria arriba..." rows="2" maxlength="300" style="resize: none;"></textarea>
 
             <div id="uploadStatusMsg" style="font-size: 0.8rem; margin-bottom: 10px; min-height: 18px;"></div>
 
@@ -3252,11 +3508,21 @@ $pageUrl = $baseUrl . '/';
 
     <!-- Visor de Foto a Pantalla Completa (Lightbox) -->
     <div id="photoLightbox" class="photo-lightbox" style="display: none;">
-        <button type="button" class="lightbox-close" id="btnCloseLightbox">
+        <button type="button" class="lightbox-close" id="btnCloseLightbox" title="Cerrar visor">
             <i class="fas fa-times"></i>
         </button>
 
-        <img id="lightboxImg" class="lightbox-img" src="" alt="Foto en vivo ampliada">
+        <div class="lightbox-counter" id="lightboxCounter">1 / 160</div>
+
+        <button type="button" class="lightbox-nav-btn lightbox-prev" id="btnPrevLightboxPhoto" title="Foto anterior (Flecha Izquierda)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <img id="lightboxImg" class="lightbox-img" src="" alt="Foto de la fiesta ampliada">
+
+        <button type="button" class="lightbox-nav-btn lightbox-next" id="btnNextLightboxPhoto" title="Foto siguiente (Flecha Derecha)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
 
         <div class="lightbox-details">
             <div class="lightbox-author" id="lightboxAuthor">Invitado</div>
@@ -3266,7 +3532,7 @@ $pageUrl = $baseUrl . '/';
                     <i class="fas fa-heart"></i> <span id="lightboxLikesCount">0</span> Me encanta
                 </button>
                 <a href="#" id="btnDownloadLightboxPhoto" class="btn-download-lightbox" download="foto_angie_xv.jpg" target="_blank">
-                    <i class="fas fa-download"></i> Descargar
+                    <i class="fas fa-download"></i> Descargar Foto
                 </a>
             </div>
         </div>
@@ -4412,19 +4678,24 @@ $pageUrl = $baseUrl . '/';
     (() => {
         let livePhotos = [];
         let likedPhotoIds = new Set();
-        let selectedFileBase64 = null;
+        let selectedPhotosQueue = []; // Cola de fotos a subir: [{ base64, previewUrl }]
         let selectedPhotoForLightbox = null;
 
         const btnOpenPhotoUpload = document.getElementById('btnOpenPhotoUpload');
+        const btnOpenGalleryUpload = document.getElementById('btnOpenGalleryUpload');
         const photoUploadModal = document.getElementById('photoUploadModal');
         const btnCloseUploadModal = document.getElementById('btnCloseUploadModal');
         const filePhotoInput = document.getElementById('filePhotoInput');
+        const fileGalleryInput = document.getElementById('fileGalleryInput');
         const uploadPreviewWrap = document.getElementById('uploadPreviewWrap');
         const imgUploadPreview = document.getElementById('imgUploadPreview');
+        const multiPreviewGrid = document.getElementById('multiPreviewGrid');
+        const btnAddMorePhotos = document.getElementById('btnAddMorePhotos');
         const uploadGuestName = document.getElementById('uploadGuestName');
         const uploadGuestMsg = document.getElementById('uploadGuestMsg');
         const btnSubmitPhoto = document.getElementById('btnSubmitPhoto');
         const uploadStatusMsg = document.getElementById('uploadStatusMsg');
+        const quickChips = document.querySelectorAll('.quick-chip');
 
         const liveGalleryGrid = document.getElementById('liveGalleryGrid');
         const liveGalleryEmpty = document.getElementById('liveGalleryEmpty');
@@ -4452,64 +4723,174 @@ $pageUrl = $baseUrl . '/';
             }
         }
 
-        // Abrir modal de subida
-        btnOpenPhotoUpload?.addEventListener('click', () => {
+        // Preparar modal antes de seleccionar fotos
+        function prepareModalForSelection() {
             if (!uploadGuestName.value.trim()) {
                 uploadGuestName.value = getStoredGuestName();
             }
             uploadStatusMsg.textContent = '';
+        }
+
+        // Abrir Cámara Directa
+        btnOpenPhotoUpload?.addEventListener('click', () => {
+            prepareModalForSelection();
             filePhotoInput.click();
         });
 
-        // Al seleccionar archivo con la cámara o galería del celular
-        filePhotoInput?.addEventListener('change', (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
+        // Abrir Selector de Galería / Carrete (Múltiple)
+        btnOpenGalleryUpload?.addEventListener('click', () => {
+            prepareModalForSelection();
+            fileGalleryInput.click();
+        });
 
-            // Compresión del lado del cliente vía Canvas HTML5 (8-12MP a ~1400px JPEG de 350KB)
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const maxDimension = 1400;
+        // Añadir más fotos desde el modal
+        btnAddMorePhotos?.addEventListener('click', () => {
+            fileGalleryInput.click();
+        });
 
-                    if (width > height && width > maxDimension) {
-                        height = Math.round((height * maxDimension) / width);
-                        width = maxDimension;
-                    } else if (height > maxDimension) {
-                        width = Math.round((width * maxDimension) / height);
-                        height = maxDimension;
-                    }
+        // Dedicatorias rápidas con un solo toque
+        quickChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const text = chip.getAttribute('data-msg');
+                if (text) {
+                    uploadGuestMsg.value = text;
+                    quickChips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                }
+            });
+        });
 
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+        // Procesar y comprimir una imagen a Base64 mediante Canvas HTML5
+        function processImageFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('No se pudo leer la imagen'));
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error('Imagen no válida'));
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const maxDimension = 1400;
 
-                    selectedFileBase64 = canvas.toDataURL('image/jpeg', 0.85);
-                    imgUploadPreview.src = selectedFileBase64;
-                    uploadPreviewWrap.style.display = 'flex';
-                    photoUploadModal.style.display = 'flex';
+                        if (width > height && width > maxDimension) {
+                            height = Math.round((height * maxDimension) / width);
+                            width = maxDimension;
+                        } else if (height > maxDimension) {
+                            width = Math.round((width * maxDimension) / height);
+                            height = maxDimension;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const base64 = canvas.toDataURL('image/jpeg', 0.85);
+                        resolve(base64);
+                    };
+                    img.src = event.target.result;
                 };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Actualizar la vista previa de las fotos seleccionadas en el modal
+        function renderSelectedPreviews() {
+            if (selectedPhotosQueue.length === 0) {
+                uploadPreviewWrap.style.display = 'none';
+                multiPreviewGrid.style.display = 'none';
+                btnAddMorePhotos.style.display = 'none';
+                btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar en el Álbum';
+                return;
+            }
+
+            if (selectedPhotosQueue.length === 1) {
+                // Modo foto individual
+                imgUploadPreview.src = selectedPhotosQueue[0];
+                uploadPreviewWrap.style.display = 'flex';
+                multiPreviewGrid.style.display = 'none';
+                btnAddMorePhotos.style.display = 'inline-block';
+                btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Foto';
+            } else {
+                // Modo fotos múltiples
+                uploadPreviewWrap.style.display = 'none';
+                multiPreviewGrid.style.display = 'grid';
+                multiPreviewGrid.innerHTML = '';
+
+                selectedPhotosQueue.forEach((base64, idx) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = 'multi-preview-thumb';
+                    thumb.innerHTML = `
+                        <img src="${base64}" alt="Foto ${idx + 1}">
+                        <button type="button" class="thumb-del" data-index="${idx}" title="Quitar">&times;</button>
+                    `;
+                    multiPreviewGrid.appendChild(thumb);
+                });
+
+                // Botones para borrar fotos individuales de la cola
+                multiPreviewGrid.querySelectorAll('.thumb-del').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = parseInt(btn.getAttribute('data-index'), 10);
+                        selectedPhotosQueue.splice(idx, 1);
+                        renderSelectedPreviews();
+                    });
+                });
+
+                btnAddMorePhotos.style.display = 'inline-block';
+                btnSubmitPhoto.innerHTML = `<i class="fas fa-paper-plane"></i> Publicar ${selectedPhotosQueue.length} Fotos`;
+            }
+        }
+
+        // Manejador común de archivos entrantes
+        async function handleIncomingFiles(files) {
+            if (!files || files.length === 0) return;
+
+            uploadStatusMsg.textContent = 'Procesando fotos...';
+            uploadStatusMsg.style.color = '#FFE680';
+            photoUploadModal.style.display = 'flex';
+
+            const validFiles = Array.from(files).filter(f => f.type.startsWith('image/')).slice(0, 10);
+            
+            for (const file of validFiles) {
+                try {
+                    const base64 = await processImageFile(file);
+                    selectedPhotosQueue.push(base64);
+                } catch (err) {
+                    console.warn('Error procesando imagen:', err);
+                }
+            }
+
+            uploadStatusMsg.textContent = '';
+            renderSelectedPreviews();
+        }
+
+        // Eventos al seleccionar archivos
+        filePhotoInput?.addEventListener('change', (e) => {
+            handleIncomingFiles(e.target.files);
+            filePhotoInput.value = '';
+        });
+
+        fileGalleryInput?.addEventListener('change', (e) => {
+            handleIncomingFiles(e.target.files);
+            fileGalleryInput.value = '';
         });
 
         // Cerrar modal de subida
         btnCloseUploadModal?.addEventListener('click', () => {
             photoUploadModal.style.display = 'none';
-            selectedFileBase64 = null;
+            selectedPhotosQueue = [];
             filePhotoInput.value = '';
+            fileGalleryInput.value = '';
+            uploadStatusMsg.textContent = '';
         });
 
-        // Enviar foto
+        // Enviar foto(s) a la fiesta
         btnSubmitPhoto?.addEventListener('click', async () => {
-            if (!selectedFileBase64) {
-                uploadStatusMsg.textContent = 'Por favor selecciona una foto primero.';
+            if (selectedPhotosQueue.length === 0) {
+                uploadStatusMsg.textContent = 'Por favor selecciona al menos una foto.';
                 uploadStatusMsg.style.color = '#ff9999';
                 return;
             }
@@ -4518,53 +4899,72 @@ $pageUrl = $baseUrl . '/';
             const mensaje = uploadGuestMsg.value.trim();
 
             btnSubmitPhoto.disabled = true;
-            btnSubmitPhoto.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
-            uploadStatusMsg.textContent = 'Enviando foto a la fiesta...';
             uploadStatusMsg.style.color = '#FFE680';
 
-            try {
-                // Guardar nombre en localStorage para próximas fotos
-                try { localStorage.setItem('angie_rsvp_name', nombre); } catch(e){}
+            // Guardar nombre en localStorage para próximas fotos
+            try { localStorage.setItem('angie_rsvp_name', nombre); } catch(e){}
 
-                const formData = new FormData();
-                formData.append('nombre_invitado', nombre);
-                formData.append('mensaje', mensaje);
-                formData.append('foto_base64', selectedFileBase64);
+            let successCount = 0;
+            const total = selectedPhotosQueue.length;
 
-                const res = await fetch('api/fotos.php', {
-                    method: 'POST',
-                    body: formData
-                });
+            for (let i = 0; i < total; i++) {
+                btnSubmitPhoto.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Subiendo (${i + 1}/${total})...`;
+                uploadStatusMsg.textContent = `Enviando foto ${i + 1} de ${total} a la fiesta...`;
 
-                const data = await res.json();
-                if (data && data.success) {
-                    uploadStatusMsg.textContent = '✨ ¡Foto compartida con éxito!';
-                    uploadStatusMsg.style.color = '#A7F3D0';
+                try {
+                    const formData = new FormData();
+                    formData.append('nombre_invitado', nombre);
+                    formData.append('mensaje', mensaje);
+                    formData.append('foto_base64', selectedPhotosQueue[i]);
 
-                    setTimeout(() => {
-                        photoUploadModal.style.display = 'none';
-                        selectedFileBase64 = null;
-                        filePhotoInput.value = '';
-                        uploadGuestMsg.value = '';
-                        btnSubmitPhoto.disabled = false;
-                        btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar en el Álbum';
-                        fetchLivePhotos();
-                    }, 800);
-                } else {
-                    throw new Error(data.error || 'Error al subir la foto');
+                    const res = await fetch('api/fotos.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await res.json();
+                    if (data && data.success) {
+                        successCount++;
+                    }
+                } catch (err) {
+                    console.error('Error al subir foto ' + (i + 1), err);
                 }
-            } catch (err) {
+            }
+
+            if (successCount > 0) {
+                uploadStatusMsg.textContent = total > 1 
+                    ? `✨ ¡${successCount} fotos compartidas con éxito!` 
+                    : '✨ ¡Foto compartida con éxito!';
+                uploadStatusMsg.style.color = '#A7F3D0';
+
+                setTimeout(() => {
+                    photoUploadModal.style.display = 'none';
+                    selectedPhotosQueue = [];
+                    uploadGuestMsg.value = '';
+                    quickChips.forEach(c => c.classList.remove('active'));
+                    btnSubmitPhoto.disabled = false;
+                    btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar en el Álbum';
+                    fetchLivePhotos();
+                }, 1000);
+            } else {
                 btnSubmitPhoto.disabled = false;
                 btnSubmitPhoto.innerHTML = '<i class="fas fa-paper-plane"></i> Intentar de Nuevo';
-                uploadStatusMsg.textContent = 'Error: ' + err.message;
+                uploadStatusMsg.textContent = 'Hubo un inconveniente al subir las fotos. Intenta de nuevo.';
                 uploadStatusMsg.style.color = '#ff9999';
             }
         });
 
+        // Elementos del visor Lightbox
+        const lightboxCounter = document.getElementById('lightboxCounter');
+        const btnPrevLightboxPhoto = document.getElementById('btnPrevLightboxPhoto');
+        const btnNextLightboxPhoto = document.getElementById('btnNextLightboxPhoto');
+        const btnDownloadLightboxPhoto = document.getElementById('btnDownloadLightboxPhoto');
+        let currentLightboxIndex = -1;
+
         // Obtener fotos desde la API
         async function fetchLivePhotos() {
             try {
-                const res = await fetch('api/fotos.php?limit=60&t=' + Date.now());
+                const res = await fetch('api/fotos.php?limit=500&order=asc&t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.fotos)) {
                     livePhotos = data.fotos;
@@ -4604,15 +5004,24 @@ $pageUrl = $baseUrl . '/';
             });
         }
 
-        const btnDownloadLightboxPhoto = document.getElementById('btnDownloadLightboxPhoto');
-
-        // Abrir visor a pantalla completa
-        function openLightbox(photo) {
+        // Actualizar datos de la foto mostrada en el visor
+        function renderLightboxPhoto(photo) {
+            if (!photo) return;
             selectedPhotoForLightbox = photo;
+            
+            // Suavizar transición
+            lightboxImg.style.opacity = '0.4';
             lightboxImg.src = photo.url;
+            lightboxImg.onload = () => { lightboxImg.style.opacity = '1'; };
+
             lightboxAuthor.textContent = photo.nombre_invitado || 'Invitado Especial';
             lightboxMsg.textContent = photo.mensaje ? `"${photo.mensaje}"` : '✨ ¡Celebrando los XV de Angie Karolina!';
             lightboxLikesCount.textContent = photo.likes || 0;
+
+            if (lightboxCounter && livePhotos.length > 0) {
+                const idx = livePhotos.findIndex(p => p.id === photo.id);
+                lightboxCounter.textContent = `${(idx >= 0 ? idx + 1 : 1)} / ${livePhotos.length}`;
+            }
 
             if (btnDownloadLightboxPhoto) {
                 const downloadUrl = photo.url + (photo.url.includes('?') ? '&' : '?') + 'download=1';
@@ -4622,18 +5031,91 @@ $pageUrl = $baseUrl . '/';
 
             const isLiked = likedPhotoIds.has(photo.id);
             btnLikePhoto.classList.toggle('liked', isLiked);
+        }
 
+        // Abrir visor a pantalla completa
+        function openLightbox(photo) {
+            currentLightboxIndex = livePhotos.findIndex(p => p.id === photo.id);
+            if (currentLightboxIndex < 0) currentLightboxIndex = 0;
+            renderLightboxPhoto(photo);
             photoLightbox.style.display = 'flex';
         }
 
-        // Cerrar visor
+        function nextLightboxPhoto() {
+            if (livePhotos.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex + 1) % livePhotos.length;
+            renderLightboxPhoto(livePhotos[currentLightboxIndex]);
+        }
+
+        function prevLightboxPhoto() {
+            if (livePhotos.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex - 1 + livePhotos.length) % livePhotos.length;
+            renderLightboxPhoto(livePhotos[currentLightboxIndex]);
+        }
+
+        btnNextLightboxPhoto?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextLightboxPhoto();
+        });
+
+        btnPrevLightboxPhoto?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevLightboxPhoto();
+        });
+
+        // Navegación con teclado
+        window.addEventListener('keydown', (e) => {
+            if (photoLightbox.style.display === 'flex') {
+                if (e.key === 'ArrowRight') {
+                    nextLightboxPhoto();
+                } else if (e.key === 'ArrowLeft') {
+                    prevLightboxPhoto();
+                } else if (e.key === 'Escape') {
+                    photoLightbox.style.display = 'none';
+                    selectedPhotoForLightbox = null;
+                }
+            }
+        });
+
+        // Navegación con gestos táctiles (Swipe) en móviles
+        let touchStartX = 0;
+        let touchEndX = 0;
+        photoLightbox?.addEventListener('touchstart', (e) => {
+            if (e.changedTouches && e.changedTouches[0]) {
+                touchStartX = e.changedTouches[0].screenX;
+            }
+        }, { passive: true });
+
+        photoLightbox?.addEventListener('touchend', (e) => {
+            if (e.changedTouches && e.changedTouches[0]) {
+                touchEndX = e.changedTouches[0].screenX;
+                const diff = touchEndX - touchStartX;
+                if (Math.abs(diff) > 40) {
+                    if (diff < 0) {
+                        nextLightboxPhoto(); // Deslizar hacia la izquierda -> Siguiente
+                    } else {
+                        prevLightboxPhoto(); // Deslizar hacia la derecha -> Anterior
+                    }
+                }
+            }
+        }, { passive: true });
+
+        // Cerrar visor al hacer clic en el fondo o en el botón cerrar
         btnCloseLightbox?.addEventListener('click', () => {
             photoLightbox.style.display = 'none';
             selectedPhotoForLightbox = null;
         });
 
+        photoLightbox?.addEventListener('click', (e) => {
+            if (e.target === photoLightbox) {
+                photoLightbox.style.display = 'none';
+                selectedPhotoForLightbox = null;
+            }
+        });
+
         // Like a la foto
-        btnLikePhoto?.addEventListener('click', async () => {
+        btnLikePhoto?.addEventListener('click', async (e) => {
+            e.stopPropagation();
             if (!selectedPhotoForLightbox) return;
             const id = selectedPhotoForLightbox.id;
             if (likedPhotoIds.has(id)) return;

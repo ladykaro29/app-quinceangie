@@ -188,6 +188,18 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );");
 
+        $pdo->exec("CREATE TABLE IF NOT EXISTS libro_recuerdos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            mensaje TEXT NOT NULL,
+            icono TEXT DEFAULT '✨',
+            color TEXT DEFAULT 'gold',
+            likes INTEGER NOT NULL DEFAULT 0,
+            media_ref TEXT NULL,
+            ip TEXT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );");
+
         // Migración SQLite asistio_evento
         try {
             $cols = $pdo->query("PRAGMA table_info(invitados)")->fetchAll(PDO::FETCH_ASSOC);
@@ -247,6 +259,19 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 cancion VARCHAR(255) NOT NULL,
                 nombre_invitado VARCHAR(150) NULL,
+                ip VARCHAR(45) NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_created_at (created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            $pdo->exec("CREATE TABLE IF NOT EXISTS libro_recuerdos (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(150) NOT NULL,
+                mensaje TEXT NOT NULL,
+                icono VARCHAR(50) DEFAULT '✨',
+                color VARCHAR(30) DEFAULT 'gold',
+                likes INT NOT NULL DEFAULT 0,
+                media_ref VARCHAR(255) NULL,
                 ip VARCHAR(45) NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_created_at (created_at)

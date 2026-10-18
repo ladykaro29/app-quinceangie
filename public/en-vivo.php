@@ -489,7 +489,7 @@ require_once __DIR__ . '/../config/database.php';
 
         async function fetchFotos() {
             try {
-                const res = await fetch('api/fotos.php?limit=80&t=' + Date.now());
+                const res = await fetch('api/fotos.php?limit=500&order=asc&t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.fotos)) {
                     const wasEmpty = fotos.length === 0;

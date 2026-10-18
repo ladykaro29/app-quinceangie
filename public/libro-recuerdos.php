@@ -1497,11 +1497,107 @@ $baseUrl = $protocol . $host;
     <!-- Lógica JavaScript del Libro Mágico -->
     <script>
     (() => {
-        // Estado global de los datos
+        // Detección inteligente de prefijo base según la ruta actual del navegador
+        const isPublicSubdir = window.location.pathname.includes('/public/');
+        const basePrefix = isPublicSubdir ? '../' : './';
+
+        // 19 Videos cinematográficos oficiales de los XV Años
+        const defaultVideos = [
+            { id: 1, titulo: "Llegada triunfal de Angie ✨", archivo: "angie_xv_video_01.mp4", tamano: "4.79 MB" },
+            { id: 2, titulo: "Entrada mágica al salón 👑", archivo: "angie_xv_video_02.mp4", tamano: "10.44 MB" },
+            { id: 3, titulo: "El Vals con Papá 💖", archivo: "angie_xv_video_03.mp4", tamano: "2.01 MB" },
+            { id: 4, titulo: "Brindis con la Familia 🥂", archivo: "angie_xv_video_04.mp4", tamano: "2.82 MB" },
+            { id: 5, titulo: "Baile sorpresa con el cortejo 💃", archivo: "angie_xv_video_05.mp4", tamano: "2.43 MB" },
+            { id: 6, titulo: "Sesión de fotos y sonrisas 📸", archivo: "angie_xv_video_06.mp4", tamano: "1.12 MB" },
+            { id: 7, titulo: "Momento de la torta de XV 🎂", archivo: "angie_xv_video_07.mp4", tamano: "1.63 MB" },
+            { id: 8, titulo: "Abrazos y felicitaciones emotivas 💕", archivo: "angie_xv_video_08.mp4", tamano: "1.34 MB" },
+            { id: 9, titulo: "La hora loca y luces neón 🎊", archivo: "angie_xv_video_09.mp4", tamano: "1.24 MB" },
+            { id: 10, titulo: "Pista de baile encendida 🎶", archivo: "angie_xv_video_10.mp4", tamano: "1.60 MB" },
+            { id: 11, titulo: "Diversión con los amigos 🥳", archivo: "angie_xv_video_11.mp4", tamano: "0.85 MB" },
+            { id: 12, titulo: "Palabras especiales para Angie 🎙️", archivo: "angie_xv_video_12.mp4", tamano: "2.93 MB" },
+            { id: 13, titulo: "El cotillón y la alegría dorada 🌟", archivo: "angie_xv_video_13.mp4", tamano: "6.76 MB" },
+            { id: 14, titulo: "Coreografía de Angie y amigas 💃✨", archivo: "angie_xv_video_14.mp4", tamano: "4.67 MB" },
+            { id: 15, titulo: "Risas y recuerdos inolvidables 💫", archivo: "angie_xv_video_15.mp4", tamano: "2.56 MB" },
+            { id: 16, titulo: "Brindis de honor con los padrinos 🥂✨", archivo: "angie_xv_video_16.mp4", tamano: "1.45 MB" },
+            { id: 17, titulo: "Sorpresa especial de la noche 🎁", archivo: "angie_xv_video_17.mp4", tamano: "1.96 MB" },
+            { id: 18, titulo: "Momentos espontáneos de pura emoción ✨", archivo: "angie_xv_video_18.mp4", tamano: "1.32 MB" },
+            { id: 19, titulo: "Gran cierre de una noche mágica 👑💫", archivo: "angie_xv_video_19.mp4", tamano: "6.69 MB" }
+        ].map(v => ({
+            ...v,
+            url: `api/video.php?v=${encodeURIComponent(v.archivo)}`,
+            direct_url: `assets/videos/${encodeURIComponent(v.archivo)}`
+        }));
+
+        // 160 Fotografías Polaroid oficiales
+        const frasesDed = [
+            "Momentos mágicos e inolvidables de mis XV Años ✨👑",
+            "Celebrando una noche mágica junto a las personas que más quiero 💖",
+            "Sonrisas, abrazos y recuerdos para toda la vida ✨",
+            "¡Una noche de ensueño que quedará por siempre en mi corazón! 🌟",
+            "Bailando y disfrutando en la pista de mis XV Años 💃🎶",
+            "Momentos únicos con mi hermosa familia y amigos 💕",
+            "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
+        ];
+        const defaultPhotos = Array.from({ length: 160 }, (_, i) => {
+            const num = i + 1;
+            const numStr = String(num).padStart(3, '0');
+            const archivo = `angie_xv_recuerdo_${numStr}.jpg`;
+            return {
+                id: num,
+                nombre_invitado: 'Álbum Oficial · Angie Karolina',
+                mensaje: frasesDed[i % frasesDed.length],
+                archivo: archivo,
+                likes: ((num * 7) % 25) + 5,
+                url: `api/foto.php?f=${encodeURIComponent(archivo)}`,
+                direct_url: `assets/fotos/${encodeURIComponent(archivo)}`
+            };
+        });
+
+        // Dedicatorias iniciales de muestra
+        const defaultMensajes = [
+            {
+                id: 1,
+                nombre: 'Familia Avendaño Rivera',
+                mensaje: 'Hija amada, verte cumplir tus 15 años es el regalo más hermoso de nuestras vidas. Que Dios ilumine tu camino siempre. ¡Te amamos infinitamente! 💖👑',
+                icono: '👑',
+                color: 'gold',
+                likes: 34,
+                fecha_formateada: '04/10/2026 20:45'
+            },
+            {
+                id: 2,
+                nombre: 'Tía Carmen & Primos',
+                mensaje: '¡Felicidades Angie preciosa! Una noche inolvidable, te veías radiante como un cuento de hadas. ¡Que todos tus sueños se hagan realidad! ✨🥂',
+                icono: '✨',
+                color: 'emerald',
+                likes: 22,
+                fecha_formateada: '04/10/2026 21:10'
+            },
+            {
+                id: 3,
+                nombre: 'Tus Mejores Amigas del Cole',
+                mensaje: '¡La mejor fiesta de 15 del mundo! Bailamos sin parar toda la noche. ¡Te amamos muchísimo mejor amiga! 💃💕🎂',
+                icono: '💖',
+                color: 'rose',
+                likes: 29,
+                fecha_formateada: '04/10/2026 21:30'
+            },
+            {
+                id: 4,
+                nombre: 'Padrinos de Angie',
+                mensaje: 'Orgullosos de verte convertida en una señorita tan dulce, inteligente y llena de luz. Siempre estaremos para apoyarte. ¡Feliz cumpleaños! 🌟🥂',
+                icono: '🥂',
+                color: 'cream',
+                likes: 18,
+                fecha_formateada: '04/10/2026 21:50'
+            }
+        ];
+
+        // Estado global de los datos (precargado instantáneamente para que NUNCA esté en blanco)
         let albumData = {
-            mensajes: [],
-            videos: [],
-            fotos: []
+            mensajes: defaultMensajes,
+            videos: defaultVideos,
+            fotos: defaultPhotos
         };
 
         let currentMediaList = []; // Lista de fotos o videos activos en el visor
@@ -1561,7 +1657,6 @@ $baseUrl = $protocol . $host;
                 await bgMusic.play();
                 updateMusicUI(true);
             } catch (err) {
-                // El navegador bloqueó el autoplay sin interacción
                 updateMusicUI(false);
                 unblockAudioBanner.style.display = 'flex';
             }
@@ -1581,7 +1676,6 @@ $baseUrl = $protocol . $host;
             bgMusic.play().then(() => updateMusicUI(true)).catch(() => {});
         });
 
-        // Intentar reproducir en primer clic en cualquier lugar si está bloqueado
         window.addEventListener('click', function unlockOnce() {
             if (bgMusic.paused && !isMusicPlaying) {
                 bgMusic.play().then(() => updateMusicUI(true)).catch(() => {});
@@ -1589,7 +1683,6 @@ $baseUrl = $protocol . $host;
             window.removeEventListener('click', unlockOnce);
         }, { once: true });
 
-        // Intento inicial
         tryPlayMusic();
 
         // ============================================================
@@ -1604,7 +1697,7 @@ $baseUrl = $protocol . $host;
                 const target = document.getElementById(btn.dataset.tab);
                 if (target) target.classList.add('active');
 
-                // Pausar cualquier video activo si se cambia de pestaña
+                // Pausar cualquier video activo al cambiar de pestaña
                 document.querySelectorAll('video').forEach(v => v.pause());
             });
         });
@@ -1613,29 +1706,40 @@ $baseUrl = $protocol . $host;
         // 3. CARGAR DATOS DESDE LA API (FOTOS, VIDEOS, MENSAJES)
         // ============================================================
         async function loadAlbumData() {
+            // 3.1 Cargar mensajes y videos desde la API
             try {
-                // Cargar mensajes y videos
-                const resLibro = await fetch('api/libro.php?t=' + Date.now());
-                const dataLibro = await resLibro.json();
-
-                if (dataLibro && dataLibro.success) {
-                    albumData.mensajes = dataLibro.mensajes || [];
-                    albumData.videos = dataLibro.videos || [];
-                    document.getElementById('statDedicatoriasCount').textContent = albumData.mensajes.length;
-                    renderMessages();
-                    renderVideos();
-                }
-
-                // Cargar las 160 fotos
-                const resFotos = await fetch('api/fotos.php?limit=500&order=asc&t=' + Date.now());
-                const dataFotos = await resFotos.json();
-
-                if (dataFotos && dataFotos.success && Array.isArray(dataFotos.fotos)) {
-                    albumData.fotos = dataFotos.fotos;
-                    renderPhotos();
+                const resLibro = await fetch(basePrefix + 'api/libro.php?t=' + Date.now());
+                if (resLibro.ok) {
+                    const dataLibro = await resLibro.json();
+                    if (dataLibro && dataLibro.success) {
+                        if (Array.isArray(dataLibro.mensajes) && dataLibro.mensajes.length > 0) {
+                            albumData.mensajes = dataLibro.mensajes;
+                            renderMessages();
+                            const statBadge = document.getElementById('statDedicatoriasCount');
+                            if (statBadge) statBadge.textContent = albumData.mensajes.length;
+                        }
+                        if (Array.isArray(dataLibro.videos) && dataLibro.videos.length > 0) {
+                            albumData.videos = dataLibro.videos;
+                            renderVideos();
+                        }
+                    }
                 }
             } catch (err) {
-                console.error('Error cargando datos del libro:', err);
+                console.warn('API libro offline, usando videos predefinidos:', err);
+            }
+
+            // 3.2 Cargar las 160 fotos desde la API
+            try {
+                const resFotos = await fetch(basePrefix + 'api/fotos.php?limit=500&order=asc&t=' + Date.now());
+                if (resFotos.ok) {
+                    const dataFotos = await resFotos.json();
+                    if (dataFotos && dataFotos.success && Array.isArray(dataFotos.fotos) && dataFotos.fotos.length > 0) {
+                        albumData.fotos = dataFotos.fotos;
+                        renderPhotos();
+                    }
+                }
+            } catch (err) {
+                console.warn('API fotos offline, usando fotos locales:', err);
             }
         }
 
@@ -1679,7 +1783,7 @@ $baseUrl = $protocol . $host;
             setTimeout(() => { btn.style.transform = ''; }, 200);
 
             try {
-                const res = await fetch('api/libro.php?action=like', {
+                const res = await fetch(basePrefix + 'api/libro.php?action=like', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: id })
@@ -1687,7 +1791,6 @@ $baseUrl = $protocol . $host;
                 const data = await res.json();
                 if (data && data.success) {
                     btn.querySelector('.like-count').textContent = data.likes;
-                    // Pequeña lluvia de corazones
                     confetti({
                         particleCount: 15,
                         spread: 50,
@@ -1698,18 +1801,23 @@ $baseUrl = $protocol . $host;
             } catch(e) {}
         };
 
-        // Renderizar videos
+        // Renderizar videos (soporta ruta directa de asset con fallback a streaming PHP)
         function renderVideos() {
             const containers = [
                 document.getElementById('videosGridTodo'),
                 document.getElementById('videosGridOnly')
             ];
 
-            const html = albumData.videos.map((v, idx) => `
+            const html = albumData.videos.map((v, idx) => {
+                const directSrc = basePrefix + (v.direct_url || `assets/videos/${v.archivo}`);
+                const apiSrc = basePrefix + (v.url || `api/video.php?v=${encodeURIComponent(v.archivo)}`);
+
+                return `
                 <div class="video-card">
                     <div class="video-wrapper">
                         <video class="video-player" preload="metadata" playsinline controls>
-                            <source src="${v.url}" type="video/mp4">
+                            <source src="${directSrc}" type="video/mp4">
+                            <source src="${apiSrc}" type="video/mp4">
                             Tu navegador no soporta video HTML5.
                         </video>
                     </div>
@@ -1727,37 +1835,50 @@ $baseUrl = $protocol . $host;
                         </button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
 
             containers.forEach(c => {
                 if (c) c.innerHTML = html;
             });
         }
 
-        // Renderizar fotos estilo Polaroid
+        // Renderizar fotos estilo Polaroid con doble fallback
         function renderPhotos() {
             const containers = [
                 document.getElementById('photosGridTodo'),
                 document.getElementById('photosGridOnly')
             ];
 
-            const html = albumData.fotos.map((f, idx) => `
+            const html = albumData.fotos.map((f, idx) => {
+                const directSrc = basePrefix + (f.direct_url || `assets/fotos/${f.archivo}`);
+                const apiSrc = basePrefix + (f.url || `api/foto.php?f=${encodeURIComponent(f.archivo)}`);
+
+                return `
                 <div class="polaroid-card" onclick="openLightboxPhoto(${idx})">
                     <div class="polaroid-pin"></div>
                     <div class="polaroid-img-wrap">
-                        <img src="${f.url}" alt="${f.nombre_invitado}" loading="lazy">
+                        <img src="${directSrc}" 
+                             onerror="if(!this.dataset.triedApi){this.dataset.triedApi=1; this.src='${apiSrc}';}" 
+                             alt="${f.nombre_invitado}" loading="lazy">
                     </div>
                     <div class="polaroid-caption">${f.mensaje || 'Mis XV Años ✨'}</div>
                     <div class="polaroid-likes">
                         <i class="fas fa-heart"></i> ${f.likes || 0}
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
 
             containers.forEach(c => {
                 if (c) c.innerHTML = html;
             });
         }
+
+        // Render inicial inmediato para que la pantalla NUNCA esté en blanco
+        renderMessages();
+        renderVideos();
+        renderPhotos();
 
         // ============================================================
         // 4. MODAL: ESCRIBIR NUEVO MENSAJITO
@@ -1817,7 +1938,7 @@ $baseUrl = $protocol . $host;
             formStatusMsg.style.color = '#FFD700';
 
             try {
-                const res = await fetch('api/libro.php', {
+                const res = await fetch(basePrefix + 'api/libro.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1845,7 +1966,8 @@ $baseUrl = $protocol . $host;
                     if (data.mensaje_nuevo) {
                         albumData.mensajes.unshift(data.mensaje_nuevo);
                         renderMessages();
-                        document.getElementById('statDedicatoriasCount').textContent = albumData.mensajes.length;
+                        const statBadge = document.getElementById('statDedicatoriasCount');
+                        if (statBadge) statBadge.textContent = albumData.mensajes.length;
                     }
 
                     setTimeout(() => {
@@ -1894,22 +2016,31 @@ $baseUrl = $protocol . $host;
             lightboxCounterBadge.textContent = `${currentMediaIndex + 1} / ${currentMediaList.length}`;
 
             if (isViewingVideo) {
+                const directSrc = basePrefix + (item.direct_url || `assets/videos/${item.archivo}`);
+                const apiSrc = basePrefix + (item.url || `api/video.php?v=${encodeURIComponent(item.archivo)}`);
+
                 lightboxMediaContainer.innerHTML = `
                     <video id="lightboxVideoPlayer" controls autoplay playsinline style="max-width: 90vw; max-height: 70vh; border-radius: 12px; border: 2px solid var(--dorado); box-shadow: 0 15px 50px rgba(0,0,0,0.9);">
-                        <source src="${item.url}" type="video/mp4">
+                        <source src="${directSrc}" type="video/mp4">
+                        <source src="${apiSrc}" type="video/mp4">
                     </video>
                 `;
                 lightboxMediaTitle.textContent = item.titulo || 'Video de la Fiesta';
                 lightboxMediaText.textContent = `🎬 Momento Especial de los XV de Angie (${item.tamano})`;
-                btnDownloadMedia.href = item.url + '&download=1';
+                btnDownloadMedia.href = directSrc;
                 btnDownloadMedia.download = item.archivo || 'video_angie_xv.mp4';
             } else {
+                const directSrc = basePrefix + (item.direct_url || `assets/fotos/${item.archivo}`);
+                const apiSrc = basePrefix + (item.url || `api/foto.php?f=${encodeURIComponent(item.archivo)}`);
+
                 lightboxMediaContainer.innerHTML = `
-                    <img src="${item.url}" alt="${item.nombre_invitado}" style="max-width: 90vw; max-height: 70vh; object-fit: contain; border-radius: 12px; border: 2px solid var(--dorado); box-shadow: 0 15px 50px rgba(0,0,0,0.9);">
+                    <img src="${directSrc}" 
+                         onerror="if(!this.dataset.triedApi){this.dataset.triedApi=1; this.src='${apiSrc}';}" 
+                         alt="${item.nombre_invitado}" style="max-width: 90vw; max-height: 70vh; object-fit: contain; border-radius: 12px; border: 2px solid var(--dorado); box-shadow: 0 15px 50px rgba(0,0,0,0.9);">
                 `;
                 lightboxMediaTitle.textContent = item.nombre_invitado || 'Momento Mágico';
                 lightboxMediaText.textContent = item.mensaje ? `"${item.mensaje}"` : '✨ ¡Celebrando los XV de Angie Karolina!';
-                btnDownloadMedia.href = item.url + (item.url.includes('?') ? '&' : '?') + 'download=1';
+                btnDownloadMedia.href = directSrc;
                 btnDownloadMedia.download = item.archivo || 'foto_angie_xv.jpg';
             }
         }

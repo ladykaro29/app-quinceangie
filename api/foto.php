@@ -12,7 +12,10 @@ if (empty($filename)) {
     exit('Archivo no especificado');
 }
 
-$filepath = __DIR__ . '/../database/uploads/fotos/' . $filename;
+$filepath = __DIR__ . '/../public/assets/fotos/' . $filename;
+if (!file_exists($filepath) || !is_readable($filepath)) {
+    $filepath = __DIR__ . '/../database/uploads/fotos/' . $filename;
+}
 
 if (!file_exists($filepath) || !is_readable($filepath)) {
     http_response_code(404);

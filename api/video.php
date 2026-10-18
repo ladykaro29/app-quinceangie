@@ -13,7 +13,10 @@ if (empty($filename)) {
     exit('Archivo no especificado');
 }
 
-$filepath = __DIR__ . '/../database/uploads/videos/' . $filename;
+$filepath = __DIR__ . '/../public/assets/videos/' . $filename;
+if (!file_exists($filepath) || !is_readable($filepath)) {
+    $filepath = __DIR__ . '/../database/uploads/videos/' . $filename;
+}
 
 if (!file_exists($filepath) || !is_readable($filepath)) {
     http_response_code(404);

@@ -70,35 +70,36 @@ if ($method === 'POST' && $action === 'like') {
 if ($method === 'GET') {
     header('Content-Type: application/json; charset=utf-8');
 
-    // Auto-sincronización: Si fotos_fiesta está vacía pero hay fotos en uploads, poblarlas automáticamente
-    $totalExistentes = (int)$pdo->query('SELECT COUNT(*) FROM fotos_fiesta')->fetchColumn();
-    if ($totalExistentes === 0 && is_dir($uploadDir)) {
-        $filesOnDisk = glob($uploadDir . '/angie_xv_recuerdo_*.jpg');
-        if (!empty($filesOnDisk)) {
-            sort($filesOnDisk);
-            $stmtSeed = $pdo->prepare('INSERT INTO fotos_fiesta (nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) VALUES (:n, :m, :a, :l, "127.0.0.1", 1, :c)');
-            $mensajesDed = [
-                "Momentos mágicos e inolvidables de mis XV Años ✨👑",
-                "Celebrando una noche mágica junto a las personas que más quiero 💖",
-                "Sonrisas, abrazos y recuerdos para toda la vida ✨",
-                "¡Una noche de ensueño que quedará por siempre en mi corazón! 🌟",
-                "Bailando y disfrutando en la pista de mis XV Años 💃🎶",
-                "Momentos únicos con mi hermosa familia y amigos 💕",
-                "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
-            ];
-            $nombresDed = [
-                "Angie Karolina · Álbum Oficial",
-                "Álbum de Recuerdos · Mis XV",
-                "Angie Karolina · Mis 15",
-                "Momentos Mágicos · Angie XV"
-            ];
-            $startTime = strtotime('2026-10-04 20:30:00');
-            foreach ($filesOnDisk as $i => $filePath) {
-                $base = basename($filePath);
-                $stmtSeed->execute([
+    // Auto-sincronización: asegurar que las 160 fotos oficiales de la fiesta estén registradas en fotos_fiesta
+    $countRecuerdos = (int)$pdo->query("SELECT COUNT(*) FROM fotos_fiesta WHERE archivo LIKE 'angie_xv_recuerdo_%'")->fetchColumn();
+    if ($countRecuerdos < 160) {
+        $mensajesDed = [
+            "Momentos mágicos e inolvidables de mis XV Años ✨👑",
+            "Celebrando una noche mágica junto a las personas que más quiero 💖",
+            "Sonrisas, abrazos y recuerdos para toda la vida ✨",
+            "¡Una noche de ensueño que quedará por siempre en mi corazón! 🌟",
+            "Bailando y disfrutando en la pista de mis XV Años 💃🎶",
+            "Momentos únicos con mi hermosa familia y amigos 💕",
+            "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
+        ];
+        $nombresDed = [
+            "Angie Karolina · Álbum Oficial",
+            "Álbum de Recuerdos · Mis XV",
+            "Angie Karolina · Mis 15",
+            "Momentos Mágicos · Angie XV"
+        ];
+        $startTime = strtotime('2026-10-04 20:30:00');
+        $stmtCheck = $pdo->prepare("SELECT id FROM fotos_fiesta WHERE archivo = :a LIMIT 1");
+        $stmtInsert = $pdo->prepare('INSERT INTO fotos_fiesta (nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) VALUES (:n, :m, :a, :l, "127.0.0.1", 1, :c)');
+        for ($i = 1; $i <= 160; $i++) {
+            $numStr = str_pad($i, 3, '0', STR_PAD_LEFT);
+            $archivo = "angie_xv_recuerdo_{$numStr}.jpg";
+            $stmtCheck->execute([':a' => $archivo]);
+            if (!$stmtCheck->fetch()) {
+                $stmtInsert->execute([
                     ':n' => $nombresDed[$i % count($nombresDed)],
                     ':m' => $mensajesDed[$i % count($mensajesDed)],
-                    ':a' => $base,
+                    ':a' => $archivo,
                     ':l' => rand(5, 28),
                     ':c' => date('Y-m-d H:i:s', $startTime + ($i * 15))
                 ]);

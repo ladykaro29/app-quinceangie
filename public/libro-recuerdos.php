@@ -370,13 +370,14 @@ $baseUrl = $protocol . $host;
         .book-spread {
             position: relative;
             width: 100%;
-            min-height: 680px;
+            min-height: 700px;
             display: flex;
             background: var(--pergamino);
             border-radius: 12px;
-            overflow: hidden;
             box-shadow: inset 0 0 60px rgba(140, 107, 28, 0.15);
             transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
         }
 
         /* Lomo central con sombra y pliegue de páginas */
@@ -395,7 +396,7 @@ $baseUrl = $protocol . $host;
                 rgba(0,0,0,0.22) 100%
             );
             pointer-events: none;
-            z-index: 20;
+            z-index: 46;
         }
 
         /* Costura central decorativa */
@@ -408,30 +409,37 @@ $baseUrl = $protocol . $host;
             width: 2px;
             border-left: 1.5px dashed rgba(140, 107, 28, 0.45);
             pointer-events: none;
-            z-index: 21;
+            z-index: 47;
         }
 
         /* Cada página del libro */
         .book-page {
-            flex: 1;
-            padding: 30px 28px 45px 28px;
+            flex: 1 1 0;
+            width: 50%;
+            max-width: 50%;
+            min-width: 0;
+            padding: 24px 22px 35px 22px;
             color: var(--tinta);
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             background: linear-gradient(135deg, #FFFDF7 0%, #F9F2E2 100%);
-            min-height: 680px;
+            min-height: 700px;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .book-page-left {
             border-right: 1px solid rgba(140, 107, 28, 0.2);
             box-shadow: inset -25px 0 35px -15px rgba(0,0,0,0.07);
+            border-radius: 12px 0 0 12px;
         }
 
         .book-page-right {
             border-left: 1px solid rgba(140, 107, 28, 0.2);
             box-shadow: inset 25px 0 35px -15px rgba(0,0,0,0.07);
+            border-radius: 0 12px 12px 0;
         }
 
         /* Marco dorado interior de cada página */
@@ -486,62 +494,153 @@ $baseUrl = $protocol . $host;
         }
 
         /* ============================================================
-           HOJA 3D DE TRANSICIÓN DE VOLTEO (PAGE FLIP ANIMATION)
+           HOJA 3D DE TRANSICIÓN DE VOLTEO REAL (DOUBLE-SIDED LEAF FLIP)
            ============================================================ */
-        .flipping-sheet {
+        .turning-leaf {
             position: absolute;
             top: 0;
             bottom: 0;
             width: 50%;
-            background: linear-gradient(135deg, #FFFDF7 0%, #F5E8D0 100%);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
             transform-style: preserve-3d;
-            transition: transform 0.65s cubic-bezier(0.645, 0.045, 0.355, 1);
+            -webkit-transform-style: preserve-3d;
             pointer-events: none;
-            z-index: 40;
+            z-index: 45;
             display: none;
         }
 
-        .flipping-sheet.flip-forward {
+        .turning-leaf.flip-forward {
             right: 0;
             transform-origin: left center;
             display: block;
-            animation: flipPageForward 0.65s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+            animation: flipLeafForward 0.72s cubic-bezier(0.4, 0.05, 0.2, 1) forwards;
         }
 
-        .flipping-sheet.flip-backward {
+        .turning-leaf.flip-backward {
             left: 0;
             transform-origin: right center;
             display: block;
-            animation: flipPageBackward 0.65s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+            animation: flipLeafBackward 0.72s cubic-bezier(0.4, 0.05, 0.2, 1) forwards;
         }
 
-        @keyframes flipPageForward {
+        .leaf-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 24px 22px 35px 22px;
+            color: var(--tinta);
+            background: linear-gradient(135deg, #FFFDF7 0%, #F9F2E2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-sizing: border-box;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            box-shadow: 0 0 35px rgba(0,0,0,0.25);
+        }
+
+        .leaf-front {
+            transform: rotateY(0deg);
+        }
+
+        .leaf-back {
+            transform: rotateY(180deg);
+        }
+
+        .turning-leaf.flip-forward .leaf-front {
+            border-radius: 0 12px 12px 0;
+            box-shadow: inset 25px 0 35px -15px rgba(0,0,0,0.07);
+        }
+        .turning-leaf.flip-forward .leaf-back {
+            border-radius: 12px 0 0 12px;
+            box-shadow: inset -25px 0 35px -15px rgba(0,0,0,0.07);
+        }
+
+        .turning-leaf.flip-backward .leaf-front {
+            border-radius: 12px 0 0 12px;
+            box-shadow: inset -25px 0 35px -15px rgba(0,0,0,0.07);
+        }
+        .turning-leaf.flip-backward .leaf-back {
+            border-radius: 0 12px 12px 0;
+            box-shadow: inset 25px 0 35px -15px rgba(0,0,0,0.07);
+        }
+
+        .leaf-page-body {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .leaf-shadow-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .turning-leaf.flip-forward .leaf-front .leaf-shadow-overlay {
+            animation: shadowCurlFront 0.72s ease-in-out forwards;
+        }
+        .turning-leaf.flip-forward .leaf-back .leaf-shadow-overlay {
+            animation: shadowCurlBack 0.72s ease-in-out forwards;
+        }
+        .turning-leaf.flip-backward .leaf-front .leaf-shadow-overlay {
+            animation: shadowCurlFront 0.72s ease-in-out forwards;
+        }
+        .turning-leaf.flip-backward .leaf-back .leaf-shadow-overlay {
+            animation: shadowCurlBack 0.72s ease-in-out forwards;
+        }
+
+        @keyframes flipLeafForward {
             0% {
                 transform: rotateY(0deg);
-                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             }
             50% {
-                box-shadow: -20px 25px 60px rgba(0,0,0,0.6);
+                transform: rotateY(-90deg) scale(1.02);
+                box-shadow: -25px 20px 50px rgba(0,0,0,0.45);
             }
             100% {
                 transform: rotateY(-180deg);
-                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             }
         }
 
-        @keyframes flipPageBackward {
+        @keyframes flipLeafBackward {
             0% {
                 transform: rotateY(0deg);
-                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             }
             50% {
-                box-shadow: 20px 25px 60px rgba(0,0,0,0.6);
+                transform: rotateY(90deg) scale(1.02);
+                box-shadow: 25px 20px 50px rgba(0,0,0,0.45);
             }
             100% {
                 transform: rotateY(180deg);
-                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             }
+        }
+
+        @keyframes shadowCurlFront {
+            0% { background: rgba(0,0,0,0); }
+            50% { background: linear-gradient(to right, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.02) 100%); }
+            100% { background: rgba(0,0,0,0.3); }
+        }
+
+        @keyframes shadowCurlBack {
+            0% { background: rgba(0,0,0,0.3); }
+            50% { background: linear-gradient(to left, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.02) 100%); }
+            100% { background: rgba(0,0,0,0); }
         }
 
         /* ============================================================
@@ -731,49 +830,63 @@ $baseUrl = $protocol . $host;
         /* 2. PÁGINAS DE FOTOS POLAROID (ÁLBUM SCRAPBOOK) */
         .chapter-header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 5;
+            padding: 0 4px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .chapter-num {
             font-family: var(--font-royal);
             font-size: 0.72rem;
-            letter-spacing: 3px;
+            letter-spacing: 2.5px;
             color: var(--dorado-oscuro);
             text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .chapter-title {
             font-family: var(--font-serif);
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             color: #062E25;
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .photos-book-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 10px;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 12px;
+            margin-bottom: 8px;
             z-index: 5;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .book-polaroid {
             background: #FFF;
-            padding: 8px 8px 12px 8px;
+            padding: 7px 7px 10px 7px;
             border-radius: 4px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.1);
             cursor: pointer;
             position: relative;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
             display: flex;
             flex-direction: column;
             border: 1px solid rgba(0,0,0,0.06);
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .book-polaroid:hover {
-            transform: scale(1.05) rotate(0deg) !important;
+            transform: scale(1.04) rotate(0deg) !important;
             box-shadow: 0 12px 28px rgba(0,0,0,0.35);
             z-index: 10;
         }
@@ -800,7 +913,7 @@ $baseUrl = $protocol . $host;
             background: #111;
             border-radius: 2px;
             overflow: hidden;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .book-polaroid-img img {
@@ -812,12 +925,12 @@ $baseUrl = $protocol . $host;
         }
 
         .book-polaroid:hover .book-polaroid-img img {
-            transform: scale(1.06);
+            transform: scale(1.05);
         }
 
         .book-polaroid-caption {
             font-family: var(--font-hand);
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             color: #222;
             line-height: 1.15;
             text-align: center;
@@ -825,6 +938,9 @@ $baseUrl = $protocol . $host;
             overflow: hidden;
             text-overflow: ellipsis;
             padding: 0 2px;
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
         }
 
         .book-polaroid-likes {
@@ -843,25 +959,32 @@ $baseUrl = $protocol . $host;
         .videos-book-grid {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             z-index: 5;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .book-video-card {
             background: rgba(6, 46, 37, 0.04);
             border: 1.5px solid rgba(200, 162, 74, 0.5);
             border-radius: 12px;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             position: relative;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .book-video-frame {
             width: 100%;
             aspect-ratio: 16 / 9;
+            max-height: 200px;
             background: #000;
             border-radius: 8px;
             overflow: hidden;
@@ -892,6 +1015,10 @@ $baseUrl = $protocol . $host;
             display: flex;
             align-items: center;
             gap: 6px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .btn-fullscreen-cine {
@@ -920,6 +1047,9 @@ $baseUrl = $protocol . $host;
             flex-direction: column;
             gap: 12px;
             z-index: 5;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .guest-entry-postit {
@@ -929,6 +1059,9 @@ $baseUrl = $protocol . $host;
             border-left: 4px solid var(--dorado);
             box-shadow: 0 3px 10px rgba(0,0,0,0.08);
             position: relative;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .entry-header {
@@ -1304,28 +1437,44 @@ $baseUrl = $protocol . $host;
            RESPONSIVIDAD MÓVIL (PANTALLAS < 768px)
            ============================================================ */
         @media (max-width: 768px) {
+            .stage-wrapper {
+                padding: 10px 8px 30px 8px;
+            }
+
+            .fantasy-book-casing {
+                padding: 8px;
+                min-height: auto;
+            }
+
             .book-spread {
                 flex-direction: column;
                 min-height: auto;
             }
 
-            .book-page-right {
-                display: none; /* En celular muestra una sola página amplia y elegante a la vez */
-                border-left: none;
+            .book-page {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto;
+                padding: 20px 14px 28px 14px;
+                border-radius: 10px !important;
             }
 
             .book-page-left {
                 border-right: none;
-                min-height: 600px;
-                padding: 24px 16px 35px 16px;
+                margin-bottom: 14px;
+            }
+
+            .book-page-right {
+                display: flex;
+                border-left: none;
             }
 
             .book-spine-crease, .book-spine-stitch {
                 display: none;
             }
 
-            .flipping-sheet {
-                width: 100%;
+            .turning-leaf {
+                display: none !important;
             }
 
             .page-turn-btn {
@@ -1334,11 +1483,11 @@ $baseUrl = $protocol . $host;
                 font-size: 1.1rem;
             }
 
-            .page-turn-prev { left: -10px; }
-            .page-turn-next { right: -10px; }
+            .page-turn-prev { left: -8px; }
+            .page-turn-next { right: -8px; }
 
             .photos-book-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
                 gap: 10px;
             }
 
@@ -1439,8 +1588,29 @@ $baseUrl = $protocol . $host;
                     <div class="book-spine-crease"></div>
                     <div class="book-spine-stitch"></div>
 
-                    <!-- Hoja de volteo 3D dinámica -->
-                    <div class="flipping-sheet" id="flippingSheet"></div>
+                    <!-- Hoja 3D de volteo de doble cara con contenido real -->
+                    <div class="turning-leaf" id="turningLeaf">
+                        <div class="leaf-face leaf-front" id="leafFront">
+                            <div class="page-inner-border"></div>
+                            <div class="page-flourish pf-tl">❧</div>
+                            <div class="page-flourish pf-tr">☙</div>
+                            <div class="page-flourish pf-bl">❧</div>
+                            <div class="page-flourish pf-br">☙</div>
+                            <div class="leaf-page-body" id="leafFrontContent"></div>
+                            <div class="page-number" id="leafFrontNumber"></div>
+                            <div class="leaf-shadow-overlay"></div>
+                        </div>
+                        <div class="leaf-face leaf-back" id="leafBack">
+                            <div class="page-inner-border"></div>
+                            <div class="page-flourish pf-tl">❧</div>
+                            <div class="page-flourish pf-tr">☙</div>
+                            <div class="page-flourish pf-bl">❧</div>
+                            <div class="page-flourish pf-br">☙</div>
+                            <div class="leaf-page-body" id="leafBackContent"></div>
+                            <div class="page-number" id="leafBackNumber"></div>
+                            <div class="leaf-shadow-overlay"></div>
+                        </div>
+                    </div>
 
                     <!-- PÁGINA IZQUIERDA -->
                     <div class="book-page book-page-left" id="pageLeft">
@@ -1724,77 +1894,76 @@ $baseUrl = $protocol . $host;
             return 1 + photoSpreads + videoSpreads + msgSpreads + 1; // ~49 spreads
         }
 
-        // Renderizar el contenido de las páginas izquierda y derecha según el spread activo
-        function renderCurrentSpread() {
-            const totalSpreads = getTotalSpreads();
+        // Renderizar el contenido y número de página de cualquier página del libro
+        function getPageData(spreadIndex, isRightPage, forLeaf = false) {
             const photoSpreadCount = Math.ceil(albumData.fotos.length / 4);
             const videoSpreadCount = Math.ceil(albumData.videos.length / 4);
+            const msgSpreadCount = Math.max(2, Math.ceil(albumData.mensajes.length / 4));
+            const totalSpreads = 1 + photoSpreadCount + videoSpreadCount + msgSpreadCount + 1;
 
-            const pageLeftContent = document.getElementById('pageLeftContent');
-            const pageRightContent = document.getElementById('pageRightContent');
-            const pageLeftNumber = document.getElementById('pageLeftNumber');
-            const pageRightNumber = document.getElementById('pageRightNumber');
-            const pageIndicatorText = document.getElementById('pageIndicatorText');
-
-            // Pausar cualquier video activo antes de cambiar página
-            document.querySelectorAll('video').forEach(v => v.pause());
-
-            // 1. SPREAD 0: PORTADA REAL & PRÓLOGO
-            if (currentSpread === 0) {
-                pageLeftContent.innerHTML = `
-                    <div class="cover-page-content">
-                        <div class="royal-crest-icon"><i class="fas fa-crown"></i></div>
-                        <div class="book-main-sub">MIS XV AÑOS</div>
-                        <h1 class="book-main-title">Angie Karolina</h1>
-                        <div class="vintage-gold-rule"></div>
-                        <div style="font-family: var(--font-royal); font-size: 0.8rem; letter-spacing: 3px; color: var(--dorado-oscuro); margin-bottom: 8px;">
-                            3 · OCTUBRE · 2026
-                        </div>
-                        <p class="prologue-quote">
-                            "Hay momentos en la vida que duran solo un instante, pero dejan una huella de oro para siempre en el corazón." ✨👑
-                        </p>
-                        <div style="font-family: var(--font-hand); font-size: 1.25rem; color: #062E25; margin-top: 6px;">
-                            Libro Oficial de Recuerdos
-                        </div>
-                    </div>
-                `;
-
-                pageRightContent.innerHTML = `
-                    <div class="cover-page-content">
-                        <div class="chapter-num">EDICIÓN CONMEMORATIVA</div>
-                        <div class="chapter-title" style="font-size: 1.25rem;">Bienvenido a mi Historia</div>
-                        
-                        <div class="oval-photo-frame">
-                            <img src="${basePrefix}angie-xv.jpg" onerror="this.src='angie-xv.jpg'" alt="Angie Karolina">
-                        </div>
-
-                        <p class="prologue-quote" style="font-size: 0.88rem; max-width: 360px;">
-                            Pasa estas páginas para revivir los bailes, las risas, 
-                            los 19 videos cinematográficos y todas las fotos mágicas de mi fiesta. 💖
-                        </p>
-
-                        <button type="button" class="btn-open-book-cta" onclick="turnToSpread(1)">
-                            <span>Abrir el Álbum</span> <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                `;
-
-                pageLeftNumber.textContent = 'I';
-                pageRightNumber.textContent = 'II';
-                pageIndicatorText.textContent = `PÁGINA 1 - 2 · PORTADA REAL`;
-                updateBookmarkHighlight('portada');
-                updateButtonsState();
-                return;
+            if (spreadIndex < 0 || spreadIndex >= totalSpreads) {
+                return { html: '', pageNumber: '' };
             }
 
-            // 2. SPREADS DE FOTOGRAFÍAS POLAROID (Spread 1 a photoSpreadCount)
-            if (currentSpread >= 1 && currentSpread <= photoSpreadCount) {
-                const photoOffset = (currentSpread - 1) * 4;
-                const photosLeft = albumData.fotos.slice(photoOffset, photoOffset + 2);
-                const photosRight = albumData.fotos.slice(photoOffset + 2, photoOffset + 4);
+            // 1. SPREAD 0: PORTADA & BIENVENIDA
+            if (spreadIndex === 0) {
+                if (!isRightPage) {
+                    return {
+                        html: `
+                        <div class="cover-page-content">
+                            <div class="royal-crest-icon"><i class="fas fa-crown"></i></div>
+                            <div class="book-main-sub">MIS XV AÑOS</div>
+                            <h1 class="book-main-title">Angie Karolina</h1>
+                            <div class="vintage-gold-rule"></div>
+                            <div style="font-family: var(--font-royal); font-size: 0.8rem; letter-spacing: 3px; color: var(--dorado-oscuro); margin-bottom: 8px;">
+                                3 · OCTUBRE · 2026
+                            </div>
+                            <p class="prologue-quote">
+                                "Hay momentos en la vida que duran solo un instante, pero dejan una huella de oro para siempre en el corazón." ✨👑
+                            </p>
+                            <div style="font-family: var(--font-hand); font-size: 1.25rem; color: #062E25; margin-top: 6px;">
+                                Libro Oficial de Recuerdos
+                            </div>
+                        </div>
+                        `,
+                        pageNumber: 'I'
+                    };
+                } else {
+                    return {
+                        html: `
+                        <div class="cover-page-content">
+                            <div class="chapter-num">EDICIÓN CONMEMORATIVA</div>
+                            <div class="chapter-title" style="font-size: 1.25rem;">Bienvenido a mi Historia</div>
+                            
+                            <div class="oval-photo-frame">
+                                <img src="${basePrefix}angie-xv.jpg" onerror="this.src='angie-xv.jpg'" alt="Angie Karolina">
+                            </div>
 
-                const renderPhotoCards = (list, startIdx) => list.map((f, i) => {
-                    const globalIdx = photoOffset + startIdx + i;
+                            <p class="prologue-quote" style="font-size: 0.88rem; max-width: 360px;">
+                                Pasa estas páginas para revivir los bailes, las risas, 
+                                los 19 videos cinematográficos y todas las fotos mágicas de mi fiesta. 💖
+                            </p>
+
+                            <button type="button" class="btn-open-book-cta" onclick="turnToSpread(1)">
+                                <span>Abrir el Álbum</span> <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        `,
+                        pageNumber: 'II'
+                    };
+                }
+            }
+
+            // 2. FOTOS POLAROID (Spread 1 a photoSpreadCount)
+            if (spreadIndex >= 1 && spreadIndex <= photoSpreadCount) {
+                const photoOffset = (spreadIndex - 1) * 4;
+                const photos = isRightPage
+                    ? albumData.fotos.slice(photoOffset + 2, photoOffset + 4)
+                    : albumData.fotos.slice(photoOffset, photoOffset + 2);
+                const startIdx = isRightPage ? 2 : 0;
+
+                const renderPhotoCards = (list, offset) => list.map((f, i) => {
+                    const globalIdx = photoOffset + offset + i;
                     const directSrc = basePrefix + (f.direct_url || `assets/fotos/${f.archivo}`);
                     const apiSrc = basePrefix + (f.url || `api/foto.php?f=${encodeURIComponent(f.archivo)}`);
 
@@ -1814,59 +1983,73 @@ $baseUrl = $protocol . $host;
                     `;
                 }).join('');
 
-                pageLeftContent.innerHTML = `
-                    <div>
-                        <div class="chapter-header">
-                            <div class="chapter-num">CAPÍTULO I · GALERÍA DE RECUERDOS</div>
-                            <div class="chapter-title">Fotos de la Fiesta</div>
+                if (!isRightPage) {
+                    return {
+                        html: `
+                        <div>
+                            <div class="chapter-header">
+                                <div class="chapter-num">CAPÍTULO I · GALERÍA DE RECUERDOS</div>
+                                <div class="chapter-title">Fotos de la Fiesta</div>
+                            </div>
+                            <div class="photos-book-grid">
+                                ${renderPhotoCards(photos, 0)}
+                            </div>
                         </div>
-                        <div class="photos-book-grid">
-                            ${renderPhotoCards(photosLeft, 0)}
+                        <div style="font-size: 0.72rem; color: #888; text-align: center; font-family: var(--font-serif); font-style: italic;">
+                            Toca cualquier foto para ampliarla a pantalla completa
                         </div>
-                    </div>
-                    <div style="font-size: 0.72rem; color: #888; text-align: center; font-family: var(--font-serif); font-style: italic;">
-                        Toca cualquier foto para ampliarla a pantalla completa
-                    </div>
-                `;
-
-                pageRightContent.innerHTML = `
-                    <div>
-                        <div class="chapter-header">
-                            <div class="chapter-num">ÁLBUM SCRAPBOOK</div>
-                            <div class="chapter-title">Sonrisas Doradas</div>
+                        `,
+                        pageNumber: String((spreadIndex * 2) + 1)
+                    };
+                } else {
+                    return {
+                        html: `
+                        <div>
+                            <div class="chapter-header">
+                                <div class="chapter-num">ÁLBUM SCRAPBOOK</div>
+                                <div class="chapter-title">Sonrisas Doradas</div>
+                            </div>
+                            <div class="photos-book-grid">
+                                ${renderPhotoCards(photos, 2)}
+                            </div>
                         </div>
-                        <div class="photos-book-grid">
-                            ${renderPhotoCards(photosRight, 2)}
+                        <div style="font-size: 0.72rem; color: #888; text-align: center; font-family: var(--font-serif); font-style: italic;">
+                            Fotos #${photoOffset + 1} a #${Math.min(albumData.fotos.length, photoOffset + 4)} de ${albumData.fotos.length}
                         </div>
-                    </div>
-                    <div style="font-size: 0.72rem; color: #888; text-align: center; font-family: var(--font-serif); font-style: italic;">
-                        Fotos #${photoOffset + 1} a #${Math.min(albumData.fotos.length, photoOffset + 4)} de ${albumData.fotos.length}
-                    </div>
-                `;
-
-                const pageNumLeft = (currentSpread * 2) + 1;
-                const pageNumRight = (currentSpread * 2) + 2;
-                pageLeftNumber.textContent = pageNumLeft;
-                pageRightNumber.textContent = pageNumRight;
-                pageIndicatorText.textContent = `PÁGINAS ${pageNumLeft} - ${pageNumRight} · FOTOS (${photoOffset + 1} a ${Math.min(albumData.fotos.length, photoOffset + 4)})`;
-                updateBookmarkHighlight('fotos');
-                updateButtonsState();
-                return;
+                        `,
+                        pageNumber: String((spreadIndex * 2) + 2)
+                    };
+                }
             }
 
-            // 3. SPREADS DE VIDEOS (Spread photoSpreadCount + 1 a photoSpreadCount + videoSpreadCount)
+            // 3. VIDEOS (Spread videoStartSpread a videoEndSpread)
             const videoStartSpread = photoSpreadCount + 1;
             const videoEndSpread = photoSpreadCount + videoSpreadCount;
 
-            if (currentSpread >= videoStartSpread && currentSpread <= videoEndSpread) {
-                const videoOffset = (currentSpread - videoStartSpread) * 4;
-                const videosLeft = albumData.videos.slice(videoOffset, videoOffset + 2);
-                const videosRight = albumData.videos.slice(videoOffset + 2, videoOffset + 4);
+            if (spreadIndex >= videoStartSpread && spreadIndex <= videoEndSpread) {
+                const videoOffset = (spreadIndex - videoStartSpread) * 4;
+                const videos = isRightPage
+                    ? albumData.videos.slice(videoOffset + 2, videoOffset + 4)
+                    : albumData.videos.slice(videoOffset, videoOffset + 2);
+                const startIdx = isRightPage ? 2 : 0;
 
-                const renderVideoCards = (list, startIdx) => list.map((v, i) => {
-                    const globalIdx = videoOffset + startIdx + i;
+                const renderVideoCards = (list, offset) => list.map((v, i) => {
+                    const globalIdx = videoOffset + offset + i;
                     const directSrc = basePrefix + (v.direct_url || `assets/videos/${v.archivo}`);
                     const apiSrc = basePrefix + (v.url || `api/video.php?v=${encodeURIComponent(v.archivo)}`);
+
+                    if (forLeaf) {
+                        return `
+                        <div class="book-video-card">
+                            <div class="book-video-frame" style="display:flex;align-items:center;justify-content:center;background:#031813;">
+                                <i class="fas fa-play-circle" style="font-size: 2.5rem; color: var(--dorado-brillante);"></i>
+                            </div>
+                            <div class="book-video-info">
+                                <div class="book-video-title"><i class="fas fa-film"></i> ${v.titulo}</div>
+                            </div>
+                        </div>
+                        `;
+                    }
 
                     return `
                     <div class="book-video-card">
@@ -1889,54 +2072,54 @@ $baseUrl = $protocol . $host;
                     `;
                 }).join('');
 
-                pageLeftContent.innerHTML = `
-                    <div>
-                        <div class="chapter-header">
-                            <div class="chapter-num">CAPÍTULO II · SALA DE CINE</div>
-                            <div class="chapter-title">Momentos en Movimiento</div>
+                if (!isRightPage) {
+                    return {
+                        html: `
+                        <div>
+                            <div class="chapter-header">
+                                <div class="chapter-num">CAPÍTULO II · SALA DE CINE</div>
+                                <div class="chapter-title">Momentos en Movimiento</div>
+                            </div>
+                            <div class="videos-book-grid">
+                                ${renderVideoCards(videos, 0)}
+                            </div>
                         </div>
-                        <div class="videos-book-grid">
-                            ${renderVideoCards(videosLeft, 0)}
+                        <div style="font-size: 0.72rem; color: #888; text-align: center; font-style: italic;">
+                            Reproduce los videos directamente en la página
                         </div>
-                    </div>
-                    <div style="font-size: 0.72rem; color: #888; text-align: center; font-style: italic;">
-                        Reproduce los videos directamente en la página
-                    </div>
-                `;
-
-                pageRightContent.innerHTML = `
-                    <div>
-                        <div class="chapter-header">
-                            <div class="chapter-num">CORTES REALES</div>
-                            <div class="chapter-title">La Noche Mágica</div>
+                        `,
+                        pageNumber: String((spreadIndex * 2) + 1)
+                    };
+                } else {
+                    return {
+                        html: `
+                        <div>
+                            <div class="chapter-header">
+                                <div class="chapter-num">CORTES REALES</div>
+                                <div class="chapter-title">La Noche Mágica</div>
+                            </div>
+                            <div class="videos-book-grid">
+                                ${renderVideoCards(videos, 2)}
+                            </div>
                         </div>
-                        <div class="videos-book-grid">
-                            ${renderVideoCards(videosRight, 2)}
+                        <div style="font-size: 0.72rem; color: #888; text-align: center; font-style: italic;">
+                            Videos #${videoOffset + 1} a #${Math.min(albumData.videos.length, videoOffset + 4)} de ${albumData.videos.length}
                         </div>
-                    </div>
-                    <div style="font-size: 0.72rem; color: #888; text-align: center; font-style: italic;">
-                        Videos #${videoOffset + 1} a #${Math.min(albumData.videos.length, videoOffset + 4)} de ${albumData.videos.length}
-                    </div>
-                `;
-
-                const pageNumLeft = (currentSpread * 2) + 1;
-                const pageNumRight = (currentSpread * 2) + 2;
-                pageLeftNumber.textContent = pageNumLeft;
-                pageRightNumber.textContent = pageNumRight;
-                pageIndicatorText.textContent = `PÁGINAS ${pageNumLeft} - ${pageNumRight} · VIDEOS (${videoOffset + 1} a ${Math.min(albumData.videos.length, videoOffset + 4)})`;
-                updateBookmarkHighlight('videos');
-                updateButtonsState();
-                return;
+                        `,
+                        pageNumber: String((spreadIndex * 2) + 2)
+                    };
+                }
             }
 
-            // 4. SPREADS DE DEDICATORIAS & FIRMAS
+            // 4. DEDICATORIAS Y FIRMAS
             const msgStartSpread = videoEndSpread + 1;
             const msgEndSpread = totalSpreads - 1;
 
-            if (currentSpread >= msgStartSpread && currentSpread < totalSpreads) {
-                const msgOffset = (currentSpread - msgStartSpread) * 4;
-                const msgsLeft = albumData.mensajes.slice(msgOffset, msgOffset + 2);
-                const msgsRight = albumData.mensajes.slice(msgOffset + 2, msgOffset + 4);
+            if (spreadIndex >= msgStartSpread && spreadIndex < msgEndSpread) {
+                const msgOffset = (spreadIndex - msgStartSpread) * 4;
+                const msgs = isRightPage
+                    ? albumData.mensajes.slice(msgOffset + 2, msgOffset + 4)
+                    : albumData.mensajes.slice(msgOffset, msgOffset + 2);
 
                 const renderMsgList = (list) => {
                     if (list.length === 0) {
@@ -1960,104 +2143,244 @@ $baseUrl = $protocol . $host;
                     `).join('');
                 };
 
-                pageLeftContent.innerHTML = `
-                    <div>
-                        <div class="chapter-header">
-                            <div class="chapter-num">CAPÍTULO III · EL LIBRO DE VISITAS</div>
-                            <div class="chapter-title">Firmas & Bendiciones</div>
+                if (!isRightPage) {
+                    return {
+                        html: `
+                        <div>
+                            <div class="chapter-header">
+                                <div class="chapter-num">CAPÍTULO III · EL LIBRO DE VISITAS</div>
+                                <div class="chapter-title">Firmas & Bendiciones</div>
+                            </div>
+                            <div class="guestbook-page-entries">
+                                ${renderMsgList(msgs)}
+                            </div>
                         </div>
-                        <div class="guestbook-page-entries">
-                            ${renderMsgList(msgsLeft)}
+                        <button type="button" class="btn-leave-signature" onclick="document.getElementById('btnOpenDedicationModal').click()">
+                            <i class="fas fa-pen-nib"></i> Escribir mi Dedicatoria
+                        </button>
+                        `,
+                        pageNumber: String((spreadIndex * 2) + 1)
+                    };
+                } else {
+                    return {
+                        html: `
+                        <div>
+                            <div class="chapter-header">
+                                <div class="chapter-num">DESEOS DE AMOR</div>
+                                <div class="chapter-title">Páginas de Cariño</div>
+                            </div>
+                            <div class="guestbook-page-entries">
+                                ${renderMsgList(msgs)}
+                            </div>
                         </div>
-                    </div>
-                    <button type="button" class="btn-leave-signature" onclick="document.getElementById('btnOpenDedicationModal').click()">
-                        <i class="fas fa-pen-nib"></i> Escribir mi Dedicatoria
-                    </button>
-                `;
-
-                pageRightContent.innerHTML = `
-                    <div>
-                        <div class="chapter-header">
-                            <div class="chapter-num">DESEOS DE AMOR</div>
-                            <div class="chapter-title">Páginas de Cariño</div>
+                        <div style="text-align: center; font-size: 0.72rem; color: #888; font-style: italic;">
+                            ${albumData.mensajes.length} dedicatorias grabadas para siempre en el corazón de Angie
                         </div>
-                        <div class="guestbook-page-entries">
-                            ${renderMsgList(msgsRight)}
-                        </div>
-                    </div>
-                    <div style="text-align: center; font-size: 0.72rem; color: #888; font-style: italic;">
-                        ${albumData.mensajes.length} dedicatorias grabadas para siempre en el corazón de Angie
-                    </div>
-                `;
-
-                const pageNumLeft = (currentSpread * 2) + 1;
-                const pageNumRight = (currentSpread * 2) + 2;
-                pageLeftNumber.textContent = pageNumLeft;
-                pageRightNumber.textContent = pageNumRight;
-                pageIndicatorText.textContent = `PÁGINAS ${pageNumLeft} - ${pageNumRight} · DEDICATORIAS`;
-                updateBookmarkHighlight('firmas');
-                updateButtonsState();
-                return;
+                        `,
+                        pageNumber: String((spreadIndex * 2) + 2)
+                    };
+                }
             }
 
             // 5. CONTRAPORTADA FINAL
-            pageLeftContent.innerHTML = `
-                <div class="cover-page-content">
-                    <div class="royal-crest-icon" style="font-size: 2.5rem;"><i class="fas fa-heart"></i></div>
-                    <div class="chapter-title" style="font-size: 1.5rem; margin-bottom: 6px;">Infinitas Gracias</div>
-                    <div class="vintage-gold-rule"></div>
-                    <p class="prologue-quote" style="font-size: 0.95rem;">
-                        "A Dios, a mis amados padres Edwin y Lady, a mi familia y a cada uno de mis amigos: 
-                        gracias por hacer de mis XV Años la noche más feliz e inolvidable de mi vida." 💖✨
-                    </p>
-                    <div style="font-family: var(--font-script); font-size: 2.8rem; color: #062E25; margin-top: 10px;">
-                        Angie Karolina
+            if (!isRightPage) {
+                return {
+                    html: `
+                    <div class="cover-page-content">
+                        <div class="royal-crest-icon" style="font-size: 2.5rem;"><i class="fas fa-heart"></i></div>
+                        <div class="chapter-title" style="font-size: 1.5rem; margin-bottom: 6px;">Infinitas Gracias</div>
+                        <div class="vintage-gold-rule"></div>
+                        <p class="prologue-quote" style="font-size: 0.95rem;">
+                            "A Dios, a mis amados padres Edwin y Lady, a mi familia y a cada uno de mis amigos: 
+                            gracias por hacer de mis XV Años la noche más feliz e inolvidable de mi vida." 💖✨
+                        </p>
+                        <div style="font-family: var(--font-script); font-size: 2.8rem; color: #062E25; margin-top: 10px;">
+                            Angie Karolina
+                        </div>
                     </div>
-                </div>
-            `;
+                    `,
+                    pageNumber: 'FIN'
+                };
+            } else {
+                return {
+                    html: `
+                    <div class="cover-page-content">
+                        <div class="royal-crest-icon"><i class="fas fa-book-sparkles"></i></div>
+                        <div class="chapter-num">FIN DEL LIBRO MÁGICO</div>
+                        <div class="chapter-title" style="font-size: 1.25rem;">3 de Octubre de 2026</div>
+                        <div class="vintage-gold-rule"></div>
+                        <p class="prologue-quote" style="font-size: 0.88rem;">
+                            Puedes volver a hojear este libro cuando lo desees o compartirlo con tus seres queridos.
+                        </p>
+                        <button type="button" class="btn-open-book-cta" onclick="turnToSpread(0)">
+                            <i class="fas fa-undo"></i> Volver a la Portada
+                        </button>
+                    </div>
+                    `,
+                    pageNumber: '👑'
+                };
+            }
+        }
 
-            pageRightContent.innerHTML = `
-                <div class="cover-page-content">
-                    <div class="royal-crest-icon"><i class="fas fa-book-sparkles"></i></div>
-                    <div class="chapter-num">FIN DEL LIBRO MÁGICO</div>
-                    <div class="chapter-title" style="font-size: 1.25rem;">3 de Octubre de 2026</div>
-                    <div class="vintage-gold-rule"></div>
-                    <p class="prologue-quote" style="font-size: 0.88rem;">
-                        Puedes volver a hojear este libro cuando lo desees o compartirlo con tus seres queridos.
-                    </p>
-                    <button type="button" class="btn-open-book-cta" onclick="turnToSpread(0)">
-                        <i class="fas fa-undo"></i> Volver a la Portada
-                    </button>
-                </div>
-            `;
+        function updatePageIndicator() {
+            const pageIndicatorText = document.getElementById('pageIndicatorText');
+            if (!pageIndicatorText) return;
+            const totalSpreads = getTotalSpreads();
+            const photoSpreadCount = Math.ceil(albumData.fotos.length / 4);
+            const videoSpreadCount = Math.ceil(albumData.videos.length / 4);
+            const videoStartSpread = photoSpreadCount + 1;
+            const videoEndSpread = photoSpreadCount + videoSpreadCount;
+            const msgStartSpread = videoEndSpread + 1;
 
-            pageLeftNumber.textContent = 'FIN';
-            pageRightNumber.textContent = '👑';
-            pageIndicatorText.textContent = `CONTRAPORTADA · FIN DEL LIBRO`;
+            if (currentSpread === 0) {
+                pageIndicatorText.textContent = `PÁGINA 1 - 2 · PORTADA REAL`;
+                updateBookmarkHighlight('portada');
+            } else if (currentSpread >= 1 && currentSpread <= photoSpreadCount) {
+                const photoOffset = (currentSpread - 1) * 4;
+                const pL = (currentSpread * 2) + 1;
+                const pR = (currentSpread * 2) + 2;
+                pageIndicatorText.textContent = `PÁGINAS ${pL} - ${pR} · FOTOS (${photoOffset + 1} a ${Math.min(albumData.fotos.length, photoOffset + 4)} de ${albumData.fotos.length})`;
+                updateBookmarkHighlight('fotos');
+            } else if (currentSpread >= videoStartSpread && currentSpread <= videoEndSpread) {
+                const videoOffset = (currentSpread - videoStartSpread) * 4;
+                const pL = (currentSpread * 2) + 1;
+                const pR = (currentSpread * 2) + 2;
+                pageIndicatorText.textContent = `PÁGINAS ${pL} - ${pR} · VIDEOS (${videoOffset + 1} a ${Math.min(albumData.videos.length, videoOffset + 4)} de ${albumData.videos.length})`;
+                updateBookmarkHighlight('videos');
+            } else if (currentSpread >= msgStartSpread && currentSpread < totalSpreads - 1) {
+                const pL = (currentSpread * 2) + 1;
+                const pR = (currentSpread * 2) + 2;
+                pageIndicatorText.textContent = `PÁGINAS ${pL} - ${pR} · DEDICATORIAS & FIRMAS`;
+                updateBookmarkHighlight('firmas');
+            } else {
+                pageIndicatorText.textContent = `CONTRAPORTADA · FIN DEL LIBRO`;
+                updateBookmarkHighlight('');
+            }
+        }
+
+        // Renderizar el contenido de las páginas izquierda y derecha según el spread activo
+        function renderCurrentSpread() {
+            document.querySelectorAll('video').forEach(v => v.pause());
+
+            const leftData = getPageData(currentSpread, false, false);
+            const rightData = getPageData(currentSpread, true, false);
+
+            const pageLeftContent = document.getElementById('pageLeftContent');
+            const pageRightContent = document.getElementById('pageRightContent');
+            const pageLeftNumber = document.getElementById('pageLeftNumber');
+            const pageRightNumber = document.getElementById('pageRightNumber');
+
+            if (pageLeftContent) pageLeftContent.innerHTML = leftData.html;
+            if (pageLeftNumber) pageLeftNumber.textContent = leftData.pageNumber;
+
+            if (pageRightContent) pageRightContent.innerHTML = rightData.html;
+            if (pageRightNumber) pageRightNumber.textContent = rightData.pageNumber;
+
+            updatePageIndicator();
             updateButtonsState();
         }
 
-        // 4. ANIMACIÓN DE PASO DE PÁGINAS 3D (FLIP)
+        // 4. ANIMACIÓN DE PASO DE PÁGINAS 3D REAL (DOUBLE-SIDED TURNING LEAF)
         function turnToSpread(targetSpread) {
             if (isFlipping) return;
-            const totalSpreads = getTotalSpreads();
-            if (targetSpread < 0 || targetSpread >= totalSpreads) return;
+            const total = getTotalSpreads();
+            if (targetSpread < 0 || targetSpread >= total) return;
             if (targetSpread === currentSpread) return;
+
+            document.querySelectorAll('video').forEach(v => v.pause());
 
             isFlipping = true;
             playPageTurnSound();
 
             const isForward = targetSpread > currentSpread;
-            const flippingSheet = document.getElementById('flippingSheet');
+            const turningLeaf = document.getElementById('turningLeaf');
+            const leafFrontContent = document.getElementById('leafFrontContent');
+            const leafFrontNumber = document.getElementById('leafFrontNumber');
+            const leafBackContent = document.getElementById('leafBackContent');
+            const leafBackNumber = document.getElementById('leafBackNumber');
 
-            flippingSheet.className = 'flipping-sheet ' + (isForward ? 'flip-forward' : 'flip-backward');
-
-            setTimeout(() => {
+            if (!turningLeaf || window.innerWidth <= 768) {
+                // En móviles o si no existe turningLeaf, transición limpia directa
                 currentSpread = targetSpread;
                 renderCurrentSpread();
-                flippingSheet.className = 'flipping-sheet';
                 isFlipping = false;
-            }, 620);
+                return;
+            }
+
+            if (isForward) {
+                // Hacia adelante: Hoja a la derecha gira hacia la izquierda
+                // Cara frontal: página derecha actual (a la vista en 0deg)
+                const curRight = getPageData(currentSpread, true, true);
+                leafFrontContent.innerHTML = curRight.html;
+                leafFrontNumber.textContent = curRight.pageNumber;
+
+                // Cara posterior: página izquierda de destino (se revela al girar a -180deg)
+                const targetLeft = getPageData(targetSpread, false, true);
+                leafBackContent.innerHTML = targetLeft.html;
+                leafBackNumber.textContent = targetLeft.pageNumber;
+
+                // Debajo en la derecha: inmediatamente mostrar la página derecha de destino
+                const targetRight = getPageData(targetSpread, true, false);
+                const pageRightContent = document.getElementById('pageRightContent');
+                const pageRightNumber = document.getElementById('pageRightNumber');
+                if (pageRightContent) pageRightContent.innerHTML = targetRight.html;
+                if (pageRightNumber) pageRightNumber.textContent = targetRight.pageNumber;
+
+                turningLeaf.className = 'turning-leaf';
+                void turningLeaf.offsetWidth;
+                turningLeaf.className = 'turning-leaf flip-forward';
+
+                setTimeout(() => {
+                    currentSpread = targetSpread;
+                    const finalLeft = getPageData(currentSpread, false, false);
+                    const pageLeftContent = document.getElementById('pageLeftContent');
+                    const pageLeftNumber = document.getElementById('pageLeftNumber');
+                    if (pageLeftContent) pageLeftContent.innerHTML = finalLeft.html;
+                    if (pageLeftNumber) pageLeftNumber.textContent = finalLeft.pageNumber;
+
+                    turningLeaf.className = 'turning-leaf';
+                    updatePageIndicator();
+                    updateButtonsState();
+                    isFlipping = false;
+                }, 720);
+
+            } else {
+                // Hacia atrás: Hoja a la izquierda gira hacia la derecha
+                // Cara frontal: página izquierda actual (a la vista en 0deg)
+                const curLeft = getPageData(currentSpread, false, true);
+                leafFrontContent.innerHTML = curLeft.html;
+                leafFrontNumber.textContent = curLeft.pageNumber;
+
+                // Cara posterior: página derecha de destino (se revela al girar a +180deg)
+                const targetRight = getPageData(targetSpread, true, true);
+                leafBackContent.innerHTML = targetRight.html;
+                leafBackNumber.textContent = targetRight.pageNumber;
+
+                // Debajo en la izquierda: inmediatamente mostrar la página izquierda de destino
+                const targetLeft = getPageData(targetSpread, false, false);
+                const pageLeftContent = document.getElementById('pageLeftContent');
+                const pageLeftNumber = document.getElementById('pageLeftNumber');
+                if (pageLeftContent) pageLeftContent.innerHTML = targetLeft.html;
+                if (pageLeftNumber) pageLeftNumber.textContent = targetLeft.pageNumber;
+
+                turningLeaf.className = 'turning-leaf';
+                void turningLeaf.offsetWidth;
+                turningLeaf.className = 'turning-leaf flip-backward';
+
+                setTimeout(() => {
+                    currentSpread = targetSpread;
+                    const finalRight = getPageData(currentSpread, true, false);
+                    const pageRightContent = document.getElementById('pageRightContent');
+                    const pageRightNumber = document.getElementById('pageRightNumber');
+                    if (pageRightContent) pageRightContent.innerHTML = finalRight.html;
+                    if (pageRightNumber) pageRightNumber.textContent = finalRight.pageNumber;
+
+                    turningLeaf.className = 'turning-leaf';
+                    updatePageIndicator();
+                    updateButtonsState();
+                    isFlipping = false;
+                }, 720);
+            }
         }
 
         function turnNext() {

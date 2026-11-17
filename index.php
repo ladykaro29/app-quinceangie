@@ -1,6 +1,80 @@
 <?php
 /**
- * Punto de entrada principal
- * Invitación XV Años - Angie Karolina Avendaño Rivera
+ * Front Controller Centralizado — Plataforma "XV Experience"
+ * Administra el enrutamiento limpio para invitaciones, grimorio 3D, panel de control y API.
  */
-require_once __DIR__ . '/public/index.php';
+
+require_once __DIR__ . '/app/autoload.php';
+
+use App\Core\Router;
+use App\Controllers\InvitationController;
+use App\Controllers\MemoryBookController;
+use App\Controllers\Api\CollaborativePhotoController;
+
+// ==============================================================================
+// 1. RUTAS DE INVITACIÓN (FRONTEND)
+// ==============================================================================
+
+// Invitación predeterminada (Angie Karolina)
+Router::get('/', function() {
+    require_once __DIR__ . '/public/index.php';
+});
+
+// Invitación por slug multi-celebración (/e/angie-xv, /e/sophia-xv, etc.)
+Router::get('/e/{slug}', function($slug) {
+    $_GET['evento'] = $slug;
+    require_once __DIR__ . '/public/index.php';
+});
+
+// ==============================================================================
+// 2. RUTAS DEL LIBRO MÁGICO 3D (RECUERDOS)
+// ==============================================================================
+
+// Libro por defecto (Angie Karolina)
+Router::get('/libro', function() {
+    require_once __DIR__ . '/public/libro-recuerdos.php';
+});
+
+// Libro por slug multi-celebración
+Router::get('/libro/{slug}', function($slug) {
+    MemoryBookController::render($slug);
+});
+
+// ==============================================================================
+// 3. RUTAS DE LA FIESTA EN VIVO Y ÁLBUM COLABORATIVO
+// ==============================================================================
+
+// Pantalla proyector en vivo
+Router::get('/en-vivo', function() {
+    require_once __DIR__ . '/public/en-vivo.php';
+});
+
+// Subida móvil de fotos para invitados
+Router::get('/subir-fotos', function() {
+    require_once __DIR__ . '/public/subir-fotos.php';
+});
+
+Router::get('/subir-fotos/{slug}', function($slug) {
+    $_GET['evento'] = $slug;
+    require_once __DIR__ . '/public/subir-fotos.php';
+});
+
+// ==============================================================================
+// 4. RUTAS DEL PANEL ADMINISTRATIVO
+// ==============================================================================
+
+Router::any('/admin', function() {
+    require_once __DIR__ . '/admin/index.php';
+});
+
+// ==============================================================================
+// 5. RUTAS DE API REST
+// ==============================================================================
+
+Router::any('/api/album/fotos', [CollaborativePhotoController::class, 'handle']);
+
+// ==============================================================================
+// 6. DESPACHO DE LA PETICIÓN
+// ==============================================================================
+
+Router::dispatch();

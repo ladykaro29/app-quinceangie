@@ -1,9 +1,13 @@
-# Proteger archivos de configuración y base de datos
-<FilesMatch "^\.env|\.sql$|\.git">
+# ==============================================================================
+# CONFIGURACIÓN APACHE / HTACCESS — PLATAFORMA "XV EXPERIENCE"
+# ==============================================================================
+
+# 1. Proteger archivos sensibles, bases de datos y configuraciones
+<FilesMatch "^\.env|\.sql$|\.sqlite$|\.git|composer\.(json|lock)">
     Require all denied
 </FilesMatch>
 
-# Opciones generales
+# 2. Opciones del Servidor
 Options -Indexes
 DirectoryIndex index.php
 
@@ -11,8 +15,15 @@ DirectoryIndex index.php
     RewriteEngine On
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Si se solicita un asset estático (imagen, audio, etc) y existe en public/, servirlo automáticamente
-    RewriteCond %{REQUEST_FILENAME} !-f
+    # Si se solicita un archivo estático real (imágenes, audio, css, js), servirlo directamente
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Si el archivo estático existe dentro de public/, servirlo desde allí
     RewriteCond %{DOCUMENT_ROOT}/public/$1 -f
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # Enrutar el resto de solicitudes a index.php (Front Controller)
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>

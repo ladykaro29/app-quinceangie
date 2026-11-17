@@ -10,21 +10,26 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../app/autoload.php';
+
+use App\Services\AuthService;
 
 // Cerrar sesión
 if (isset($_GET['logout'])) {
+    AuthService::logout();
     $_SESSION['admin_auth'] = false;
-    unset($_SESSION['admin_auth']);
+    unset($_SESSION['admin_auth'], $_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['active_evento_id']);
     session_destroy();
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
     exit;
 }
 
-// Claves válidas (ADMIN_PASS desde .env/database.php y alternas como angie2026 / angie15)
+// Claves válidas
 $validPasswords = array_unique(array_filter([
     ADMIN_PASS,
     'angie2026',
-    'angie15'
+    'angie15',
+    'sophia2026'
 ]));
 
 // Procesar formulario de login
@@ -33,9 +38,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_login'])) {
     $inputPass = trim($_POST['admin_pass'] ?? '');
     $inputUser = trim($_POST['admin_user'] ?? '');
 
-    if (in_array($inputPass, $validPasswords, true) || 
-        (!empty($inputUser) && $inputUser === ADMIN_USER && in_array($inputPass, $validPasswords, true))) {
+    // Intentar autenticación mediante AuthService (DB con bcrypt)
+    $authSuccess = false;
+    if (!empty($inputUser)) {
+        $authSuccess = AuthService::login($inputUser, $inputPass);
+    } else {
+        // Si solo se ingresa contraseña, verificar contra usuarios conocidos
+        if ($inputPass === 'admin2026' || $inputPass === ADMIN_PASS) {
+            $authSuccess = AuthService::login('admin@xvexperience.com', $inputPass);
+        } elseif ($inputPass === 'angie2026' || $inputPass === 'angie15') {
+            $authSuccess = AuthService::login('angie@xvexperience.com', $inputPass);
+        } elseif ($inputPass === 'sophia2026') {
+            $authSuccess = AuthService::login('padres.sophia@email.com', $inputPass);
+        }
+    }
+
+    if ($authSuccess || in_array($inputPass, $validPasswords, true)) {
         $_SESSION['admin_auth'] = true;
+        if (!AuthService::check()) {
+            $_SESSION['user_role'] = 'superadmin';
+            $_SESSION['user_name'] = 'Super Administrador';
+        }
         header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
         exit;
     } else {
@@ -43,10 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_login'])) {
     }
 }
 
-// Compatibilidad con HTTP Basic (por si un cliente lo envía)
-$isAuthenticated = !empty($_SESSION['admin_auth']);
+// Compatibilidad con HTTP Basic
+$isAuthenticated = !empty($_SESSION['admin_auth']) || AuthService::check();
 if (!$isAuthenticated && isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
-    if ($_SERVER['PHP_AUTH_USER'] === ADMIN_USER && in_array($_SERVER['PHP_AUTH_PW'], $validPasswords, true)) {
+    if (AuthService::login($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) || 
+        ($_SERVER['PHP_AUTH_USER'] === ADMIN_USER && in_array($_SERVER['PHP_AUTH_PW'], $validPasswords, true))) {
         $_SESSION['admin_auth'] = true;
         $isAuthenticated = true;
     }
@@ -312,12 +336,52 @@ if (!$isAuthenticated) {
     exit;
 }
 
+// ==============================================================================
+// GESTIÓN DE CELEBRACIÓN ACTIVA (MULTI-TENANCY RBAC)
+// ==============================================================================
+$pdo = getDBConnection();
+$isSuperAdmin = AuthService::isSuperAdmin();
+
+// Obtener todas las celebraciones disponibles
+$stmtEventos = $pdo->query("SELECT id, slug, festejada_nombre, nombre_celebracion FROM eventos WHERE activo = 1 ORDER BY id ASC");
+$listaEventos = $stmtEventos->fetchAll(PDO::FETCH_ASSOC);
+
+// Determinar el evento activo en sesión
+if (isset($_GET['cambiar_evento'])) {
+    $nuevoEvId = (int)$_GET['cambiar_evento'];
+    if ($isSuperAdmin || AuthService::canAccessEvent($nuevoEvId)) {
+        $_SESSION['active_evento_id'] = $nuevoEvId;
+    }
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
+    exit;
+}
+
+if (empty($_SESSION['active_evento_id'])) {
+    if (!$isSuperAdmin && !empty($_SESSION['user_events'])) {
+        $_SESSION['active_evento_id'] = (int)array_key_first($_SESSION['user_events']);
+    } else {
+        $_SESSION['active_evento_id'] = 1; // Default: Angie Karolina
+    }
+}
+
+$activeEventoId = (int)$_SESSION['active_evento_id'];
+if (!$isSuperAdmin && !AuthService::canAccessEvent($activeEventoId)) {
+    $activeEventoId = !empty($_SESSION['user_events']) ? (int)array_key_first($_SESSION['user_events']) : 1;
+    $_SESSION['active_evento_id'] = $activeEventoId;
+}
+
+// Cargar detalles del evento activo
+$stmtAct = $pdo->prepare("SELECT * FROM eventos WHERE id = :id LIMIT 1");
+$stmtAct->execute([':id' => $activeEventoId]);
+$eventoActivo = $stmtAct->fetch(PDO::FETCH_ASSOC);
+$nombreFestejadaActiva = $eventoActivo['festejada_nombre'] ?? 'La Quinceañera';
+$slugActivo = $eventoActivo['slug'] ?? 'angie-xv';
 
 // Exportar CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     try {
-        $pdo = getDBConnection();
-        $stmtInv = $pdo->query('SELECT id, nombre_completo, asistira, codigo_rifa, created_at FROM invitados ORDER BY created_at DESC');
+        $stmtInv = $pdo->prepare('SELECT id, nombre_completo, asistira, codigo_rifa, created_at FROM invitados WHERE evento_id = :evento_id ORDER BY created_at DESC');
+        $stmtInv->execute([':evento_id' => $activeEventoId]);
         $invRows = $stmtInv->fetchAll();
 
         $stmtAcomp = $pdo->query('SELECT invitado_id, nombre_completo, codigo_rifa FROM acompanantes ORDER BY id ASC');
@@ -330,7 +394,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
         }
 
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="invitados_rifa_xv_angie_' . date('Y-m-d') . '.csv"');
+        header('Content-Disposition: attachment; filename="invitados_rifa_' . $slugActivo . '_' . date('Y-m-d') . '.csv"');
 
         $output = fopen('php://output', 'w');
         // BOM for Excel UTF-8
@@ -365,8 +429,8 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 // Descargar todas las fotos en ZIP
 if (isset($_GET['export']) && $_GET['export'] === 'fotos_zip') {
     try {
-        $pdo = getDBConnection();
-        $stmtFotos = $pdo->query('SELECT archivo, nombre_invitado, created_at FROM fotos_fiesta WHERE visible = 1');
+        $stmtFotos = $pdo->prepare('SELECT archivo, nombre_invitado, created_at FROM fotos_fiesta WHERE evento_id = :evento_id AND visible = 1');
+        $stmtFotos->execute([':evento_id' => $activeEventoId]);
         $fotos = $stmtFotos->fetchAll();
 
         if (empty($fotos)) {
@@ -374,7 +438,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'fotos_zip') {
         }
 
         $uploadDir = __DIR__ . '/../database/uploads/fotos';
-        $zipName = 'fotos_xv_angie_' . date('Y-m-d_His') . '.zip';
+        $zipName = 'fotos_xv_' . $slugActivo . '_' . date('Y-m-d_His') . '.zip';
 
         if (class_exists('ZipArchive')) {
             $zip = new ZipArchive();
@@ -411,7 +475,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
 
     try {
         $pdo = getDBConnection();
-        $uploadDir = __DIR__ . '/../database/uploads/fotos';
+        $uploadDirs = [
+            __DIR__ . '/../database/uploads/fotos',
+            __DIR__ . '/../public/assets/img/recuerdos'
+        ];
 
         if ($act === 'delete' && $fotoId > 0) {
             // Obtener el nombre del archivo para borrarlo físicamente del disco
@@ -419,9 +486,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
             $stmtF->execute([':id' => $fotoId]);
             $archivo = $stmtF->fetchColumn();
             if ($archivo) {
-                $filePath = $uploadDir . '/' . basename($archivo);
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                $base = basename($archivo);
+                foreach ($uploadDirs as $dir) {
+                    $filePath = $dir . '/' . $base;
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
                 }
             }
             $stmt = $pdo->prepare('DELETE FROM fotos_fiesta WHERE id = :id');
@@ -431,9 +501,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
             $stmtTest = $pdo->query("SELECT id, archivo FROM fotos_fiesta WHERE LOWER(nombre_invitado) LIKE '%prueba%' OR LOWER(nombre_invitado) LIKE '%test%' OR LOWER(mensaje) LIKE '%prueba%' OR LOWER(mensaje) LIKE '%test%'");
             $testFotos = $stmtTest->fetchAll();
             foreach ($testFotos as $tf) {
-                $filePath = $uploadDir . '/' . basename($tf['archivo']);
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                $base = basename($tf['archivo']);
+                foreach ($uploadDirs as $dir) {
+                    $filePath = $dir . '/' . $base;
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
                 }
                 $delStmt = $pdo->prepare('DELETE FROM fotos_fiesta WHERE id = :id');
                 $delStmt->execute([':id' => $tf['id']]);
@@ -443,9 +516,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_foto'])) {
             $stmtAll = $pdo->query("SELECT id, archivo FROM fotos_fiesta");
             $allFotos = $stmtAll->fetchAll();
             foreach ($allFotos as $af) {
-                $filePath = $uploadDir . '/' . basename($af['archivo']);
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                $base = basename($af['archivo']);
+                foreach ($uploadDirs as $dir) {
+                    $filePath = $dir . '/' . $base;
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                    }
                 }
             }
             $pdo->exec("DELETE FROM fotos_fiesta");
@@ -523,13 +599,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_invitado'])) {
 }
 
 try {
-    $pdo = getDBConnection();
-    populateMissingRaffleCodes($pdo);
-
-    $stmtInvitados = $pdo->query(
+    $stmtInvitados = $pdo->prepare(
         'SELECT id, nombre_completo, asistira, codigo_rifa, asistio_evento, checkin_at, created_at 
-         FROM invitados ORDER BY created_at DESC'
+         FROM invitados WHERE evento_id = :evento_id ORDER BY created_at DESC'
     );
+    $stmtInvitados->execute([':evento_id' => $activeEventoId]);
     $invitados = $stmtInvitados->fetchAll();
 
     $stmtAcomp = $pdo->query(
@@ -593,12 +667,14 @@ try {
     }
 
     // Cargar fotos de la fiesta para moderación
-    $stmtFotosAdmin = $pdo->query('SELECT id, nombre_invitado, mensaje, archivo, likes, ip, visible, created_at FROM fotos_fiesta ORDER BY created_at DESC');
+    $stmtFotosAdmin = $pdo->prepare('SELECT id, nombre_invitado, mensaje, archivo, likes, ip, visible, created_at FROM fotos_fiesta WHERE evento_id = :evento_id ORDER BY created_at DESC');
+    $stmtFotosAdmin->execute([':evento_id' => $activeEventoId]);
     $fotosFiesta = $stmtFotosAdmin->fetchAll();
     $totalFotosFiesta = count($fotosFiesta);
 
     // Cargar canciones sugeridas por los invitados
-    $stmtCancionesAdmin = $pdo->query('SELECT id, cancion, nombre_invitado, created_at FROM canciones ORDER BY id DESC');
+    $stmtCancionesAdmin = $pdo->prepare('SELECT id, cancion, nombre_invitado, created_at FROM canciones WHERE evento_id = :evento_id ORDER BY id DESC');
+    $stmtCancionesAdmin->execute([':evento_id' => $activeEventoId]);
     $cancionesSugeridas = $stmtCancionesAdmin->fetchAll();
     $totalCanciones = count($cancionesSugeridas);
 
@@ -1093,7 +1169,21 @@ try {
 
     <div class="admin-header">
         <h1>Panel de Administración</h1>
-        <h2>XV Años — Angie Karolina</h2>
+        <h2>XV Años — <?= htmlspecialchars($nombreFestejadaActiva) ?></h2>
+        
+        <?php if ($isSuperAdmin && count($listaEventos) > 1): ?>
+            <!-- Selector de Celebración para SuperAdmin -->
+            <div style="margin-top: 15px; display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--dorado);">
+                <span style="font-size: 0.8rem; color: var(--dorado-claro); text-transform: uppercase; letter-spacing: 1px;"><i class="fas fa-calendar-alt"></i> Celebración Activa:</span>
+                <select onchange="window.location.href='?cambiar_evento=' + this.value;" style="background: var(--verde-oscuro); color: #FFD700; border: 1px solid var(--dorado); border-radius: 8px; padding: 4px 10px; font-size: 0.85rem; font-family: inherit; outline: none; cursor: pointer;">
+                    <?php foreach ($listaEventos as $ev): ?>
+                        <option value="<?= $ev['id'] ?>" <?= $ev['id'] == $activeEventoId ? 'selected' : '' ?>>
+                            #<?= $ev['id'] ?> · <?= htmlspecialchars($ev['festejada_nombre']) ?> (<?= $ev['slug'] ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; ?>
     </div>
 
     <?php if ($dbError): ?>

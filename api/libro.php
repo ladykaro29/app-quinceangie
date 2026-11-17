@@ -117,8 +117,12 @@ if ($method === 'POST' && $action === 'like') {
 if ($method === 'GET') {
     header('Content-Type: application/json; charset=utf-8');
 
-    // Mensajes
-    $stmtMsg = $pdo->query('SELECT id, nombre, mensaje, icono, color, likes, media_ref, created_at FROM libro_recuerdos ORDER BY id DESC');
+    $eventoId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : (isset($_GET['evento']) ? (int)$_GET['evento'] : 1);
+    if ($eventoId <= 0) $eventoId = 1;
+
+    // Mensajes filtrados por evento_id
+    $stmtMsg = $pdo->prepare('SELECT id, nombre, mensaje, icono, color, likes, media_ref, created_at FROM libro_recuerdos WHERE evento_id = :evento_id ORDER BY id DESC');
+    $stmtMsg->execute([':evento_id' => $eventoId]);
     $mensajes = $stmtMsg->fetchAll();
 
     foreach ($mensajes as &$m) {
@@ -245,9 +249,13 @@ if ($method === 'POST') {
     $color = in_array($color, ['gold', 'emerald', 'rose', 'cream', 'purple', 'sky']) ? $color : 'gold';
 
     $now = date('Y-m-d H:i:s');
-    $stmt = $pdo->prepare('INSERT INTO libro_recuerdos (nombre, mensaje, icono, color, likes, media_ref, ip, created_at) 
-                           VALUES (:n, :m, :i, :c, 0, :mr, :ip, :d)');
+    $eventoId = isset($data['evento_id']) ? (int)$data['evento_id'] : (isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : 1);
+    if ($eventoId <= 0) $eventoId = 1;
+
+    $stmt = $pdo->prepare('INSERT INTO libro_recuerdos (evento_id, nombre, mensaje, icono, color, likes, media_ref, ip, created_at) 
+                           VALUES (:ev, :n, :m, :i, :c, 0, :mr, :ip, :d)');
     $stmt->execute([
+        ':ev' => $eventoId,
         ':n'  => $nombre,
         ':m'  => $mensaje,
         ':i'  => $icono,

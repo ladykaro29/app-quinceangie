@@ -3441,7 +3441,7 @@ $pageUrl = $baseUrl . '/';
     <div class="audio-tooltip" id="audioTooltip">🎵 Toca para activar música</div>
 
     <!-- Acceso discreto para administración de invitados -->
-    <a href="/admin/" target="_blank" class="admin-link-btn" title="Panel de Administración" aria-label="Panel de Administración">
+    <a href="../admin/" target="_blank" class="admin-link-btn" title="Panel de Administración" aria-label="Panel de Administración">
         <i class="fas fa-lock"></i>
     </a>
 

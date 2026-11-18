@@ -25,15 +25,41 @@ if (str_contains($festejadaNombreCompleto, 'Angie Karolina')) {
 }
 
 $fechaEventoRaw = $currentEvent['fecha_evento'] ?? '2026-10-03';
+$horaEventoRaw = $currentEvent['hora_evento'] ?? '20:00:00';
+$horaFormateada = date('g:i A', strtotime($horaEventoRaw));
 $timestampEvento = strtotime($fechaEventoRaw);
 $diasMes = ['01' => 'ENERO', '02' => 'FEBRERO', '03' => 'MARZO', '04' => 'ABRIL', '05' => 'MAYO', '06' => 'JUNIO', '07' => 'JULIO', '08' => 'AGOSTO', '09' => 'SEPTIEMBRE', '10' => 'OCTUBRE', '11' => 'NOVIEMBRE', '12' => 'DICIEMBRE'];
+$diasSemana = [
+    'Sunday' => 'Domingo',
+    'Monday' => 'Lunes',
+    'Tuesday' => 'Martes',
+    'Wednesday' => 'Miércoles',
+    'Thursday' => 'Jueves',
+    'Friday' => 'Viernes',
+    'Saturday' => 'Sábado'
+];
+$diaSemanaIngles = date('l', $timestampEvento);
+$diaSemanaEspanol = $diasSemana[$diaSemanaIngles] ?? $diaSemanaIngles;
 $diaNum = date('j', $timestampEvento);
 $mesTexto = $diasMes[date('m', $timestampEvento)] ?? date('F', $timestampEvento);
 $anoNum = date('Y', $timestampEvento);
 $fechaEventoFormatoPortada = $diaNum . ' · ' . $mesTexto . ' · ' . $anoNum;
+$fechaEventoCompletaTexto = $diaSemanaEspanol . ', ' . $diaNum . ' de ' . ucfirst(strtolower($mesTexto)) . ' de ' . $anoNum;
+
+$lugarNombre = $currentEvent['lugar_nombre'] ?? 'Colegio de Médicos';
+$lugarDireccion = $currentEvent['lugar_direccion'] ?? 'Av. Urdaneta, Mérida, Venezuela';
+$lugarMapaUrl = $currentEvent['lugar_mapa_url'] ?? null;
+$musicaUrl = !empty($currentEvent['musica_url']) ? $currentEvent['musica_url'] : 'musica.mp3';
+$cancionTitulo = $currentConfigs['cancion_titulo'] ?? 'Valiente - Con toda libertad';
+$colorReserva = $currentEvent['color_reserva'] ?? 'Verde Esmeralda';
 
 $portadaImgUrl = !empty($currentEvent['portada_url']) ? $currentEvent['portada_url'] : 'angie-portada.jpg';
 $despedidaImgUrl = !empty($currentEvent['avatar_url']) ? $currentEvent['avatar_url'] : 'angie-xv.jpg';
+
+$designTokens = $currentConfigs['design_tokens'] ?? null;
+if (is_string($designTokens)) {
+    $designTokens = json_decode($designTokens, true);
+}
 
 // Detectar esquema y host para generar URL absoluta de imagen para WhatsApp y redes
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
@@ -116,6 +142,14 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
             --card-max-width: 420px;
         }
+
+        <?php if (!empty($designTokens) && is_array($designTokens)): ?>
+        :root {
+            <?php foreach ($designTokens as $prop => $val): ?>
+                <?= htmlspecialchars($prop) ?>: <?= htmlspecialchars($val) ?> !important;
+            <?php endforeach; ?>
+        }
+        <?php endif; ?>
 
         *, *::before, *::after {
             margin: 0;
@@ -2868,16 +2902,16 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
                 <div class="fairytale-story-box">
                     <p class="story-paragraph">
-                        <span class="story-drop-cap">D</span>icen que el destino está entrelazado en cada paso que damos, y que solo hace falta tener un corazón valiente para descubrir la magia de nuestra propia historia...
+                        <span class="story-drop-cap">D</span><?= htmlspecialchars($currentConfigs['frase_biblica'] ?? 'icen que el destino está entrelazado en cada paso que damos, y que solo hace falta tener un corazón noble para descubrir la magia de nuestra propia historia...') ?>
                     </p>
                     <p class="story-paragraph">
-                        Hace quince años comenzó el viaje más hermoso: la llegada de una pequeña niña que llenó de luz, risas y ternura la vida de sus amados padres, <strong>Edwin y Lady</strong>.
+                        Hace quince años comenzó el viaje más hermoso: la llegada de una pequeña niña que llenó de luz, risas y ternura la vida de sus amados padres, <strong><?= htmlspecialchars($currentConfigs['padres_nombres'] ?? 'Edwin Johan Avendaño y Lady Rivera') ?></strong>.
                     </p>
                     <p class="story-paragraph">
                         Crecí rodeada de amor, soñando despierta y aprendiendo que la mayor aventura es ser auténtica y libre.
                     </p>
                     <div class="story-highlight">
-                        ✨ Hoy, con gratitud y emoción, dejo atrás mi niñez para abrazar con valentía mis <strong>XV Años</strong> y desplegar mis alas hacia el futuro.
+                        ✨ Hoy, con gratitud y emoción, dejo atrás mi niñez para abrazar con alegría mis <strong>XV Años</strong> y desplegar mis alas hacia el futuro.
                     </div>
                     <p class="story-conclusion">
                         Y como en todo gran cuento de hadas, este sueño no estaría completo sin ti... ¡Acompáñame a celebrar!
@@ -2925,7 +2959,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <p class="card-text">para la noche más especial ✨</p>
 
                 <div class="calendar-btn-container">
-                    <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+XV+A%C3%B1os+-+Angie+Karolina&dates=20261004T000000Z%2F20261004T060000Z&details=%C2%A1Celebremos+juntos+los+XV+A%C3%B1os+de+Angie+Karolina!+Una+noche+m%C3%A1gica+llena+de+alegr%C3%ADa+y+momentos+inolvidables.&location=Colegio+de+M%C3%A9dicos+del+Estado+M%C3%A9rida%2C+Av.+Urdaneta%2C+M%C3%A9rida%2C+Venezuela" target="_blank" rel="noopener noreferrer" class="calendar-btn" id="btnGoogleCalendar">
+                    <a href="<?= htmlspecialchars($currentConfigs['google_calendar_url'] ?? '#') ?>" target="_blank" rel="noopener noreferrer" class="calendar-btn" id="btnGoogleCalendar">
                         <i class="fab fa-google"></i>
                         <span>Agendar en Google Calendar</span>
                         <i class="fas fa-bell"></i>
@@ -2991,30 +3025,44 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
                 <div class="info-block">
                     <div class="info-label">📅 Gran Celebración de XV Años</div>
-                    <div class="info-value">Sábado, 3 de Octubre de 2026</div>
+                    <div class="info-value"><?= htmlspecialchars($fechaEventoCompletaTexto) ?></div>
+                    <?php if (!empty($currentConfigs['fecha_nacimiento']) && $currentConfigs['fecha_nacimiento'] !== $currentEvent['fecha_evento']): 
+                        $tsCumple = strtotime($currentConfigs['fecha_nacimiento']);
+                        $cumpleTexto = date('j', $tsCumple) . ' de ' . ($diasMes[date('m', $tsCumple)] ?? '');
+                    ?>
                     <div style="font-size: 0.76rem; color: var(--dorado-claro); opacity: 0.9; margin-top: 3px; font-style: italic;">
-                        (Cumpleaños de Angie: 23 de Septiembre 🎂)
+                        (Cumpleaños de <?= htmlspecialchars($festejadaNombreCorto) ?>: <?= htmlspecialchars($cumpleTexto) ?> 🎂)
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="info-block">
                     <div class="info-label">🕗 Hora</div>
-                    <div class="info-value"><?= htmlspecialchars(date('g:i A', strtotime($currentEvent['hora_evento'] ?? '20:00:00'))) ?></div>
+                    <div class="info-value"><?= htmlspecialchars($horaFormateada) ?></div>
                 </div>
 
                 <div class="info-block">
                     <div class="info-label">📍 Lugar de la Recepción</div>
-                    <div class="info-value"><?= htmlspecialchars($currentEvent['lugar_nombre'] ?? 'Colegio de Médicos') ?></div>
-                    <div class="info-address"><?= htmlspecialchars($currentEvent['lugar_direccion'] ?? 'Av. Urdaneta, Mérida, Venezuela') ?></div>
+                    <div class="info-value"><?= htmlspecialchars($lugarNombre) ?></div>
+                    <div class="info-address"><?= htmlspecialchars($lugarDireccion) ?></div>
                 </div>
 
+                <?php if (!empty($lugarMapaUrl)): ?>
                 <div class="map-btn-container">
-                    <a href="<?= htmlspecialchars($currentEvent['lugar_mapa_url'] ?? 'https://maps.google.com/?q=Colegio+de+Medicos+del+Estado+Merida+Av+Urdaneta+Merida+Venezuela') ?>" target="_blank" rel="noopener noreferrer" class="map-btn">
+                    <a href="<?= htmlspecialchars($lugarMapaUrl) ?>" target="_blank" rel="noopener noreferrer" class="map-btn">
                         <i class="fas fa-location-arrow"></i>
                         <span>Abrir en Google Maps</span>
                         <i class="fas fa-external-link-alt"></i>
                     </a>
                 </div>
+                <?php else: ?>
+                <div class="map-btn-container">
+                    <div class="map-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(200,162,74,0.3); color: var(--dorado-claro); cursor: default;">
+                        <i class="fas fa-map-pin"></i>
+                        <span>Dirección detallada por confirmar</span>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -3036,21 +3084,19 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <div class="gold-divider"></div>
 
                 <p class="card-text">
-                    Te invitamos a vestirte elegante para esta noche especial.
-                    Aquí tienes la paleta de colores sugerida:
+                    <?= htmlspecialchars($currentEvent['codigo_vestimenta'] ?? 'Te invitamos a vestirte elegante para esta noche especial. Aquí tienes la paleta de colores sugerida:') ?>
                 </p>
 
                 <div class="dresscode-colors">
-                    <div class="color-swatch" style="background: #C8A24A;" title="Dorado"></div>
-                    <div class="color-swatch" style="background: #E7D49A;" title="Dorado Claro"></div>
-                    <div class="color-swatch" style="background: #F5E6D3;" title="Champagne"></div>
-                    <div class="color-swatch" style="background: #FFF8EC;" title="Crema"></div>
+                    <div class="color-swatch" style="background: var(--dorado);" title="Dorado"></div>
+                    <div class="color-swatch" style="background: var(--dorado-claro);" title="Champagne / Dorado Claro"></div>
+                    <div class="color-swatch" style="background: var(--crema);" title="Crema"></div>
                     <div class="color-swatch" style="background: #FFFFFF;" title="Blanco"></div>
-                    <div class="color-swatch" style="background: #1A1410;" title="Negro / Oscuro"></div>
+                    <div class="color-swatch" style="background: var(--marron);" title="Oscuro"></div>
                 </div>
 
                 <p class="dresscode-note">
-                    ✨ Evita el color verde, por favor ✨
+                    ✨ Por favor reserva el color <?= htmlspecialchars($colorReserva) ?> para la quinceañera ✨
                 </p>
             </div>
         </div>
@@ -3073,26 +3119,25 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <div class="gold-divider"></div>
 
                 <div class="timeline">
+                    <?php 
+                    $itinerarioData = $currentConfigs['itinerario_json'] ?? null;
+                    if (is_string($itinerarioData)) $itinerarioData = json_decode($itinerarioData, true);
+                    if (empty($itinerarioData) || !is_array($itinerarioData)) {
+                        $itinerarioData = [
+                            ["hora" => "8:00 PM", "actividad" => "Recepción de invitados"],
+                            ["hora" => "8:30 PM", "actividad" => "Ceremonia de entrada"],
+                            ["hora" => "9:00 PM", "actividad" => "Vals con mi padre"],
+                            ["hora" => "9:30 PM", "actividad" => "Brindis y pasapalos"],
+                            ["hora" => "10:30 PM", "actividad" => "¡A bailar toda la noche! 🎶"]
+                        ];
+                    }
+                    foreach ($itinerarioData as $it):
+                    ?>
                     <div class="timeline-item">
-                        <div class="timeline-time">8:00 PM</div>
-                        <div class="timeline-event">Recepción de invitados</div>
+                        <div class="timeline-time"><?= htmlspecialchars($it['hora'] ?? '') ?></div>
+                        <div class="timeline-event"><?= htmlspecialchars($it['actividad'] ?? '') ?></div>
                     </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">8:30 PM</div>
-                        <div class="timeline-event">Ceremonia de entrada</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">9:00 PM</div>
-                        <div class="timeline-event">Vals con mi padre</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">9:30 PM</div>
-                        <div class="timeline-event">Brindis y pasapalos</div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-time">10:30 PM</div>
-                        <div class="timeline-event">¡A bailar toda la noche! 🎶</div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -3273,7 +3318,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                         <div class="ticket-badge">✨ PASE DE ENTRADA VIP ✨</div>
                         <div class="ticket-tiara">👑</div>
                         <div class="ticket-title">MIS XV AÑOS</div>
-                        <div class="ticket-subtitle">Angie Karolina</div>
+                        <div class="ticket-subtitle"><?= htmlspecialchars($festejadaNombreCorto) ?></div>
                         <div class="gold-divider" style="margin: 8px auto 14px auto;"></div>
 
                         <!-- Contenedor del QR -->
@@ -3298,11 +3343,11 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                             </div>
                             <div class="t-row">
                                 <span class="t-lbl">Fecha y Hora:</span>
-                                <span class="t-data">3 · Oct · 2026 · 8:00 PM</span>
+                                <span class="t-data"><?= htmlspecialchars($fechaEventoFormatoPortada) ?> · <?= htmlspecialchars($horaFormateada) ?></span>
                             </div>
                             <div class="t-row">
                                 <span class="t-lbl">Lugar:</span>
-                                <span class="t-data">Colegio de Médicos, Mérida</span>
+                                <span class="t-data"><?= htmlspecialchars($lugarNombre) ?></span>
                             </div>
                         </div>
 
@@ -3379,7 +3424,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
                 <div class="live-photos-container">
                     <div class="live-photo-actions-wrap">
-                        <a href="libro-recuerdos.php" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #FFD700 0%, #C8A24A 60%, #9B7824 100%); color: #041B16; font-family: var(--font-serif); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.8px; border-radius: 30px; text-decoration: none; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); text-transform: uppercase; transition: transform 0.25s;">
+                        <a href="libro-recuerdos.php<?= $currentEvent['slug'] !== 'angie-xv' ? '?evento=' . urlencode($currentEvent['slug']) : '' ?>" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #FFD700 0%, #C8A24A 60%, #9B7824 100%); color: #041B16; font-family: var(--font-serif); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.8px; border-radius: 30px; text-decoration: none; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); text-transform: uppercase; transition: transform 0.25s;">
                             <i class="fas fa-book-open"></i> Libro de Recuerdos & Videos ✨
                         </a>
                         <button type="button" class="btn-camera-upload" id="btnOpenPhotoUpload">
@@ -3390,7 +3435,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                         </button>
                     </div>
 
-                    <a href="en-vivo.php" target="_blank" class="live-tv-link">
+                    <a href="en-vivo.php<?= $currentEvent['slug'] !== 'angie-xv' ? '?evento=' . urlencode($currentEvent['slug']) : '' ?>" target="_blank" class="live-tv-link">
                         <i class="fas fa-tv"></i> Ver Pantalla en Vivo (Modo Proyector)
                     </a>
 
@@ -3465,7 +3510,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
     </div>
 
     <!-- Audio toggle con tooltip y reproductor YouTube -->
-    <button class="audio-toggle" id="audioToggle" title="Música: Valiente - Con toda libertad" aria-label="Música de fondo">
+    <button class="audio-toggle" id="audioToggle" title="Música: <?= htmlspecialchars($cancionTitulo) ?>" aria-label="Música de fondo">
         <i class="fas fa-volume-mute" id="audioIcon"></i>
     </button>
     <div class="audio-tooltip" id="audioTooltip">🎵 Toca para activar música</div>
@@ -3477,10 +3522,9 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
     <!-- Reproductor de Audio HTML5 Nativo (100% compatible con iOS y Android) -->
     <audio id="bgMusic" loop preload="auto" playsinline webkit-playsinline>
+        <source src="<?= htmlspecialchars($musicaUrl) ?>" type="audio/mpeg">
+        <source src="public/<?= htmlspecialchars($musicaUrl) ?>" type="audio/mpeg">
         <source src="musica.mp3" type="audio/mpeg">
-        <source src="public/musica.mp3" type="audio/mpeg">
-        <source src="musica.m4a" type="audio/mp4">
-        <source src="public/musica.m4a" type="audio/mp4">
     </audio>
 
     <!-- Modal de Subida de Fotos en Vivo -->
@@ -3494,7 +3538,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 📸 Compartir Recuerdo
             </div>
             <div style="font-size: 0.78rem; color: var(--dorado-claro); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;">
-                XV Años Angie Karolina
+                XV Años <?= htmlspecialchars($festejadaNombreCorto) ?>
             </div>
 
             <!-- Inputs ocultos para Cámara directa y para Galería múltiple -->
@@ -3520,7 +3564,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <i class="fas fa-magic"></i> Dedicatorias rápidas:
             </div>
             <div class="quick-msg-chips">
-                <span class="quick-chip" data-msg="¡Felicidades Angie! 🎉">¡Felicidades Angie! 🎉</span>
+                <span class="quick-chip" data-msg="¡Felicidades <?= htmlspecialchars($festejadaNombreCorto) ?>! 🎉">¡Felicidades <?= htmlspecialchars($festejadaNombreCorto) ?>! 🎉</span>
                 <span class="quick-chip" data-msg="Te ves hermosa ✨👑">Te ves hermosa ✨👑</span>
                 <span class="quick-chip" data-msg="¡Noche inolvidable! 💃🥂">¡Noche inolvidable! 💃🥂</span>
                 <span class="quick-chip" data-msg="Los mejores 15 años 💖">Los mejores 15 💖</span>
@@ -3556,12 +3600,12 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
         <div class="lightbox-details">
             <div class="lightbox-author" id="lightboxAuthor">Invitado</div>
-            <div class="lightbox-msg" id="lightboxMsg">"¡Felicidades Angie!"</div>
+            <div class="lightbox-msg" id="lightboxMsg">"¡Felicidades <?= htmlspecialchars($festejadaNombreCorto) ?>!"</div>
             <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
                 <button type="button" class="btn-like-photo" id="btnLikePhoto">
                     <i class="fas fa-heart"></i> <span id="lightboxLikesCount">0</span> Me encanta
                 </button>
-                <a href="#" id="btnDownloadLightboxPhoto" class="btn-download-lightbox" download="foto_angie_xv.jpg" target="_blank">
+                <a href="#" id="btnDownloadLightboxPhoto" class="btn-download-lightbox" download="foto_<?= htmlspecialchars(strtolower(str_replace(' ', '_', $festejadaNombreCorto))) ?>_xv.jpg" target="_blank">
                     <i class="fas fa-download"></i> Descargar Foto
                 </a>
             </div>
@@ -3660,7 +3704,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
        COUNTDOWN
        ================================================================ */
     (() => {
-        const eventDate = new Date('2026-10-03T20:00:00-04:00').getTime();
+        const eventDate = new Date('<?= $fechaEventoRaw ?>T<?= $horaEventoRaw ?>-04:00').getTime();
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -3712,43 +3756,50 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
        TRIVIA
        ================================================================ */
     (() => {
-        const triviaQuestions = [
-            {
-                question: '¿Cuál es el color favorito de Angie?',
-                options: ['Rosa', 'Verde esmeralda', 'Azul cielo', 'Morado'],
-                correct: 1,
-                correctMsg: '¡Exacto! El verde esmeralda es su favorito y la temática de esta noche mágica 💚✨',
-                wrongMsg: 'La respuesta correcta es: <strong>Verde esmeralda</strong> 💚'
-            },
-            {
-                question: '¿Cuál es la actividad favorita de Angie?',
-                options: ['La repostería', 'Pintar', 'Bailar', 'Fotografía'],
-                correct: 0,
-                correctMsg: '¡Así es! A Angie le fascina la repostería y hornear delicias con amor 🧁🎂',
-                wrongMsg: 'La respuesta correcta es: <strong>La repostería</strong> 🧁🎂'
-            },
-            {
-                question: '¿Cuál es la comida favorita de Angie?',
-                options: ['Pizza', 'Pasticho', 'Hamburguesa', 'Sushi'],
-                correct: 1,
-                correctMsg: '¡Totalmente! El pasticho es su plato preferido e irresistible 🍝🧀',
-                wrongMsg: 'La respuesta correcta es: <strong>Pasticho</strong> 🍝🧀'
-            },
-            {
-                question: '¿Cuál es el género musical favorito de Angie?',
-                options: ['Reggaetón', 'Pop', 'Salsa', 'Baladas'],
-                correct: 0,
-                correctMsg: '¡A romper la pista! El reggaetón es su ritmo favorito para bailar y disfrutar 🎶🔥',
-                wrongMsg: 'La respuesta correcta es: <strong>Reggaetón</strong> 🎶🔥'
-            },
-            {
-                question: '¿Cuándo es el cumpleaños de Angie?',
-                options: ['23 de Septiembre', '3 de Octubre', '15 de Septiembre', '28 de Septiembre'],
-                correct: 0,
-                correctMsg: '¡Exacto! Nació el 23 de septiembre y lo celebramos en grande el 3 de octubre 🎂🎉',
-                wrongMsg: 'Su cumpleaños es el <strong>23 de septiembre</strong> (¡y la fiesta el 3 de octubre!) 🎂'
-            }
-        ];
+        <?php
+        $triviaDataRaw = $currentConfigs['trivia_json'] ?? null;
+        if (is_string($triviaDataRaw)) $triviaDataRaw = json_decode($triviaDataRaw, true);
+        if (empty($triviaDataRaw) || !is_array($triviaDataRaw)) {
+            $triviaDataRaw = [
+                [
+                    'question' => '¿Cuál es el color favorito de ' . $festejadaNombreCorto . '?',
+                    'options' => ['Rosa', 'Verde esmeralda', 'Azul cielo', 'Morado'],
+                    'correct' => 1,
+                    'correctMsg' => '¡Exacto! El verde esmeralda es su favorito y la temática de esta noche mágica 💚✨',
+                    'wrongMsg' => 'La respuesta correcta es: <strong>Verde esmeralda</strong> 💚'
+                ],
+                [
+                    'question' => '¿Cuál es la actividad favorita de ' . $festejadaNombreCorto . '?',
+                    'options' => ['La repostería', 'Pintar', 'Bailar', 'Fotografía'],
+                    'correct' => 0,
+                    'correctMsg' => '¡Así es! A Angie le fascina la repostería y hornear delicias con amor 🧁🎂',
+                    'wrongMsg' => 'La respuesta correcta es: <strong>La repostería</strong> 🧁🎂'
+                ],
+                [
+                    'question' => '¿Cuál es la comida favorita de ' . $festejadaNombreCorto . '?',
+                    'options' => ['Pizza', 'Pasticho', 'Hamburguesa', 'Sushi'],
+                    'correct' => 1,
+                    'correctMsg' => '¡Totalmente! El pasticho es su plato preferido e irresistible 🍝🧀',
+                    'wrongMsg' => 'La respuesta correcta es: <strong>Pasticho</strong> 🍝🧀'
+                ],
+                [
+                    'question' => '¿Cuál es el género musical favorito de ' . $festejadaNombreCorto . '?',
+                    'options' => ['Reggaetón', 'Pop', 'Salsa', 'Baladas'],
+                    'correct' => 0,
+                    'correctMsg' => '¡A romper la pista! El reggaetón es su ritmo favorito para bailar y disfrutar 🎶🔥',
+                    'wrongMsg' => 'La respuesta correcta es: <strong>Reggaetón</strong> 🎶🔥'
+                ],
+                [
+                    'question' => '¿Cuándo es el cumpleaños de ' . $festejadaNombreCorto . '?',
+                    'options' => ['23 de Septiembre', '3 de Octubre', '15 de Septiembre', '28 de Septiembre'],
+                    'correct' => 0,
+                    'correctMsg' => '¡Exacto! Nació el 23 de septiembre y lo celebramos en grande 🎂🎉',
+                    'wrongMsg' => 'Su cumpleaños es el <strong>23 de septiembre</strong> 🎂'
+                ]
+            ];
+        }
+        ?>
+        const triviaQuestions = <?= json_encode($triviaDataRaw, JSON_UNESCAPED_UNICODE) ?>;
 
         let currentQ = 0;
         let answers = new Array(triviaQuestions.length).fill(null);
@@ -3855,12 +3906,12 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             
             let badge = '✨';
             let msg = '';
-            if (correctCount >= 4) {
+            if (correctCount >= Math.ceil(total * 0.75)) {
                 badge = '👑';
-                msg = '¡Increíble! Eres de las personas que mejor conocen a Angie. ¡Qué gran amistad!';
-            } else if (correctCount >= 2) {
+                msg = '¡Increíble! Eres de las personas que mejor conocen a <?= htmlspecialchars($festejadaNombreCorto) ?>. ¡Qué gran amistad!';
+            } else if (correctCount >= Math.ceil(total * 0.4)) {
                 badge = '💛';
-                msg = '¡Muy bien! Conoces grandes detalles de Angie, ¡esta fiesta será inolvidable!';
+                msg = '¡Muy bien! Conoces grandes detalles de <?= htmlspecialchars($festejadaNombreCorto) ?>, ¡esta fiesta será inolvidable!';
             } else {
                 badge = '🌸';
                 msg = '¡Qué lindo que nos acompañes! En esta noche mágica vas a conocerla mucho más.';
@@ -3950,7 +4001,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             if (rsvpName && rsvpName.value.trim()) {
                 guestName = rsvpName.value.trim();
             } else {
-                try { guestName = localStorage.getItem('angie_rsvp_name') || ''; } catch(e){}
+                try { guestName = localStorage.getItem('xv_rsvp_name_<?= (int)$currentEvent['id'] ?>') || ''; } catch(e){}
             }
 
             addBtn.disabled = true;
@@ -4129,6 +4180,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        evento_id: <?= (int)$currentEvent['id'] ?>,
                         nombre_completo: nombre,
                         asistira: selectedAttendance,
                         acompanantes: acompanantes
@@ -4138,6 +4190,8 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 const data = await response.json();
 
                 if (data.success) {
+                    try { localStorage.setItem('xv_rsvp_name_<?= (int)$currentEvent['id'] ?>', nombre); } catch(e){}
+
                     // Hide form and show success container
                     form.style.display = 'none';
                     successDiv.classList.add('visible');
@@ -4178,7 +4232,8 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                         const totalP = data.total_pases || (1 + finalAcomps.length);
                         totalPassesEl.textContent = `${totalP} ${totalP === 1 ? 'Persona' : 'Personas'}`;
 
-                        const qrCodeId = data.qr_code || ('XVANGIE-' + (data.id || '001'));
+                        const qrPrefix = '<?= strtoupper(str_replace(['-', ' '], '', $currentEvent['slug'] ?? 'XV')) ?>';
+                        const qrCodeId = data.qr_code || (qrPrefix + '-' + (data.id || '001'));
                         qrCodeTextEl.textContent = qrCodeId;
 
                         // Mostrar Boletos para la Rifa de Regalos
@@ -4209,7 +4264,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                         }
 
                         // Generar el Código QR
-                        const qrPayload = `XV-ANGIE | PASE #${data.id || 1} | TITULAR: ${data.nombre || nombre} | PASES: ${totalP} | CODIGO: ${qrCodeId}`;
+                        const qrPayload = `${qrPrefix} | PASE #${data.id || 1} | TITULAR: ${data.nombre || nombre} | PASES: ${totalP} | CODIGO: ${qrCodeId}`;
                         qrWrapper.innerHTML = '';
 
                         if (typeof QRCode !== 'undefined') {
@@ -4255,7 +4310,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                                     if (url) {
                                         const link = document.createElement('a');
                                         link.href = url;
-                                        link.download = `Pase_XV_Angie_${guestFileName}.png`;
+                                        link.download = `Pase_VIP_<?= $festejadaNombreCorto ?>_${guestFileName}.png`;
                                         document.body.appendChild(link);
                                         link.click();
                                         link.remove();
@@ -4278,7 +4333,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                                         const url = canvas.toDataURL('image/png');
                                         const link = document.createElement('a');
                                         link.href = url;
-                                        link.download = `Pase_VIP_XV_Angie_${guestFileName}.png`;
+                                        link.download = `Pase_VIP_<?= $festejadaNombreCorto ?>_${guestFileName}.png`;
                                         document.body.appendChild(link);
                                         link.click();
                                         link.remove();
@@ -4389,7 +4444,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
         audio.addEventListener('play', () => {
             updatePlayState(true);
-            showTooltip('🎶 Sonando: Valiente - Con toda libertad', 3500);
+            showTooltip('🎶 Sonando: <?= htmlspecialchars($cancionTitulo) ?>', 3500);
         });
 
         audio.addEventListener('pause', () => {
@@ -4747,7 +4802,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 return rsvpInput.value.trim();
             }
             try {
-                return localStorage.getItem('angie_rsvp_name') || '';
+                return localStorage.getItem('xv_rsvp_name_<?= (int)$currentEvent['id'] ?>') || '';
             } catch (e) {
                 return '';
             }
@@ -4932,7 +4987,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             uploadStatusMsg.style.color = '#FFE680';
 
             // Guardar nombre en localStorage para próximas fotos
-            try { localStorage.setItem('angie_rsvp_name', nombre); } catch(e){}
+            try { localStorage.setItem('xv_rsvp_name_<?= (int)$currentEvent['id'] ?>', nombre); } catch(e){}
 
             let successCount = 0;
             const total = selectedPhotosQueue.length;
@@ -4943,6 +4998,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
                 try {
                     const formData = new FormData();
+                    formData.append('evento_id', '<?= (int)$currentEvent['id'] ?>');
                     formData.append('nombre_invitado', nombre);
                     formData.append('mensaje', mensaje);
                     formData.append('foto_base64', selectedPhotosQueue[i]);
@@ -4994,7 +5050,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
         // Obtener fotos desde la API
         async function fetchLivePhotos() {
             try {
-                const res = await fetch('api/fotos.php?limit=500&order=asc&t=' + Date.now());
+                const res = await fetch('api/fotos.php?evento_id=<?= (int)$currentEvent['id'] ?>&limit=500&order=asc&t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.fotos)) {
                     livePhotos = data.fotos;
@@ -5045,7 +5101,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             lightboxImg.onload = () => { lightboxImg.style.opacity = '1'; };
 
             lightboxAuthor.textContent = photo.nombre_invitado || 'Invitado Especial';
-            lightboxMsg.textContent = photo.mensaje ? `"${photo.mensaje}"` : '✨ ¡Celebrando los XV de Angie Karolina!';
+            lightboxMsg.textContent = photo.mensaje ? `"${photo.mensaje}"` : '✨ ¡Celebrando los XV de <?= htmlspecialchars($festejadaNombreCorto) ?>!';
             lightboxLikesCount.textContent = photo.likes || 0;
 
             if (lightboxCounter && livePhotos.length > 0) {
@@ -5056,7 +5112,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             if (btnDownloadLightboxPhoto) {
                 const downloadUrl = photo.url + (photo.url.includes('?') ? '&' : '?') + 'download=1';
                 btnDownloadLightboxPhoto.href = downloadUrl;
-                btnDownloadLightboxPhoto.download = (photo.archivo || 'foto_angie_xv.jpg');
+                btnDownloadLightboxPhoto.download = (photo.archivo || 'foto_xv_<?= htmlspecialchars(strtolower(str_replace(' ', '_', $festejadaNombreCorto))) ?>.jpg');
             }
 
             const isLiked = likedPhotoIds.has(photo.id);

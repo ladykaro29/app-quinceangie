@@ -70,39 +70,52 @@ if ($method === 'POST' && $action === 'like') {
 if ($method === 'GET') {
     header('Content-Type: application/json; charset=utf-8');
 
-    // Auto-sincronización: asegurar que las 160 fotos oficiales de la fiesta estén registradas en fotos_fiesta
-    $countRecuerdos = (int)$pdo->query("SELECT COUNT(*) FROM fotos_fiesta WHERE archivo LIKE 'angie_xv_recuerdo_%'")->fetchColumn();
-    if ($countRecuerdos < 160) {
-        $mensajesDed = [
-            "Momentos mágicos e inolvidables de mis XV Años ✨👑",
-            "Celebrando una noche mágica junto a las personas que más quiero 💖",
-            "Sonrisas, abrazos y recuerdos para toda la vida ✨",
-            "¡Una noche de ensueño que quedará por siempre en mi corazón! 🌟",
-            "Bailando y disfrutando en la pista de mis XV Años 💃🎶",
-            "Momentos únicos con mi hermosa familia y amigos 💕",
-            "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
-        ];
-        $nombresDed = [
-            "Angie Karolina · Álbum Oficial",
-            "Álbum de Recuerdos · Mis XV",
-            "Angie Karolina · Mis 15",
-            "Momentos Mágicos · Angie XV"
-        ];
-        $startTime = strtotime('2026-10-04 20:30:00');
-        $stmtCheck = $pdo->prepare("SELECT id FROM fotos_fiesta WHERE archivo = :a LIMIT 1");
-        $stmtInsert = $pdo->prepare('INSERT INTO fotos_fiesta (nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) VALUES (:n, :m, :a, :l, "127.0.0.1", 1, :c)');
-        for ($i = 1; $i <= 160; $i++) {
-            $numStr = str_pad($i, 3, '0', STR_PAD_LEFT);
-            $archivo = "angie_xv_recuerdo_{$numStr}.jpg";
-            $stmtCheck->execute([':a' => $archivo]);
-            if (!$stmtCheck->fetch()) {
-                $stmtInsert->execute([
-                    ':n' => $nombresDed[$i % count($nombresDed)],
-                    ':m' => $mensajesDed[$i % count($mensajesDed)],
-                    ':a' => $archivo,
-                    ':l' => rand(5, 28),
-                    ':c' => date('Y-m-d H:i:s', $startTime + ($i * 15))
-                ]);
+    $eventoId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : 0;
+    if ($eventoId <= 0 && !empty($_GET['evento'])) {
+        $slug = trim($_GET['evento']);
+        $stmtSlug = $pdo->prepare('SELECT id FROM eventos WHERE slug = :s LIMIT 1');
+        $stmtSlug->execute([':s' => $slug]);
+        $eventoId = (int)$stmtSlug->fetchColumn();
+    }
+    if ($eventoId <= 0) {
+        $eventoId = 1;
+    }
+
+    // Auto-sincronización: asegurar que las 160 fotos oficiales de la fiesta de Angie estén registradas en fotos_fiesta
+    if ($eventoId === 1) {
+        $countRecuerdos = (int)$pdo->query("SELECT COUNT(*) FROM fotos_fiesta WHERE evento_id = 1 AND archivo LIKE 'angie_xv_recuerdo_%'")->fetchColumn();
+        if ($countRecuerdos < 160) {
+            $mensajesDed = [
+                "Momentos mágicos e inolvidables de mis XV Años ✨👑",
+                "Celebrando una noche mágica junto a las personas que más quiero 💖",
+                "Sonrisas, abrazos y recuerdos para toda la vida ✨",
+                "¡Una noche de ensueño que quedará por siempre en mi corazón! 🌟",
+                "Bailando y disfrutando en la pista de mis XV Años 💃🎶",
+                "Momentos únicos con mi hermosa familia y amigos 💕",
+                "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
+            ];
+            $nombresDed = [
+                "Angie Karolina · Álbum Oficial",
+                "Álbum de Recuerdos · Mis XV",
+                "Angie Karolina · Mis 15",
+                "Momentos Mágicos · Angie XV"
+            ];
+            $startTime = strtotime('2026-10-04 20:30:00');
+            $stmtCheck = $pdo->prepare("SELECT id FROM fotos_fiesta WHERE archivo = :a AND evento_id = 1 LIMIT 1");
+            $stmtInsert = $pdo->prepare('INSERT INTO fotos_fiesta (evento_id, nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) VALUES (1, :n, :m, :a, :l, "127.0.0.1", 1, :c)');
+            for ($i = 1; $i <= 160; $i++) {
+                $numStr = str_pad($i, 3, '0', STR_PAD_LEFT);
+                $archivo = "angie_xv_recuerdo_{$numStr}.jpg";
+                $stmtCheck->execute([':a' => $archivo]);
+                if (!$stmtCheck->fetch()) {
+                    $stmtInsert->execute([
+                        ':n' => $nombresDed[$i % count($nombresDed)],
+                        ':m' => $mensajesDed[$i % count($mensajesDed)],
+                        ':a' => $archivo,
+                        ':l' => rand(5, 28),
+                        ':c' => date('Y-m-d H:i:s', $startTime + ($i * 15))
+                    ]);
+                }
             }
         }
     }
@@ -115,16 +128,18 @@ if ($method === 'GET') {
     if ($sinceId > 0) {
         $stmt = $pdo->prepare("SELECT id, nombre_invitado, mensaje, archivo, likes, created_at 
                                FROM fotos_fiesta 
-                               WHERE visible = 1 AND id > :since 
+                               WHERE visible = 1 AND evento_id = :evento_id AND id > :since 
                                ORDER BY id {$order} LIMIT :lim");
+        $stmt->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
         $stmt->bindValue(':since', $sinceId, PDO::PARAM_INT);
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->execute();
     } else {
         $stmt = $pdo->prepare("SELECT id, nombre_invitado, mensaje, archivo, likes, created_at 
                                FROM fotos_fiesta 
-                               WHERE visible = 1 
+                               WHERE visible = 1 AND evento_id = :evento_id 
                                ORDER BY id {$order} LIMIT :lim OFFSET :off");
+        $stmt->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
         $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -139,12 +154,14 @@ if ($method === 'GET') {
         $f['mensaje'] = htmlspecialchars($f['mensaje'] ?? '', ENT_QUOTES, 'UTF-8');
     }
 
-    // Contar total
-    $totalStmt = $pdo->query('SELECT COUNT(*) FROM fotos_fiesta WHERE visible = 1');
+    // Contar total por evento
+    $totalStmt = $pdo->prepare('SELECT COUNT(*) FROM fotos_fiesta WHERE visible = 1 AND evento_id = :evento_id');
+    $totalStmt->execute([':evento_id' => $eventoId]);
     $totalFotos = (int)$totalStmt->fetchColumn();
 
     echo json_encode([
         'success' => true,
+        'evento_id' => $eventoId,
         'total' => $totalFotos,
         'fotos' => $fotos
     ]);
@@ -237,11 +254,21 @@ if ($method === 'POST') {
         exit;
     }
 
-    // Guardar en la base de datos
-    $stmt = $pdo->prepare('INSERT INTO fotos_fiesta (nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) 
-                           VALUES (:nombre, :mensaje, :archivo, 0, :ip, 1, :created_at)');
+    // Guardar en la base de datos con evento_id
+    $eventoId = isset($_POST['evento_id']) ? (int)$_POST['evento_id'] : 0;
+    if ($eventoId <= 0 && !empty($_POST['evento'])) {
+        $slug = trim($_POST['evento']);
+        $stmtSlug = $pdo->prepare('SELECT id FROM eventos WHERE slug = :s LIMIT 1');
+        $stmtSlug->execute([':s' => $slug]);
+        $eventoId = (int)$stmtSlug->fetchColumn();
+    }
+    if ($eventoId <= 0) $eventoId = 1;
+
+    $stmt = $pdo->prepare('INSERT INTO fotos_fiesta (evento_id, nombre_invitado, mensaje, archivo, likes, ip, visible, created_at) 
+                           VALUES (:evento_id, :nombre, :mensaje, :archivo, 0, :ip, 1, :created_at)');
     $now = date('Y-m-d H:i:s');
     $stmt->execute([
+        ':evento_id' => $eventoId,
         ':nombre' => $nombreInvitado,
         ':mensaje' => $mensaje ?: null,
         ':archivo' => $savedFilename,
@@ -253,9 +280,11 @@ if ($method === 'POST') {
 
     echo json_encode([
         'success' => true,
+        'evento_id' => $eventoId,
         'message' => '¡Foto compartida con éxito! Ya está visible en la galería en vivo.',
         'foto' => [
             'id' => $newId,
+            'evento_id' => $eventoId,
             'nombre_invitado' => htmlspecialchars($nombreInvitado, ENT_QUOTES, 'UTF-8'),
             'mensaje' => htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8'),
             'archivo' => $savedFilename,

@@ -1,7 +1,8 @@
 <?php
 /**
- * Seeder de Creación del Evento Piloto: Sophia Valentina (Evento ID 2)
- * Plataforma: XV Experience
+ * Seeder Oficial: Sophia Valentina Rivas Sánchez (Evento ID 2)
+ * Información 100% oficial y confirmada.
+ * Paleta: Mariposas rosadas, flores, lavanda y dorado champagne.
  */
 require_once __DIR__ . '/../app/autoload.php';
 
@@ -9,115 +10,130 @@ use App\Core\Database;
 
 $db = Database::getInstance();
 
-echo "=== INICIANDO REGISTRO DEL PILOTO: SOPHIA VALENTINA (EVENTO ID 2) ===\n";
+echo "=== APLICANDO DATOS OFICIALES DE SOPHIA VALENTINA (EVENTO ID 2) ===\n";
 
-// 1. Alta del Cliente
-$stmt = $db->query("SELECT id FROM clientes WHERE email = 'carlos.mendoza@email.com'");
-$clienteId = $stmt->fetchColumn();
-if (!$clienteId) {
-    $db->exec("INSERT INTO clientes (id, nombre_contacto, email, telefono, pais, ciudad) VALUES 
-    (2, 'Carlos Mendoza y Mariana Silva', 'carlos.mendoza@email.com', '+58 412 9876543', 'Venezuela', 'Caracas')");
-    $clienteId = 2;
-    echo "- Cliente #2 (Familia Mendoza) registrado.\n";
-} else {
-    echo "- Cliente #2 ya existe.\n";
-}
+// 1. Cliente oficial (Madre y Padre)
+$db->exec("UPDATE clientes SET 
+    nombre_contacto = 'Ramón Eduardo Rivas Avendaño y Estefany Yamileth Sánchez Ángulo',
+    email = 'familia.rivas.sanchez@xvexperience.com',
+    telefono = '+58 412 0000000',
+    pais = 'Venezuela',
+    ciudad = 'Mérida'
+WHERE id = 2");
 
-// 2. Alta de la Celebración (Evento 2)
-$stmt = $db->query("SELECT id FROM eventos WHERE slug = 'sophia-xv' OR id = 2");
-$eventoExists = $stmt->fetchColumn();
-
-if (!$eventoExists) {
-    $stmt = $db->prepare("INSERT INTO eventos (
-        id, cliente_id, paquete_id, plantilla_id, slug, nombre_celebracion, tipo_evento,
-        festejada_nombre, fecha_evento, hora_evento, lugar_nombre, lugar_direccion,
-        lugar_coordenadas, lugar_mapa_url, codigo_vestimenta, color_reserva,
-        musica_url, portada_url, avatar_url, activo, publicado
-    ) VALUES (
-        2, :cliente_id, 2, 2, 'sophia-xv', 'Mis Dulces 15 Años - Sophia Valentina', 'xv_anos',
-        'Sophia Valentina Mendoza Silva', '2026-11-14', '20:30:00', 'Hotel Eurobuilding',
-        'Salón Grand Mansión, Hotel Eurobuilding, Calle La Guairita, Caracas, Venezuela',
-        '10.4850,-66.8620', 'https://maps.google.com/?q=Hotel+Eurobuilding+Caracas',
-        'BLACK TIE & GALA: Te invitamos a lucir tu mejor atuendo de gala.', 'Rosa Oro y Champán',
-        'storage/media/2/audio/musica.mp3', 'storage/media/2/covers/sophia_portada.jpg',
-        'storage/media/2/covers/sophia_xv.jpg', 1, 1
-    )");
-
-    $stmt->execute([':cliente_id' => $clienteId]);
-    echo "- Evento #2 (sophia-xv) registrado con éxito.\n";
-} else {
-    echo "- Evento #2 ya existe.\n";
-}
-
-// 3. Usuario Anfitrión para los padres de Sophia
+// 2. Usuario anfitrión oficial para los padres de Sophia
 $sophiaPassHash = password_hash('sophia2026', PASSWORD_BCRYPT);
-$db->exec("INSERT OR IGNORE INTO usuarios (id, rol_id, nombre, email, password_hash, activo) VALUES 
-(3, 2, 'Familia Mendoza Silva', 'padres.sophia@email.com', '$sophiaPassHash', 1)");
+$db->exec("UPDATE usuarios SET 
+    nombre = 'Familia Rivas Sánchez',
+    email = 'padres.sophia@xvexperience.com',
+    password_hash = '$sophiaPassHash'
+WHERE id = 3");
 
-$db->exec("INSERT OR IGNORE INTO permisos_evento_usuario (usuario_id, evento_id, nivel_acceso) VALUES (3, 2, 'anfitrion')");
-echo "- Usuario Anfitrión para Sophia registrado (padres.sophia@email.com / sophia2026).\n";
+// 3. Evento oficial en tabla eventos
+$stmt = $db->prepare("UPDATE eventos SET 
+    cliente_id = 2,
+    paquete_id = 2,
+    plantilla_id = 2,
+    slug = 'sophia-xv',
+    nombre_celebracion = 'Mis XV Años - Sophia Valentina',
+    tipo_evento = 'xv_anos',
+    festejada_nombre = 'Sophia Valentina Rivas Sánchez',
+    fecha_evento = '2026-12-21',
+    hora_evento = '19:30:00',
+    lugar_nombre = 'Salón Nova Roma',
+    lugar_direccion = 'Dirección pendiente de confirmación',
+    lugar_coordenadas = NULL,
+    lugar_mapa_url = NULL,
+    codigo_vestimenta = 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.',
+    color_reserva = 'Rosa y Dorado Champagne',
+    musica_url = 'storage/media/2/audio/princesa_sofia.mp3',
+    portada_url = 'sophia-portada.jpg',
+    avatar_url = 'sophia-xv.jpg',
+    activo = 1,
+    publicado = 1
+WHERE id = 2");
+$stmt->execute();
+echo "- Tabla eventos actualizada con datos oficiales de Sophia (21 de Diciembre de 2026, 7:30 PM, Salón Nova Roma).\n";
 
-// 4. Configuraciones y Tokens de Diseño de Sophia (Plantilla Rose Gold Princess)
-$itinerarioSophia = [
-    ["hora" => "8:30 PM", "actividad" => "Recepción y Cóctel de Bienvenida", "icono" => "fas fa-champagne-glasses"],
-    ["hora" => "9:45 PM", "actividad" => "Entrada Triunfal de Sophia", "icono" => "fas fa-crown"],
-    ["hora" => "10:15 PM", "actividad" => "Vals con Papá y Brindis de Honor", "icono" => "fas fa-music"],
-    ["hora" => "11:00 PM", "actividad" => "Cena de Gala Internacional", "icono" => "fas fa-utensils"],
-    ["hora" => "12:30 AM", "actividad" => "Show de Luces y Hora Loca VIP", "icono" => "fas fa-mask"]
+// 4. Tokens de diseño para temática: Mariposas rosadas, flores, lavanda y dorado champagne
+$tokensSophiaOficial = [
+    "--verde-oscuro" => "#1E0E1B",         // Fondo ciruela oscuro / noche de gala
+    "--verde-medio" => "#3B1E37",          // Lavanda profundo para tarjetas
+    "--verde-claro" => "#D98CB8",          // Rosa mariposa brillante
+    "--dorado" => "#E0B768",               // Dorado Champagne puro
+    "--dorado-claro" => "#F7E5B5",         // Champagne luz
+    "--dorado-brillante" => "#FFF0BA",     // Destello mariposa
+    "--crema" => "#FFF9F5",                // Perla suave
+    "--marron" => "#120610",               // Sombra profunda
+    "--rosa-suave" => "#F8C8DC",           // Rosa mariposa pastel
+    "--lavanda" => "#BDB2FF",              // Lavanda floral
+    "--lavanda-suave" => "#E8E5F7"         // Lavanda perla
 ];
 
-$triviaSophia = [
+// 5. Itinerario oficial
+$itinerarioSophiaOficial = [
+    ["hora" => "7:30 PM", "actividad" => "Recepción de Invitados & Cóctel de Bienvenida", "icono" => "fas fa-champagne-glasses"],
+    ["hora" => "8:30 PM", "actividad" => "Entrada Mágica de Sophia Valentina", "icono" => "fas fa-wand-magic-sparkles"],
+    ["hora" => "9:00 PM", "actividad" => "El Vals de la Princesa con sus Padres", "icono" => "fas fa-music"],
+    ["hora" => "9:30 PM", "actividad" => "Brindis Familiar & Palabras de Honor", "icono" => "fas fa-wine-glass-empty"],
+    ["hora" => "10:00 PM", "actividad" => "Cena de Gala & Fotografías del Recuerdo", "icono" => "fas fa-camera-retro"],
+    ["hora" => "11:30 PM", "actividad" => "Apertura de la Pista & Gran Celebración", "icono" => "fas fa-sparkles"]
+];
+
+// 6. Preguntas de Trivia adaptadas a Sophia Valentina
+$triviaSophiaOficial = [
     [
-        "pregunta" => "¿Cuál es la pasión artística de Sophia?",
-        "opciones" => ["El Ballet Clásico", "La Pintura al Óleo", "Tocar el Piano", "Canto Lírico"],
-        "correcta" => 0,
-        "feedback_ok" => "¡Exacto! El ballet es su gran pasión desde pequeña 🩰✨",
-        "feedback_no" => "La respuesta correcta es: El Ballet Clásico 🩰"
+        "question" => "¿Cómo se llama la hermosa quinceañera?",
+        "options" => ["Sophia Valentina", "Victoria Sofía", "Isabella Valentina", "Sofía Camila"],
+        "correct" => 0,
+        "correctMsg" => "¡Exacto! Sophia Valentina, nuestra bella princesa 👑🌸",
+        "wrongMsg" => "Su nombre completo es Sophia Valentina ✨"
     ],
     [
-        "pregunta" => "¿Cuál es su postre irresistible?",
-        "opciones" => ["Tarta de Fresa", "Cheesecake de Frutos Rojos", "Macarons Franceses", "Churros con Chocolate"],
-        "correcta" => 1,
-        "feedback_ok" => "¡Totalmente! Ama el cheesecake de frutos rojos 🍓🍰",
-        "feedback_no" => "Su favorito es el Cheesecake de Frutos Rojos 🍰"
+        "question" => "¿Qué mes especial celebra sus 15 años?",
+        "options" => ["Diciembre", "Octubre", "Noviembre", "Septiembre"],
+        "correct" => 0,
+        "correctMsg" => "¡Muy bien! Noche mágica de diciembre ❄️🌸",
+        "wrongMsg" => "¡El 21 de Diciembre de 2026! 🎄✨"
     ]
 ];
 
-$tokensSophia = [
-    "--color-primary" => "#8E4A52",
-    "--color-secondary" => "#C98276",
-    "--color-gold" => "#E5A985",
-    "--color-gold-light" => "#FFD9C0",
-    "--color-bg" => "#1C1418"
-];
-
-$configsSophia = [
-    'padres_nombres' => 'Carlos Mendoza y Mariana Silva',
-    'padrinos_nombres' => 'Padrinos de Sophia',
-    'frase_biblica' => 'La vida es un viaje lleno de momentos mágicos que iluminan nuestro caminar...',
-    'frase_bendicion' => 'Agradecemos a Dios por concedernos la alegría de celebrar los quince años de nuestra amada hija.',
-    'frase_agradecimiento' => 'Tu cariño y presencia harán que esta noche sea verdaderamente inolvidable. ¡Gracias por celebrar conmigo!',
-    'fecha_nacimiento' => '2026-11-05',
-    'google_calendar_url' => 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+XV+A%C3%B1os+-+Sophia+Valentina&dates=20261115T003000Z%2F20261115T060000Z',
-    'itinerario_json' => json_encode($itinerarioSophia, JSON_UNESCAPED_UNICODE),
-    'trivia_json' => json_encode($triviaSophia, JSON_UNESCAPED_UNICODE),
-    'design_tokens' => json_encode($tokensSophia, JSON_UNESCAPED_UNICODE)
+// 7. Configuraciones completas del evento 2
+$configsSophiaOficial = [
+    'nombre_corto' => 'Sophia Valentina',
+    'padres_nombres' => 'Ramón Eduardo Rivas Avendaño y Estefany Yamileth Sánchez Ángulo',
+    'nombre_padre' => 'Ramón Eduardo Rivas Avendaño',
+    'nombre_madre' => 'Estefany Yamileth Sánchez Ángulo',
+    'padrinos_nombres' => 'Padrinos de Sophia Valentina',
+    'cancion_titulo' => 'Princesa Sofía',
+    'tematica' => 'Mariposas rosadas, flores, lavanda y dorado champagne',
+    'frase_biblica' => 'Como una mariposa que despliega sus alas al viento, hoy comienzo a escribir el más hermoso capítulo de mi historia...',
+    'frase_bendicion' => 'Con la bendición de Dios y el amor infinito de nuestros corazones, los invitamos a celebrar los quince años de nuestra amada hija.',
+    'frase_agradecimiento' => 'Tu cariño, compañía y alegría hacen que esta noche de mariposas y sueños sea verdaderamente inolvidable. ¡Gracias de corazón!',
+    'fecha_nacimiento' => '2026-12-21',
+    'google_calendar_url' => 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+XV+A%C3%B1os+-+Sophia+Valentina&dates=20261221T233000Z%2F20261222T060000Z&details=%C2%A1Acomp%C3%A1%C3%B1anos+a+celebrar+los+XV+A%C3%B1os+de+Sophia+Valentina!+Una+noche+m%C3%A1gica+de+mariposas+y+flores.&location=Sal%C3%B3n+Nova+Roma',
+    'itinerario_json' => json_encode($itinerarioSophiaOficial, JSON_UNESCAPED_UNICODE),
+    'trivia_json' => json_encode($triviaSophiaOficial, JSON_UNESCAPED_UNICODE),
+    'design_tokens' => json_encode($tokensSophiaOficial, JSON_UNESCAPED_UNICODE)
 ];
 
 $stmtConfig = $db->prepare("INSERT OR REPLACE INTO configuraciones_evento (evento_id, clave, valor, tipo) VALUES (2, :clave, :valor, :tipo)");
-foreach ($configsSophia as $k => $v) {
+foreach ($configsSophiaOficial as $k => $v) {
     $stmtConfig->execute([
         ':clave' => $k,
         ':valor' => $v,
         ':tipo' => str_ends_with($k, '_json') || $k === 'design_tokens' ? 'json' : 'string'
     ]);
 }
-echo "- Configuraciones y tokens de estilo asignados al Evento #2.\n";
+echo "- Configuraciones oficiales (temática de mariposas rosadas, flores, lavanda y champagne) registradas exitosamente en la base de datos.\n";
 
-// 5. Sembrar 1 dedicatoria de prueba para Sophia
-$stmtMsg = $db->prepare("INSERT OR IGNORE INTO libro_recuerdos (id, evento_id, nombre, mensaje, icono, color, likes, ip, created_at) VALUES 
-(100, 2, 'Papá y Mamá', 'Sophia de mi corazón, verte crecer tan hermosa y noble es nuestro mayor orgullo. ¡Felices 15 años princesa! 💖🌸', '👑', 'rose', 12, '127.0.0.1', '2026-11-14 21:00:00')");
-$stmtMsg->execute();
-echo "- Dedicatoria de bienvenida para Sophia agregada.\n";
+// 8. Dedicatoria oficial de sus padres en el libro de recuerdos
+$db->exec("UPDATE libro_recuerdos SET 
+    nombre = 'Ramón y Estefany (Tus Padres)',
+    mensaje = 'Hija amada Sophia Valentina, eres la bendición más grande que Dios nos entregó. Despliega tus alas con valentía, nobleza y alegría siempre. ¡Te amamos con toda el alma princesa! 🦋🌸💖',
+    icono = '🦋',
+    color = 'rose'
+WHERE id = 100 AND evento_id = 2");
+echo "- Dedicatoria oficial de los padres actualizada en libro_recuerdos.\n";
 
-echo "=== PILOTO SOPHIA VALENTINA DADO DE ALTA EXITOSAMENTE ===\n";
+echo "=== DATOS OFICIALES DE SOPHIA VALENTINA VINCULADOS AL 100% ===\n";

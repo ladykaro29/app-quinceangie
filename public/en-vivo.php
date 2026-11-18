@@ -1,20 +1,46 @@
 <?php
 /**
  * Pantalla de Presentación en Vivo para Proyector / TV
- * Invitación XV Años - Angie Karolina
- * 
- * Modo presentación a pantalla completa con actualización en tiempo real
- * Diseñado para proyectar en la fiesta mientras los invitados suben fotos.
+ * Plataforma Multi-Celebración — XV Experience
  */
 
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../app/autoload.php';
+
+use App\Middleware\TenantResolverMiddleware;
+use App\Core\CurrentEventContext;
+
+TenantResolverMiddleware::resolve();
+
+$currentEvent = CurrentEventContext::get();
+$currentConfigs = CurrentEventContext::allConfigs();
+$eventoId = (int)($currentEvent['id'] ?? 1);
+$slug = $currentEvent['slug'] ?? 'angie-xv';
+$festejadaNombre = $currentEvent['festejada_nombre'] ?? 'Angie Karolina';
+$festejadaNombreCorto = $currentConfigs['nombre_corto'] ?? explode(' ', $festejadaNombre)[0];
+if (str_contains($festejadaNombre, 'Sophia Valentina')) $festejadaNombreCorto = 'Sophia Valentina';
+if (str_contains($festejadaNombre, 'Angie Karolina')) $festejadaNombreCorto = 'Angie Karolina';
+
+$tituloCelebracion = $currentEvent['nombre_celebracion'] ?? 'Mis XV Años';
+$designTokens = $currentConfigs['design_tokens'] ?? null;
+if (is_string($designTokens)) {
+    $designTokens = json_decode($designTokens, true);
+}
+
+$isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') 
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+$protocol = $isHttps ? 'https://' : 'http://';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$baseUrl = $protocol . $host;
+$qrUploadUrl = ($slug === 'angie-xv') 
+    ? $baseUrl . '/#slide-11' 
+    : $baseUrl . '/subir-fotos/' . urlencode($slug);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📸 En Vivo · Los XV de Angie Karolina</title>
+    <title>📸 En Vivo · <?= htmlspecialchars($tituloCelebracion) ?></title>
     <!-- Favicon Corona Real -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23062E25' stroke='%23C8A24A' stroke-width='2.5'/%3E%3Cpath d='M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z' fill='%23FFD700' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Cpath d='M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z' fill='%23C8A24A'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +57,29 @@ require_once __DIR__ . '/../config/database.php';
             --dorado-brillante: #FFD700;
             --blanco: #FFFFFF;
         }
+
+        <?php if (!empty($designTokens) && is_array($designTokens)): ?>
+        :root {
+            <?php if (!empty($designTokens['--marron'])): ?>
+                --verde-profundo: <?= $designTokens['--marron'] ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--verde-oscuro'])): ?>
+                --verde-esmeralda: <?= $designTokens['--verde-oscuro'] ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--verde-medio'])): ?>
+                --verde-medio: <?= $designTokens['--verde-medio'] ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--dorado'])): ?>
+                --dorado: <?= $designTokens['--dorado'] ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--dorado-claro'])): ?>
+                --dorado-claro: <?= $designTokens['--dorado-claro'] ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--dorado-brillante'])): ?>
+                --dorado-brillante: <?= $designTokens['--dorado-brillante'] ?>;
+            <?php endif; ?>
+        }
+        <?php endif; ?>
 
         * {
             margin: 0;
@@ -428,8 +477,8 @@ require_once __DIR__ . '/../config/database.php';
                 <polygon points="32,25 36,32 32,39 28,32" fill="#006B4F" stroke="#FFF0BA" stroke-width="0.8"/>
             </svg>
             <div class="brand-text">
-                <h1>Angie Karolina</h1>
-                <span>Galería de Fotos en Vivo · Mis XV Años</span>
+                <h1><?= htmlspecialchars($festejadaNombreCorto) ?></h1>
+                <span>Galería de Fotos en Vivo · <?= htmlspecialchars($tituloCelebracion) ?></span>
             </div>
         </div>
 
@@ -448,7 +497,7 @@ require_once __DIR__ . '/../config/database.php';
         <div class="empty-display" id="emptyView">
             <i class="fas fa-camera-retro"></i>
             <h2>¡Esperando los primeros momentos!</h2>
-            <p>Escanea el código QR en la pantalla con tu celular y sé el primero en subir una foto a la fiesta de Angie.</p>
+            <p>Escanea el código QR en la pantalla con tu celular y sé el primero en subir una foto a la fiesta de <?= htmlspecialchars($festejadaNombreCorto) ?>.</p>
         </div>
 
         <div class="photo-card" id="photoCard" style="display: none;">
@@ -458,7 +507,7 @@ require_once __DIR__ . '/../config/database.php';
             <div class="photo-meta">
                 <div class="guest-info">
                     <div class="guest-name" id="currentGuest">Invitado</div>
-                    <div class="guest-msg" id="currentMsg">"¡Felicidades Angie!"</div>
+                    <div class="guest-msg" id="currentMsg">"¡Felicidades <?= htmlspecialchars($festejadaNombreCorto) ?>!"</div>
                 </div>
                 <div class="likes-pill">
                     <i class="fas fa-heart" style="color: #ef4444;"></i>
@@ -468,13 +517,14 @@ require_once __DIR__ . '/../config/database.php';
         </div>
 
         <div class="qr-floating">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/#slide-11") ?>&color=062E25&bgcolor=FFFFFF" alt="QR para subir fotos">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($qrUploadUrl) ?>&color=062E25&bgcolor=FFFFFF" alt="QR para subir fotos">
             <span class="qr-text">📸 Sube tu foto<br>aquí con tu celular</span>
         </div>
     </main>
 
     <script>
     (() => {
+        const eventoId = <?= (int)$eventoId ?>;
         let fotos = [];
         let currentIndex = -1;
         let slideTimer = null;
@@ -489,7 +539,7 @@ require_once __DIR__ . '/../config/database.php';
 
         async function fetchFotos() {
             try {
-                const res = await fetch('api/fotos.php?limit=500&order=asc&t=' + Date.now());
+                const res = await fetch('api/fotos.php?evento_id=' + eventoId + '&limit=500&order=asc&t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.fotos)) {
                     const wasEmpty = fotos.length === 0;

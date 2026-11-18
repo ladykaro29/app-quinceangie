@@ -1,16 +1,33 @@
 <?php
 /**
  * Libro Mágico de Fantasía & Recuerdos Interactivo
- * Mis XV Años — Angie Karolina Avendaño Rivera
- * 
- * Experiencia de Libro 3D con animación de paso de páginas:
- * - Encuadernación de grimorio real en cuero esmeralda y filigranas de oro
- * - Paso de páginas 3D interactivo con sonido realista de pergamino (Web Audio API)
- * - Navegación por capítulos: Portada Real, Fotos Polaroid (160), Videos (19) y Dedicatorias
- * - Música de fondo con reproductor vinilo dinámico
- * - Modal para dejar dedicatorias en tiempo real con stickers y confeti
- * - Visor Lightbox a pantalla completa
+ * Plataforma Multi-Celebración — XV Experience
  */
+
+require_once __DIR__ . '/../app/autoload.php';
+
+use App\Middleware\TenantResolverMiddleware;
+use App\Core\CurrentEventContext;
+
+TenantResolverMiddleware::resolve();
+
+$currentEvent = CurrentEventContext::get();
+$currentConfigs = CurrentEventContext::allConfigs();
+$eventoId = (int)($currentEvent['id'] ?? 1);
+$slug = $currentEvent['slug'] ?? 'angie-xv';
+$festejadaNombre = $currentEvent['festejada_nombre'] ?? 'Angie Karolina Avendaño Rivera';
+$festejadaNombreCorto = !empty($currentConfigs['nombre_corto']) ? $currentConfigs['nombre_corto'] : explode(' ', $festejadaNombre)[0];
+if (str_contains($festejadaNombre, 'Sophia Valentina')) $festejadaNombreCorto = 'Sophia Valentina';
+if (str_contains($festejadaNombre, 'Angie Karolina')) $festejadaNombreCorto = 'Angie Karolina';
+
+$tituloCelebracion = $currentEvent['nombre_celebracion'] ?? 'Mis XV Años';
+$portadaImgUrl = !empty($currentEvent['portada_url']) ? $currentEvent['portada_url'] : 'angie-portada.jpg';
+$despedidaImgUrl = !empty($currentEvent['avatar_url']) ? $currentEvent['avatar_url'] : 'angie-xv.jpg';
+
+$designTokens = $currentConfigs['design_tokens'] ?? null;
+if (is_string($designTokens)) {
+    $designTokens = json_decode($designTokens, true);
+}
 
 $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') 
     || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
@@ -23,13 +40,13 @@ $baseUrl = $protocol . $host;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>📖 Libro Mágico de Recuerdos · Mis XV Años · Angie Karolina</title>
+    <title>📖 Libro Mágico de Recuerdos · Mis XV Años · <?= htmlspecialchars($festejadaNombreCorto) ?></title>
     
     <!-- Metaetiquetas SEO y Open Graph para compartir en WhatsApp -->
-    <meta name="description" content="Abre el Libro Mágico de Fantasía de los XV Años de Angie Karolina: voltea sus páginas, revive 160 fotos, 19 videos y déjale tu dedicatoria.">
-    <meta property="og:title" content="📖 Libro Mágico de Recuerdos · Mis XV Años Angie Karolina">
-    <meta property="og:description" content="¡Pasa las páginas del libro mágico de Angie! Mira todas las fotos, videos exclusivos y escribe tu dedicatoria ✨👑">
-    <meta property="og:image" content="<?= $baseUrl ?>/angie-xv.jpg">
+    <meta name="description" content="Abre el Libro Mágico de Fantasía de los XV Años de <?= htmlspecialchars($festejadaNombreCorto) ?>: voltea sus páginas y déjale tu dedicatoria.">
+    <meta property="og:title" content="📖 Libro Mágico de Recuerdos · Mis XV Años <?= htmlspecialchars($festejadaNombreCorto) ?>">
+    <meta property="og:description" content="¡Pasa las páginas del libro mágico de <?= htmlspecialchars($festejadaNombreCorto) ?>! Mira sus recuerdos y escribe tu dedicatoria ✨👑">
+    <meta property="og:image" content="<?= $baseUrl ?>/<?= htmlspecialchars($despedidaImgUrl) ?>">
     <meta property="og:type" content="website">
 
     <!-- Favicon -->
@@ -69,6 +86,22 @@ $baseUrl = $protocol . $host;
             --font-hand: 'Caveat', cursive, sans-serif;
             --font-royal: 'Cinzel Decorative', serif;
         }
+
+        <?php if (!empty($designTokens) && is_array($designTokens)): ?>
+        :root {
+            <?php if (!empty($designTokens['--verde-oscuro'])): ?>
+                --verde-reino: <?= $designTokens['--marron'] ?? '#120610' ?>;
+                --verde-esmeralda: <?= $designTokens['--verde-oscuro'] ?>;
+                --verde-bosque: <?= $designTokens['--verde-medio'] ?? '#3B1E37' ?>;
+                --cuero-libro: <?= $designTokens['--verde-oscuro'] ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--dorado'])): ?>
+                --dorado: <?= $designTokens['--dorado'] ?>;
+                --dorado-puro: <?= $designTokens['--dorado-brillante'] ?? '#FFF0BA' ?>;
+                --dorado-claro: <?= $designTokens['--dorado-claro'] ?? '#F7E5B5' ?>;
+            <?php endif; ?>
+        }
+        <?php endif; ?>
 
         * {
             box-sizing: border-box;
@@ -1509,15 +1542,16 @@ $baseUrl = $protocol . $host;
 
     <!-- Audio de fondo (Canción de la fiesta) -->
     <audio id="bgMusic" loop preload="auto">
+        <source src="<?= htmlspecialchars($currentEvent['musica_url'] ?? 'musica.mp3') ?>" type="audio/mpeg">
+        <source src="public/<?= htmlspecialchars($currentEvent['musica_url'] ?? 'musica.mp3') ?>" type="audio/mpeg">
         <source src="musica.mp3" type="audio/mpeg">
-        <source src="musica.m4a" type="audio/mp4">
     </audio>
 
     <div class="stage-wrapper">
 
         <!-- Barra Superior -->
         <header class="top-bar">
-            <a href="index.php" class="btn-back">
+            <a href="<?= $slug === 'angie-xv' ? 'index.php' : '../e/' . urlencode($slug) ?>" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Volver a la Invitación
             </a>
 
@@ -1530,14 +1564,14 @@ $baseUrl = $protocol . $host;
                 </div>
                 <div class="music-meta">
                     <div class="music-text-title">
-                        <span id="musicStateText">Música de la Fiesta</span>
+                        <span id="musicStateText"><?= htmlspecialchars($currentConfigs['cancion_titulo'] ?? 'Música de la Fiesta') ?></span>
                         <div class="eq-bars" id="eqBars">
                             <span class="eq-bar"></span>
                             <span class="eq-bar"></span>
                             <span class="eq-bar"></span>
                         </div>
                     </div>
-                    <div class="music-text-sub">Mis XV Años · Angie Karolina</div>
+                    <div class="music-text-sub">Mis XV Años · <?= htmlspecialchars($festejadaNombreCorto) ?></div>
                 </div>
             </div>
         </header>
@@ -1751,6 +1785,10 @@ $baseUrl = $protocol . $host;
         // Detección de ruta relativa segura
         const isPublicSubdir = window.location.pathname.includes('/public/');
         const basePrefix = isPublicSubdir ? '../' : './';
+        const eventoId = <?= (int)$eventoId ?>;
+        const festName = <?= json_encode($festejadaNombreCorto) ?>;
+        const festDate = <?= json_encode($fechaEventoFormatoPortada) ?>;
+        const festImg = <?= json_encode($despedidaImgUrl) ?>;
 
         // 1. REPRODUCCIÓN DE SONIDO REALISTA DE PASO DE PÁGINA (Web Audio API)
         function playPageTurnSound() {
@@ -1780,8 +1818,8 @@ $baseUrl = $protocol . $host;
             } catch(e) {}
         }
 
-        // 2. DATOS PRECARGADOS (19 Videos, 160 Fotos, Dedicatorias)
-        const defaultVideos = [
+        // 2. DATOS PRECARGADOS (19 Videos, 160 Fotos, Dedicatorias para Angie; dinámicos por evento)
+        const defaultVideos = (eventoId === 1) ? [
             { id: 1, titulo: "Llegada triunfal de Angie ✨", archivo: "angie_xv_video_01.mp4", tamano: "4.79 MB" },
             { id: 2, titulo: "Entrada mágica al salón 👑", archivo: "angie_xv_video_02.mp4", tamano: "10.44 MB" },
             { id: 3, titulo: "El Vals con Papá 💖", archivo: "angie_xv_video_03.mp4", tamano: "2.01 MB" },
@@ -1805,7 +1843,7 @@ $baseUrl = $protocol . $host;
             ...v,
             url: `api/video.php?v=${encodeURIComponent(v.archivo)}`,
             direct_url: `assets/videos/${encodeURIComponent(v.archivo)}`
-        }));
+        })) : [];
 
         const frasesDed = [
             "Momentos mágicos e inolvidables de mis XV Años ✨👑",
@@ -1817,7 +1855,7 @@ $baseUrl = $protocol . $host;
             "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
         ];
 
-        const defaultPhotos = Array.from({ length: 160 }, (_, i) => {
+        const defaultPhotos = (eventoId === 1) ? Array.from({ length: 160 }, (_, i) => {
             const num = i + 1;
             const numStr = String(num).padStart(3, '0');
             const archivo = `angie_xv_recuerdo_${numStr}.jpg`;
@@ -1830,9 +1868,9 @@ $baseUrl = $protocol . $host;
                 url: `api/foto.php?f=${encodeURIComponent(archivo)}`,
                 direct_url: `assets/fotos/${encodeURIComponent(archivo)}`
             };
-        });
+        }) : [];
 
-        const defaultMensajes = [
+        const defaultMensajes = (eventoId === 1) ? [
             {
                 id: 1,
                 nombre: 'Edwin & Lady (Papás)',
@@ -1865,7 +1903,7 @@ $baseUrl = $protocol . $host;
                 likes: 19,
                 fecha_formateada: '04/10/2026 21:50'
             }
-        ];
+        ] : [];
 
         let albumData = {
             mensajes: defaultMensajes,
@@ -1913,15 +1951,15 @@ $baseUrl = $protocol . $host;
                         <div class="cover-page-content">
                             <div class="royal-crest-icon"><i class="fas fa-crown"></i></div>
                             <div class="book-main-sub">MIS XV AÑOS</div>
-                            <h1 class="book-main-title">Angie Karolina</h1>
+                            <h1 class="book-main-title">${festName}</h1>
                             <div class="vintage-gold-rule"></div>
                             <div style="font-family: var(--font-royal); font-size: 0.8rem; letter-spacing: 3px; color: var(--dorado-oscuro); margin-bottom: 8px;">
-                                3 · OCTUBRE · 2026
+                                ${festDate}
                             </div>
                             <p class="prologue-quote">
                                 "Hay momentos en la vida que duran solo un instante, pero dejan una huella de oro para siempre en el corazón." ✨👑
                             </p>
-                            <div style="font-family: var(--font-hand); font-size: 1.25rem; color: #062E25; margin-top: 6px;">
+                            <div style="font-family: var(--font-hand); font-size: 1.25rem; color: var(--verde-esmeralda); margin-top: 6px;">
                                 Libro Oficial de Recuerdos
                             </div>
                         </div>
@@ -1936,12 +1974,12 @@ $baseUrl = $protocol . $host;
                             <div class="chapter-title" style="font-size: 1.25rem;">Bienvenido a mi Historia</div>
                             
                             <div class="oval-photo-frame">
-                                <img src="${basePrefix}angie-xv.jpg" onerror="this.src='angie-xv.jpg'" alt="Angie Karolina">
+                                <img src="${basePrefix}${festImg}" onerror="this.src='${festImg}'" alt="${festName}">
                             </div>
 
                             <p class="prologue-quote" style="font-size: 0.88rem; max-width: 360px;">
                                 Pasa estas páginas para revivir los bailes, las risas, 
-                                los 19 videos cinematográficos y todas las fotos mágicas de mi fiesta. 💖
+                                ${albumData.videos.length > 0 ? 'los ' + albumData.videos.length + ' videos y ' : ''}todas las fotos mágicas de mi fiesta. 💖
                             </p>
 
                             <button type="button" class="btn-open-book-cta" onclick="turnToSpread(1)">
@@ -2174,7 +2212,7 @@ $baseUrl = $protocol . $host;
                             </div>
                         </div>
                         <div style="text-align: center; font-size: 0.72rem; color: #888; font-style: italic;">
-                            ${albumData.mensajes.length} dedicatorias grabadas para siempre en el corazón de Angie
+                            ${albumData.mensajes.length} dedicatorias grabadas para siempre en el corazón de ${festName}
                         </div>
                         `,
                         pageNumber: String((spreadIndex * 2) + 2)
@@ -2191,11 +2229,11 @@ $baseUrl = $protocol . $host;
                         <div class="chapter-title" style="font-size: 1.5rem; margin-bottom: 6px;">Infinitas Gracias</div>
                         <div class="vintage-gold-rule"></div>
                         <p class="prologue-quote" style="font-size: 0.95rem;">
-                            "A Dios, a mis amados padres Edwin y Lady, a mi familia y a cada uno de mis amigos: 
+                            "A Dios, a mis amados padres <?= htmlspecialchars($currentConfigs['padres_nombres'] ?? 'mis padres') ?>, a mi familia y a cada uno de mis amigos: 
                             gracias por hacer de mis XV Años la noche más feliz e inolvidable de mi vida." 💖✨
                         </p>
-                        <div style="font-family: var(--font-script); font-size: 2.8rem; color: #062E25; margin-top: 10px;">
-                            Angie Karolina
+                        <div style="font-family: var(--font-script); font-size: 2.8rem; color: var(--verde-esmeralda); margin-top: 10px;">
+                            ${festName}
                         </div>
                     </div>
                     `,
@@ -2207,7 +2245,7 @@ $baseUrl = $protocol . $host;
                     <div class="cover-page-content">
                         <div class="royal-crest-icon"><i class="fas fa-book-sparkles"></i></div>
                         <div class="chapter-num">FIN DEL LIBRO MÁGICO</div>
-                        <div class="chapter-title" style="font-size: 1.25rem;">3 de Octubre de 2026</div>
+                        <div class="chapter-title" style="font-size: 1.25rem;">${festDate}</div>
                         <div class="vintage-gold-rule"></div>
                         <p class="prologue-quote" style="font-size: 0.88rem;">
                             Puedes volver a hojear este libro cuando lo desees o compartirlo con tus seres queridos.
@@ -2513,15 +2551,15 @@ $baseUrl = $protocol . $host;
         async function loadAlbumData() {
             // Cargar dedicatorias y videos
             try {
-                const resLibro = await fetch(basePrefix + 'api/libro.php?t=' + Date.now());
+                const resLibro = await fetch(basePrefix + 'api/libro.php?evento_id=' + eventoId + '&t=' + Date.now());
                 if (resLibro.ok) {
                     const dataLibro = await resLibro.json();
                     if (dataLibro && dataLibro.success) {
                         if (Array.isArray(dataLibro.mensajes) && dataLibro.mensajes.length > 0) {
                             albumData.mensajes = dataLibro.mensajes;
                         }
-                        if (Array.isArray(dataLibro.videos) && dataLibro.videos.length > 0) {
-                            albumData.videos = dataLibro.videos;
+                        if (Array.isArray(dataLibro.videos)) {
+                            albumData.videos = (eventoId === 1 && dataLibro.videos.length === 0) ? defaultVideos : dataLibro.videos;
                         }
                         renderCurrentSpread();
                     }
@@ -2532,11 +2570,11 @@ $baseUrl = $protocol . $host;
 
             // Cargar las fotos
             try {
-                const resFotos = await fetch(basePrefix + 'api/fotos.php?limit=500&order=asc&t=' + Date.now());
+                const resFotos = await fetch(basePrefix + 'api/fotos.php?evento_id=' + eventoId + '&limit=500&order=asc&t=' + Date.now());
                 if (resFotos.ok) {
                     const dataFotos = await resFotos.json();
-                    if (dataFotos && dataFotos.success && Array.isArray(dataFotos.fotos) && dataFotos.fotos.length > 0) {
-                        albumData.fotos = dataFotos.fotos;
+                    if (dataFotos && dataFotos.success && Array.isArray(dataFotos.fotos)) {
+                        albumData.fotos = (eventoId === 1 && dataFotos.fotos.length === 0) ? defaultPhotos : dataFotos.fotos;
                         renderCurrentSpread();
                     }
                 }
@@ -2625,6 +2663,7 @@ $baseUrl = $protocol . $host;
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        evento_id: eventoId,
                         nombre: nombre,
                         mensaje: mensaje,
                         icono: selectedEmoji,

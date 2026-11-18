@@ -11,9 +11,14 @@ use App\Core\CurrentEventContext;
 TenantResolverMiddleware::resolve();
 
 $event = CurrentEventContext::get();
+$configs = CurrentEventContext::allConfigs();
 $festejada = htmlspecialchars($event['festejada_nombre'] ?? 'La Quinceañera');
 $nombreEvento = htmlspecialchars($event['nombre_celebracion'] ?? 'Mis XV Años');
 $slug = htmlspecialchars(CurrentEventContext::slug() ?? 'angie-xv');
+$designTokens = $configs['design_tokens'] ?? null;
+if (is_string($designTokens)) {
+    $designTokens = json_decode($designTokens, true);
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -39,6 +44,21 @@ $slug = htmlspecialchars(CurrentEventContext::slug() ?? 'angie-xv');
             --text-muted: #A3B8B0;
             --radius-card: 16px;
         }
+
+        <?php if (!empty($designTokens) && is_array($designTokens)): ?>
+        :root {
+            <?php if (!empty($designTokens['--verde-oscuro'])): ?>
+                --bg-dark: <?= $designTokens['--marron'] ?? '#120610' ?>;
+                --emerald-deep: <?= $designTokens['--verde-oscuro'] ?>;
+                --emerald-card: <?= $designTokens['--verde-medio'] ?? '#3B1E37' ?>;
+            <?php endif; ?>
+            <?php if (!empty($designTokens['--dorado'])): ?>
+                --gold-primary: <?= $designTokens['--dorado'] ?>;
+                --gold-bright: <?= $designTokens['--dorado-brillante'] ?? '#FFF0BA' ?>;
+                --gold-light: <?= $designTokens['--dorado-claro'] ?? '#F7E5B5' ?>;
+            <?php endif; ?>
+        }
+        <?php endif; ?>
 
         * {
             box-sizing: border-box;
@@ -444,6 +464,7 @@ $slug = htmlspecialchars(CurrentEventContext::slug() ?? 'angie-xv');
 
             for (let i = 0; i < selectedFiles.length; i++) {
                 const formData = new FormData();
+                formData.append('evento_id', '<?= (int)($event['id'] ?? 1) ?>');
                 formData.append('foto', selectedFiles[i]);
                 formData.append('nombre_invitado', nombre);
                 formData.append('mensaje', mensaje);

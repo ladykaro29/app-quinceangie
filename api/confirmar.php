@@ -131,12 +131,22 @@ try {
     // Conectar a la BD
     $pdo = getDBConnection();
 
-    // 2. VALIDAR SI EL INVITADO TITULAR YA ESTÁ REGISTRADO EN LA BASE DE DATOS
+    // Resolver evento_id dinámico
+    $eventoId = isset($data['evento_id']) ? (int)$data['evento_id'] : (isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : 1);
+    if ($eventoId <= 0) $eventoId = 1;
+
+    // Obtener slug del evento para el prefijo del QR
+    $stmtSlug = $pdo->prepare('SELECT slug FROM eventos WHERE id = :id LIMIT 1');
+    $stmtSlug->execute([':id' => $eventoId]);
+    $evSlug = $stmtSlug->fetchColumn() ?: 'angie-xv';
+    $qrPrefix = 'XV-' . strtoupper(str_replace(['-xv', '_xv', '-'], '', $evSlug));
+
+    // 2. VALIDAR SI EL INVITADO TITULAR YA ESTÁ REGISTRADO EN LA BASE DE DATOS (POR EVENTO)
     // Normalizar para comparación sin importar mayúsculas/minúsculas ni espacios múltiples
     $nombreLimpio = trim(preg_replace('/\s+/', ' ', $nombreCompleto));
 
-    $stmtCheck = $pdo->prepare('SELECT id, nombre_completo, asistira, codigo_rifa FROM invitados WHERE LOWER(TRIM(nombre_completo)) = LOWER(:nombre) LIMIT 1');
-    $stmtCheck->execute([':nombre' => $nombreLimpio]);
+    $stmtCheck = $pdo->prepare('SELECT id, nombre_completo, asistira, codigo_rifa FROM invitados WHERE evento_id = :evento_id AND LOWER(TRIM(nombre_completo)) = LOWER(:nombre) LIMIT 1');
+    $stmtCheck->execute([':evento_id' => $eventoId, ':nombre' => $nombreLimpio]);
     $existente = $stmtCheck->fetch();
 
     if ($existente) {
@@ -170,7 +180,7 @@ try {
             }
         }
 
-        $qrCodePrevio = 'XVANGIE-' . str_pad($idPrevio, 4, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($existente['nombre_completo'] . $idPrevio . 'angie2026'), 0, 6));
+        $qrCodePrevio = $qrPrefix . '-' . str_pad($idPrevio, 4, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($existente['nombre_completo'] . $idPrevio . $evSlug), 0, 6));
 
         // Retornar aviso amigable con su pase ya generado (o error explicativo si no asiste)
         http_response_code(200);
@@ -178,6 +188,7 @@ try {
             'success'           => true,
             'ya_registrado'     => true,
             'id'                => $idPrevio,
+            'evento_id'         => $eventoId,
             'nombre'            => $existente['nombre_completo'],
             'asistira'          => $asistiraPrevio,
             'acompanantes'      => $nombresAcompsPrevios,
@@ -190,9 +201,9 @@ try {
         exit;
     }
 
-    // 3. VALIDAR SI EL NOMBRE YA FUE REGISTRADO COMO ACOMPAÑANTE DE OTRO INVITADO
-    $stmtCheckAcomp = $pdo->prepare('SELECT a.nombre_completo, i.nombre_completo AS titular FROM acompanantes a INNER JOIN invitados i ON a.invitado_id = i.id WHERE LOWER(TRIM(a.nombre_completo)) = LOWER(:nombre) LIMIT 1');
-    $stmtCheckAcomp->execute([':nombre' => $nombreLimpio]);
+    // 3. VALIDAR SI EL NOMBRE YA FUE REGISTRADO COMO ACOMPAÑANTE EN ESTE EVENTO
+    $stmtCheckAcomp = $pdo->prepare('SELECT a.nombre_completo, i.nombre_completo AS titular FROM acompanantes a INNER JOIN invitados i ON a.invitado_id = i.id WHERE i.evento_id = :evento_id AND LOWER(TRIM(a.nombre_completo)) = LOWER(:nombre) LIMIT 1');
+    $stmtCheckAcomp->execute([':evento_id' => $eventoId, ':nombre' => $nombreLimpio]);
     $comoAcomp = $stmtCheckAcomp->fetch();
 
     if ($comoAcomp) {
@@ -210,9 +221,10 @@ try {
         // Generar código de rifa para el titular si asistirá
         $codigoRifaTitular = $asistira ? generarCodigoRifaUnico($pdo) : null;
 
-        // Insertar invitado principal
-        $stmt = $pdo->prepare('INSERT INTO invitados (nombre_completo, asistira, codigo_rifa) VALUES (:nombre, :asistira, :codigo_rifa)');
+        // Insertar invitado principal vinculado al evento_id
+        $stmt = $pdo->prepare('INSERT INTO invitados (evento_id, nombre_completo, asistira, codigo_rifa) VALUES (:evento_id, :nombre, :asistira, :codigo_rifa)');
         $stmt->execute([
+            ':evento_id'   => $eventoId,
             ':nombre'      => $nombreCompleto,
             ':asistira'    => $asistira ? 1 : 0,
             ':codigo_rifa' => $codigoRifaTitular,
@@ -250,20 +262,22 @@ try {
 
         $pdo->commit();
 
-        // Contar total de confirmados que asistirán (invitados + acompañantes)
-        $stmtCount = $pdo->query(
+        // Contar total de confirmados que asistirán del evento
+        $stmtCount = $pdo->prepare(
             'SELECT 
-                (SELECT COUNT(*) FROM invitados WHERE asistira = 1) +
-                (SELECT COUNT(*) FROM acompanantes a INNER JOIN invitados i ON a.invitado_id = i.id WHERE i.asistira = 1)
+                (SELECT COUNT(*) FROM invitados WHERE evento_id = :ev AND asistira = 1) +
+                (SELECT COUNT(*) FROM acompanantes a INNER JOIN invitados i ON a.invitado_id = i.id WHERE i.evento_id = :ev AND i.asistira = 1)
              AS total'
         );
+        $stmtCount->execute([':ev' => $eventoId]);
         $totalConfirmados = (int)$stmtCount->fetchColumn();
 
         http_response_code(200);
-        $qrCode = 'XVANGIE-' . str_pad($invitadoId, 4, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($nombreCompleto . $invitadoId . 'angie2026'), 0, 6));
+        $qrCode = $qrPrefix . '-' . str_pad($invitadoId, 4, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($nombreCompleto . $invitadoId . $evSlug), 0, 6));
         echo json_encode([
             'success'           => true,
             'id'                => (int)$invitadoId,
+            'evento_id'         => $eventoId,
             'nombre'            => $nombreCompleto,
             'asistira'          => $asistira,
             'acompanantes'      => $acompanantes,

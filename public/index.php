@@ -1,8 +1,39 @@
 <?php
 /**
- * Invitación XV Años - Angie Karolina Avendaño Rivera
- * Página principal de la invitación digital
+ * Invitación XV Años — Plataforma Multi-Celebración XV Experience
  */
+
+require_once __DIR__ . '/../app/autoload.php';
+
+use App\Middleware\TenantResolverMiddleware;
+use App\Core\CurrentEventContext;
+
+// Resolver celebración por slug o parámetro GET (?evento=slug)
+TenantResolverMiddleware::resolve();
+
+$currentEvent = CurrentEventContext::get();
+$currentConfigs = CurrentEventContext::allConfigs();
+
+// Variables dinámicas del evento
+$festejadaNombreCompleto = $currentEvent['festejada_nombre'] ?? 'Angie Karolina Avendaño Rivera';
+$tituloCelebracion = $currentEvent['nombre_celebracion'] ?? 'Mis XV Años - Angie Karolina';
+$festejadaNombreCorto = !empty($currentConfigs['nombre_corto']) ? $currentConfigs['nombre_corto'] : explode(' ', $festejadaNombreCompleto)[0];
+if (str_contains($festejadaNombreCompleto, 'Angie Karolina')) {
+    $festejadaNombreCorto = 'Angie Karolina';
+} elseif (str_contains($festejadaNombreCompleto, 'Sophia Valentina')) {
+    $festejadaNombreCorto = 'Sophia Valentina';
+}
+
+$fechaEventoRaw = $currentEvent['fecha_evento'] ?? '2026-10-03';
+$timestampEvento = strtotime($fechaEventoRaw);
+$diasMes = ['01' => 'ENERO', '02' => 'FEBRERO', '03' => 'MARZO', '04' => 'ABRIL', '05' => 'MAYO', '06' => 'JUNIO', '07' => 'JULIO', '08' => 'AGOSTO', '09' => 'SEPTIEMBRE', '10' => 'OCTUBRE', '11' => 'NOVIEMBRE', '12' => 'DICIEMBRE'];
+$diaNum = date('j', $timestampEvento);
+$mesTexto = $diasMes[date('m', $timestampEvento)] ?? date('F', $timestampEvento);
+$anoNum = date('Y', $timestampEvento);
+$fechaEventoFormatoPortada = $diaNum . ' · ' . $mesTexto . ' · ' . $anoNum;
+
+$portadaImgUrl = !empty($currentEvent['portada_url']) ? $currentEvent['portada_url'] : 'angie-portada.jpg';
+$despedidaImgUrl = !empty($currentEvent['avatar_url']) ? $currentEvent['avatar_url'] : 'angie-xv.jpg';
 
 // Detectar esquema y host para generar URL absoluta de imagen para WhatsApp y redes
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
@@ -12,35 +43,35 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
 
 $host = $_SERVER['HTTP_HOST'] ?? 'kickoff-invitacionangie.0gxuxx.easypanel.host';
 $baseUrl = rtrim($protocol . $host, '/');
-$shareImageUrl = $baseUrl . '/angie-portada.jpg';
-$pageUrl = $baseUrl . '/';
+$shareImageUrl = $baseUrl . '/' . $portadaImgUrl;
+$pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mis XV Años - Angie Karolina Avendaño Rivera</title>
-    <meta name="description" content="Invitación digital a la celebración de XV años de Angie Karolina Avendaño Rivera. 3 de octubre de 2026, Mérida, Venezuela.">
+    <title><?= htmlspecialchars($tituloCelebracion) ?></title>
+    <meta name="description" content="Invitación digital a la celebración de XV años de <?= htmlspecialchars($festejadaNombreCompleto) ?>.">
     <meta name="theme-color" content="#062E25">
 
     <!-- Open Graph / WhatsApp / Facebook / Telegram Preview -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= htmlspecialchars($pageUrl) ?>">
-    <meta property="og:title" content="Mis XV Años - Angie Karolina Avendaño Rivera">
-    <meta property="og:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este 3 de Octubre de 2026 para una noche mágica e inolvidable.">
+    <meta property="og:title" content="<?= htmlspecialchars($tituloCelebracion) ?>">
+    <meta property="og:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este <?= htmlspecialchars($fechaEventoFormatoPortada) ?> para una noche mágica e inolvidable.">
     <meta property="og:image" content="<?= htmlspecialchars($shareImageUrl) ?>">
     <meta property="og:image:secure_url" content="<?= htmlspecialchars($shareImageUrl) ?>">
     <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:alt" content="Angie Karolina Avendaño Rivera - Mis XV Años">
+    <meta property="og:image:alt" content="<?= htmlspecialchars($festejadaNombreCompleto) ?> - Mis XV Años">
     <meta property="og:locale" content="es_LA">
-    <meta property="og:site_name" content="Mis XV Años - Angie Karolina">
+    <meta property="og:site_name" content="<?= htmlspecialchars($tituloCelebracion) ?>">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="<?= htmlspecialchars($pageUrl) ?>">
-    <meta name="twitter:title" content="Mis XV Años - Angie Karolina Avendaño Rivera">
-    <meta name="twitter:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este 3 de Octubre de 2026 para una noche mágica e inolvidable.">
+    <meta name="twitter:title" content="<?= htmlspecialchars($tituloCelebracion) ?>">
+    <meta name="twitter:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este <?= htmlspecialchars($fechaEventoFormatoPortada) ?>.">
     <meta name="twitter:image" content="<?= htmlspecialchars($shareImageUrl) ?>">
 
     <!-- Favicon: Corona Real Dorada y Esmeralda -->
@@ -2796,21 +2827,21 @@ $pageUrl = $baseUrl . '/';
                     </svg>
                 </div>
 
-                <!-- Marco elegante real con la foto de Angie -->
+                <!-- Marco elegante real con la foto de la festejada -->
                 <div class="cover-photo-container">
                     <div class="cover-photo-wrapper">
                         <div class="cover-photo-frame">
-                            <img src="angie-portada.jpg" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/angie-portada.jpg';}" alt="Angie Karolina - Mis XV Años" class="cover-photo-img" loading="eager">
+                            <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($portadaImgUrl) ?>';if(!this.complete)this.src='angie-portada.jpg';}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> - Mis XV Años" class="cover-photo-img" loading="eager">
                             <div class="cover-photo-sheen"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="cover-presents" style="margin-top: 4px;">TE INVITO A CELEBRAR</div>
-                <div class="card-title-script cover-name" style="font-size: 2.7rem; margin-bottom: 4px;">Angie Karolina</div>
+                <div class="card-title-script cover-name" style="font-size: 2.7rem; margin-bottom: 4px;"><?= htmlspecialchars($festejadaNombreCorto) ?></div>
                 <div class="gold-divider" style="margin: 6px auto 10px auto;"></div>
                 <div class="cover-xv" style="font-size: 2.6rem; letter-spacing: 6px; margin-bottom: 8px;">XV AÑOS</div>
-                <div class="cover-date" style="letter-spacing: 2.5px;">3 · OCTUBRE · 2026</div>
+                <div class="cover-date" style="letter-spacing: 2.5px;"><?= htmlspecialchars($fechaEventoFormatoPortada) ?></div>
                 <div class="cover-swipe" style="margin-top: 14px;">
                     <i class="fas fa-chevron-down"></i><br>
                     Desliza para ver más
@@ -2929,8 +2960,7 @@ $pageUrl = $baseUrl . '/';
 
                 <p class="formal-parents">
                     Mis padres<br>
-                    <strong style="color: var(--dorado); font-size: 0.95rem;">Edwin Johan Avendaño</strong> <span style="font-size: 0.8rem; opacity: 0.85;">(Mi papá)</span><br>
-                    <strong style="color: var(--dorado); font-size: 0.95rem;">Lady Rivera</strong> <span style="font-size: 0.8rem; opacity: 0.85;">(Mi mamá)</span><br>
+                    <strong style="color: var(--dorado); font-size: 0.95rem;"><?= htmlspecialchars($currentConfigs['padres_nombres'] ?? 'Edwin Johan Avendaño y Lady Rivera') ?></strong><br>
                     <span style="display: inline-block; margin-top: 5px;">te extienden esta cordial invitación</span>
                 </p>
 
@@ -2969,17 +2999,17 @@ $pageUrl = $baseUrl . '/';
 
                 <div class="info-block">
                     <div class="info-label">🕗 Hora</div>
-                    <div class="info-value">8:00 PM</div>
+                    <div class="info-value"><?= htmlspecialchars(date('g:i A', strtotime($currentEvent['hora_evento'] ?? '20:00:00'))) ?></div>
                 </div>
 
                 <div class="info-block">
                     <div class="info-label">📍 Lugar de la Recepción</div>
-                    <div class="info-value">Colegio de Médicos del Estado Mérida</div>
-                    <div class="info-address">Av. Urdaneta, Mérida, Venezuela</div>
+                    <div class="info-value"><?= htmlspecialchars($currentEvent['lugar_nombre'] ?? 'Colegio de Médicos') ?></div>
+                    <div class="info-address"><?= htmlspecialchars($currentEvent['lugar_direccion'] ?? 'Av. Urdaneta, Mérida, Venezuela') ?></div>
                 </div>
 
                 <div class="map-btn-container">
-                    <a href="https://maps.google.com/?q=Colegio+de+Medicos+del+Estado+Merida+Av+Urdaneta+Merida+Venezuela" target="_blank" rel="noopener noreferrer" class="map-btn">
+                    <a href="<?= htmlspecialchars($currentEvent['lugar_mapa_url'] ?? 'https://maps.google.com/?q=Colegio+de+Medicos+del+Estado+Merida+Av+Urdaneta+Merida+Venezuela') ?>" target="_blank" rel="noopener noreferrer" class="map-btn">
                         <i class="fas fa-location-arrow"></i>
                         <span>Abrir en Google Maps</span>
                         <i class="fas fa-external-link-alt"></i>
@@ -3397,10 +3427,10 @@ $pageUrl = $baseUrl . '/';
                 <div class="card-title-script" style="font-size: 2.3rem; margin-bottom: 2px;">¡Te Espero!</div>
                 <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; margin-bottom: 8px;">MIS XV AÑOS</div>
 
-                <!-- Marco dorado con la foto de Angie -->
+                <!-- Marco dorado con la foto de la festejada -->
                 <div class="angie-photo-wrapper">
                     <div class="angie-photo-frame">
-                        <img src="angie-xv.jpg" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/angie-xv.jpg';}" alt="Angie Karolina — Mis XV Años" class="angie-photo-img" loading="eager">
+                        <img src="<?= htmlspecialchars($despedidaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($despedidaImgUrl) ?>';if(!this.complete)this.src='angie-xv.jpg';}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> — Mis XV Años" class="angie-photo-img" loading="eager">
                         <div class="angie-photo-sheen"></div>
                     </div>
                 </div>
@@ -3415,7 +3445,7 @@ $pageUrl = $baseUrl . '/';
                 <p class="card-text" style="font-size: 0.75rem; margin-top: 8px; opacity: 0.85;">
                     Con todo mi cariño,<br>
                     <span style="font-family: var(--font-script); font-size: 1.75rem; color: var(--dorado); display: inline-block; margin-top: 1px;">
-                        Angie Karolina
+                        <?= htmlspecialchars($festejadaNombreCorto) ?>
                     </span>
                 </p>
             </div>

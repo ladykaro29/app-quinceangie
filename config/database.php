@@ -75,6 +75,21 @@ function getDBConnection(): PDO {
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
+    // Soporte prioritario para SQLite configurado explícitamente
+    if (strtolower(getenv('DB_CONNECTION') ?: '') === 'sqlite') {
+        if (extension_loaded('pdo_sqlite')) {
+            $dbDir = __DIR__ . '/../database';
+            if (!is_dir($dbDir)) {
+                @mkdir($dbDir, 0775, true);
+            }
+            $sqlitePath = $dbDir . '/invitacion_xv.sqlite';
+            $pdo = new PDO('sqlite:' . $sqlitePath, null, null, $options);
+            $currentDbEngine = 'sqlite';
+            ensureTablesExist($pdo, 'sqlite');
+            return $pdo;
+        }
+    }
+
     // En Linux/Docker, 'localhost' intenta usar unix domain socket (/var/run/mysqld/mysqld.sock).
     // Usar '127.0.0.1' fuerza conexión TCP de red.
     $primaryHost = ($dbHost === 'localhost') ? '127.0.0.1' : $dbHost;
@@ -200,7 +215,13 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );");
 
-        // Migración SQLite asistio_evento
+        // Auto-migración multi-celebración
+        if (file_exists(__DIR__ . '/../app/autoload.php')) {
+            require_once __DIR__ . '/../app/autoload.php';
+            if (class_exists('App\Core\DatabaseMigrationService')) {
+                \App\Core\DatabaseMigrationService::ensureMigrated($pdo);
+            }
+        }
         try {
             $cols = $pdo->query("PRAGMA table_info(invitados)")->fetchAll(PDO::FETCH_ASSOC);
             $hasAsistio = false;

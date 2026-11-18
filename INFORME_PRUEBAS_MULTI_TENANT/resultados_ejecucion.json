@@ -1,0 +1,359 @@
+[
+    {
+        "section": "PRUEBA 1 - IDENTIDAD VISUAL",
+        "test_id": "P1.1",
+        "description": "Portada e Identidad Visual de Angie Karolina (\/e\/angie-xv)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Verde esmeralda, fecha 3 Oct, fotos de Angie presentes, sin rastros de Sophia",
+        "evidence": {
+            "http_code": 200,
+            "body_len": 202803
+        }
+    },
+    {
+        "section": "PRUEBA 1 - IDENTIDAD VISUAL",
+        "test_id": "P1.2",
+        "description": "Portada e Identidad Visual de Sophia Valentina (\/e\/sophia-xv)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Paleta ciruela\/rosa\/champagne, Salón Nova Roma (dirección pendiente), padres oficiales, canción Princesa Sofía, sin datos de Angie",
+        "evidence": {
+            "http_code": 200,
+            "body_len": 201389
+        }
+    },
+    {
+        "section": "PRUEBA 2 - CONFIRMACIONES",
+        "test_id": "P2.1",
+        "description": "Registro de confirmación en Sophia (evento_id = 2)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Invitado guardado correctamente con evento_id = 2 (ID 1)",
+        "evidence": {
+            "response": {
+                "success": true,
+                "id": 1,
+                "evento_id": 2,
+                "nombre": "Test Invitado Sophia Integracion",
+                "asistira": true,
+                "acompanantes": [
+                    "Test Acompanante Sophia Integracion"
+                ],
+                "total_pases": 2,
+                "qr_code": "XV-SOPHIA-0001-F608DD",
+                "boletos_rifa": [
+                    {
+                        "nombre": "Test Invitado Sophia Integracion",
+                        "codigo": "RIFA-1264",
+                        "es_titular": true
+                    },
+                    {
+                        "nombre": "Test Acompanante Sophia Integracion",
+                        "codigo": "RIFA-4307",
+                        "es_titular": false
+                    }
+                ],
+                "total_confirmados": 2,
+                "message": "¡Gracias por confirmar tu asistencia! Aquí tienes tu Pase VIP de entrada y tus boletos para la Rifa de Regalos. 🎉"
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 2 - CONFIRMACIONES",
+        "test_id": "P2.2",
+        "description": "Ausencia de invitado de Sophia en lista de Angie (evento_id = 1)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Cero invitados cruzados en Angie",
+        "evidence": {
+            "angie_matches": 0
+        }
+    },
+    {
+        "section": "PRUEBA 2 - CONFIRMACIONES",
+        "test_id": "P2.3",
+        "description": "Prefijo de Pase VIP correspondiente a la celebración (XV-SOPHIA)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0001-F608DD",
+        "evidence": {
+            "qr_payload": "XV-SOPHIA-0001-F608DD"
+        }
+    },
+    {
+        "section": "PRUEBA 2 - CONFIRMACIONES",
+        "test_id": "P2.4",
+        "description": "Reconocimiento de invitado ya registrado y devolución de su Pase VIP",
+        "passed": true,
+        "status": "PASS",
+        "details": "Detectó registro previo y devolvió sus pases sin duplicar",
+        "evidence": {
+            "response": {
+                "success": true,
+                "ya_registrado": true,
+                "id": 1,
+                "evento_id": 2,
+                "nombre": "Test Invitado Sophia Integracion",
+                "asistira": true,
+                "acompanantes": [
+                    "Test Acompanante Sophia Integracion"
+                ],
+                "total_pases": 2,
+                "qr_code": "XV-SOPHIA-0001-F608DD",
+                "boletos_rifa": [
+                    {
+                        "nombre": "Test Invitado Sophia Integracion",
+                        "codigo": "RIFA-1264",
+                        "es_titular": true
+                    },
+                    {
+                        "nombre": "Test Acompanante Sophia Integracion",
+                        "codigo": "RIFA-4307",
+                        "es_titular": false
+                    }
+                ],
+                "total_confirmados": 0,
+                "message": "✨ Test Invitado Sophia Integracion, ya tenías una confirmación registrada previamente. Aquí tienes tu Pase VIP y tus números de rifa asignados."
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 3 - FOTOGRAFÍAS",
+        "test_id": "P3.1",
+        "description": "Subida física y registro de fotografía para Sophia (evento_id = 2)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Foto guardada en disco (angie_xv_20261118_205210_db00ec3a7a27.png) e insertada con ID 169",
+        "evidence": {
+            "photo_id": 169,
+            "file_exists": true
+        }
+    },
+    {
+        "section": "PRUEBA 3 - FOTOGRAFÍAS",
+        "test_id": "P3.2",
+        "description": "Subida física y registro de fotografía para Angie (evento_id = 1)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Foto guardada en disco (angie_xv_20261118_205211_655d4884cf07.png) e insertada con ID 170",
+        "evidence": {
+            "photo_id": 170,
+            "file_exists": true
+        }
+    },
+    {
+        "section": "PRUEBA 3 - FOTOGRAFÍAS",
+        "test_id": "P3.3",
+        "description": "Aislamiento de galería Sophia (excluye fotos de Angie y recuerdos oficiales de Angie)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Sophia solo ve sus fotos (4 fotos). Cero fotos de Angie filtradas",
+        "evidence": {
+            "total_sophia": 4,
+            "leaked_angie": false
+        }
+    },
+    {
+        "section": "PRUEBA 3 - FOTOGRAFÍAS",
+        "test_id": "P3.4",
+        "description": "Aislamiento de galería Angie (excluye fotos de Sophia)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Angie conserva sus fotos oficiales y de prueba (161). Cero fotos de Sophia filtradas",
+        "evidence": {
+            "total_angie": 161,
+            "leaked_sophia": false
+        }
+    },
+    {
+        "section": "PRUEBA 4 - LIBRO DE RECUERDOS",
+        "test_id": "P4.1",
+        "description": "Publicación de dedicatoria en Sophia (evento_id = 2)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Dedicatoria guardada con ID 107",
+        "evidence": {
+            "response": {
+                "success": true,
+                "message": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨",
+                "mensaje_nuevo": {
+                    "id": 107,
+                    "nombre": "Madrina Test Sophia",
+                    "mensaje": "¡Felicidades Sophia Valentina en tu noche mágica!",
+                    "icono": "👑",
+                    "color": "rose",
+                    "likes": 0,
+                    "fecha_formateada": "Hace un momento",
+                    "created_at": "2026-11-18 20:52:11"
+                }
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 4 - LIBRO DE RECUERDOS",
+        "test_id": "P4.2",
+        "description": "Publicación de dedicatoria en Angie (evento_id = 1)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Dedicatoria guardada con ID 108",
+        "evidence": {
+            "response": {
+                "success": true,
+                "message": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨",
+                "mensaje_nuevo": {
+                    "id": 108,
+                    "nombre": "Padrino Test Angie",
+                    "mensaje": "¡Que Dios te bendiga Angie Karolina!",
+                    "icono": "✨",
+                    "color": "emerald",
+                    "likes": 0,
+                    "fecha_formateada": "Hace un momento",
+                    "created_at": "2026-11-18 20:52:11"
+                }
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 4 - LIBRO DE RECUERDOS",
+        "test_id": "P4.3",
+        "description": "Aislamiento de dedicatorias de Sophia (excluye dedicatorias de Angie)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Sophia ve exclusivamente sus mensajes. Cero dedicatorias de Angie filtradas",
+        "evidence": {
+            "total_mensajes": 4,
+            "leaked_angie": false
+        }
+    },
+    {
+        "section": "PRUEBA 4 - LIBRO DE RECUERDOS",
+        "test_id": "P4.4",
+        "description": "Auditoría de videos y textos residuales en api\/libro.php",
+        "passed": false,
+        "status": "FAIL",
+        "details": "Hallazgo: Mensaje de respuesta dice '...libro de recuerdos de Angie...'. Hallazgo: api\/libro.php retorna 19 videos de Angie a Sophia.",
+        "evidence": {
+            "videos_count_in_sophia": 19,
+            "response_message_text": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨"
+        }
+    },
+    {
+        "section": "PRUEBA 5 - PANTALLA EN VIVO",
+        "test_id": "P5.1",
+        "description": "Pantalla en vivo de Sophia (\/en-vivo?evento=sophia-xv)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Título Sophia Valentina, QR dinámico a subir-fotos\/sophia-xv, y polling a evento_id=2",
+        "evidence": {
+            "http_code": 200
+        }
+    },
+    {
+        "section": "PRUEBA 5 - PANTALLA EN VIVO",
+        "test_id": "P5.2",
+        "description": "Pantalla en vivo de Angie (\/en-vivo?evento=angie-xv)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Título Angie Karolina y polling a fotos de Angie",
+        "evidence": {
+            "http_code": 200
+        }
+    },
+    {
+        "section": "PRUEBA 6 - SEGURIDAD",
+        "test_id": "P6.1",
+        "description": "Protección de acceso al panel administrativo (\/admin)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Panel bloqueado correctamente tras formulario de login. Cero exposición de datos sin auth",
+        "evidence": {
+            "http_code": 200
+        }
+    },
+    {
+        "section": "PRUEBA 6 - SEGURIDAD",
+        "test_id": "P6.2",
+        "description": "Rechazo de subida de archivos que no sean imágenes reales",
+        "passed": true,
+        "status": "PASS",
+        "details": "Rechazado correctamente con HTTP 400 (Formato no soportado)",
+        "evidence": {
+            "http_code": 400,
+            "response": {
+                "success": false,
+                "error": "No se recibió ninguna imagen válida."
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 6 - SEGURIDAD",
+        "test_id": "P6.3",
+        "description": "Sanitización y prevención de inyección XSS en Libro de Recuerdos",
+        "passed": true,
+        "status": "PASS",
+        "details": "Etiquetas HTML escapadas con htmlspecialchars (&lt;script&gt;)",
+        "evidence": {
+            "escaped": true
+        }
+    },
+    {
+        "section": "PRUEBA 6 - SEGURIDAD",
+        "test_id": "P6.4",
+        "description": "Auditoría de api\/invitados.php (aislamiento multi-evento)",
+        "passed": false,
+        "status": "FAIL",
+        "details": "Hallazgo de Seguridad: api\/invitados.php expone la lista completa de invitados sin autenticación ni filtro por evento_id",
+        "evidence": {
+            "http_code": 200,
+            "total_asistentes": 2
+        }
+    },
+    {
+        "section": "PRUEBA 7 - ÁLBUM QR",
+        "test_id": "P7.1",
+        "description": "Apertura de formulario móvil tras escanear QR (\/subir-fotos\/sophia-xv)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Interfaz móvil configurada con identidad de Sophia y campo oculto evento_id=2",
+        "evidence": {
+            "http_code": 200
+        }
+    },
+    {
+        "section": "PRUEBA 7 - ÁLBUM QR",
+        "test_id": "P7.2",
+        "description": "Recepción y guardado de múltiples fotos enviadas por QR",
+        "passed": true,
+        "status": "PASS",
+        "details": "Fotos recibidas y registradas (ID 171 y ID 172) para evento_id = 2",
+        "evidence": {
+            "photo_1": 171,
+            "photo_2": 172
+        }
+    },
+    {
+        "section": "PRUEBA 7 - ÁLBUM QR",
+        "test_id": "P7.3",
+        "description": "Aparición instantánea de las fotos QR en la galería en vivo de Sophia",
+        "passed": true,
+        "status": "PASS",
+        "details": "Ambas fotos se reflejan de inmediato en la galería",
+        "evidence": {
+            "found_f1": true,
+            "found_f2": true
+        }
+    },
+    {
+        "section": "PRUEBA 7 - ÁLBUM QR",
+        "test_id": "P7.4",
+        "description": "Moderación administrativa de fotos QR (ocultar\/desaprobar foto)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Foto 171 ocultada exitosamente por administración y retirada de la galería en vivo",
+        "evidence": {
+            "visible_db": 0,
+            "visible_in_feed": false
+        }
+    }
+]

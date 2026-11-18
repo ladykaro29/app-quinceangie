@@ -28,10 +28,17 @@ class TenantResolverMiddleware
             $slug = 'angie-xv';
         }
 
-        // 4. Consultar en base de datos
-        $stmt = $db->prepare("SELECT * FROM eventos WHERE slug = :slug AND activo = 1 LIMIT 1");
-        $stmt->execute([':slug' => $slug]);
-        $event = $stmt->fetch(PDO::FETCH_ASSOC);
+        // 4. Consultar en base de datos (con auto-recuperación si falta la tabla eventos)
+        try {
+            $stmt = $db->prepare("SELECT * FROM eventos WHERE slug = :slug AND activo = 1 LIMIT 1");
+            $stmt->execute([':slug' => $slug]);
+            $event = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            \App\Core\DatabaseMigrationService::ensureMigrated($db);
+            $stmt = $db->prepare("SELECT * FROM eventos WHERE slug = :slug AND activo = 1 LIMIT 1");
+            $stmt->execute([':slug' => $slug]);
+            $event = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
 
         if (!$event) {
             // Intentar por ID 1 como garantía

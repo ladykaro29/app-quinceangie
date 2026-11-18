@@ -1,0 +1,1 @@
+{"script":"admin\/index.php","method":"POST","post":{"action_foto":"toggle_visibility","foto_id":1},"session":{"admin_auth":true,"user_id":1,"user_role":"superadmin","active_evento_id":2}}

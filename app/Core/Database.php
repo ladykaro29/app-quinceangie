@@ -66,6 +66,7 @@ class Database
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]);
                 self::$driver = 'mysql';
+                DatabaseMigrationService::ensureMigrated(self::$instance);
                 return;
             } catch (PDOException $e) {
                 if ($dbDriver === 'mysql') {
@@ -86,5 +87,8 @@ class Database
         ]);
         self::$instance->exec("PRAGMA foreign_keys = ON;");
         self::$driver = 'sqlite';
+
+        // Auto-migración y auto-reparación de esquema multi-evento si es necesario
+        DatabaseMigrationService::ensureMigrated(self::$instance);
     }
 }

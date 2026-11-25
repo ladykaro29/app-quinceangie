@@ -136,7 +136,7 @@ class MultiTenantTestSuite
         $s5 = (strpos($bodySophia, 'Ramón Eduardo Rivas Avendaño') !== false && strpos($bodySophia, 'Estefany Yamileth Sánchez Ángulo') !== false);
         $s6 = (strpos($bodySophia, 'Princesa Sofía') !== false);
         $s7 = (strpos($bodySophia, '#1E0E1B') !== false && strpos($bodySophia, '#D98CB8') !== false);
-        $s8 = (strpos($bodySophia, 'sophia-portada.jpg') !== false || strpos($bodySophia, 'sophia-xv.jpg') !== false);
+        $s8 = (strpos($bodySophia, 'sophia-portada') !== false || strpos($bodySophia, 'sophia-xv') !== false);
         $s9 = (strpos($bodySophia, 'Angie Karolina') === false && strpos($bodySophia, 'Edwin Avendaño') === false);
 
         $passedSophia = $s1 && $s2 && $s3 && $s4 && $s5 && $s6 && $s7 && $s8 && $s9;

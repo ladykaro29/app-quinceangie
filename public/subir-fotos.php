@@ -1,7 +1,7 @@
 <?php
 /**
- * XV Experience — Página Móvil del Álbum Colaborativo
- * Permite a los invitados compartir fotografías tomadas durante la fiesta
+ * XV Experience — Página Móvil del Álbum Colaborativo Profesional
+ * Subida múltiple, compresión inteligente en navegador y cola de envíos resiliente.
  */
 require_once __DIR__ . '/../app/autoload.php';
 
@@ -15,6 +15,9 @@ $configs = CurrentEventContext::allConfigs();
 $festejada = htmlspecialchars($event['festejada_nombre'] ?? 'La Quinceañera');
 $nombreEvento = htmlspecialchars($event['nombre_celebracion'] ?? 'Mis XV Años');
 $slug = htmlspecialchars(CurrentEventContext::slug() ?? 'angie-xv');
+$isSophia = str_contains($festejada, 'Sophia');
+
+$portadaUrl = $configs['portada_url'] ?? ($isSophia ? 'sophia-portada.webp' : 'portada.jpg');
 $designTokens = $configs['design_tokens'] ?? null;
 if (is_string($designTokens)) {
     $designTokens = json_decode($designTokens, true);
@@ -25,12 +28,12 @@ if (is_string($designTokens)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Álbum Colaborativo · <?= $festejada ?></title>
-    <!-- Favicon Corona Real -->
+    <title>📸 Álbum Colaborativo · <?= $festejada ?></title>
+    <!-- Favicon Corona / Mariposa -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23062E25' stroke='%23C8A24A' stroke-width='2.5'/%3E%3Cpath d='M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z' fill='%23FFD700' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Cpath d='M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z' fill='%23C8A24A'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -42,6 +45,8 @@ if (is_string($designTokens)) {
             --gold-light: #FFF0BA;
             --text-light: #F5F5F0;
             --text-muted: #A3B8B0;
+            --accent-pink: #F9E0E9;
+            --accent-lavender: #9C84BA;
             --radius-card: 16px;
         }
 
@@ -70,13 +75,13 @@ if (is_string($designTokens)) {
         body {
             background-color: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 10% 10%, rgba(200, 162, 74, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 10% 10%, rgba(200, 162, 74, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 90%, rgba(10, 60, 49, 0.4) 0%, transparent 50%),
                 linear-gradient(180deg, #02110E 0%, #062E25 100%);
             color: var(--text-light);
             font-family: 'Montserrat', sans-serif;
             min-height: 100vh;
-            padding: 20px 16px 60px;
+            padding: 16px 14px 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -86,15 +91,15 @@ if (is_string($designTokens)) {
             text-align: center;
             max-width: 480px;
             width: 100%;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        .badge-crown {
+        .badge-celebration {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 14px;
-            background: rgba(200, 162, 74, 0.15);
+            padding: 6px 16px;
+            background: rgba(200, 162, 74, 0.18);
             border: 1px solid var(--gold-primary);
             border-radius: 50px;
             color: var(--gold-bright);
@@ -106,7 +111,7 @@ if (is_string($designTokens)) {
 
         .header h1 {
             font-family: 'Cinzel Decorative', serif;
-            font-size: 1.55rem;
+            font-size: 1.5rem;
             color: var(--gold-light);
             line-height: 1.3;
             margin-bottom: 6px;
@@ -122,14 +127,14 @@ if (is_string($designTokens)) {
             background: var(--emerald-card);
             border: 1px solid rgba(200, 162, 74, 0.35);
             border-radius: var(--radius-card);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
             max-width: 480px;
             width: 100%;
-            padding: 24px 20px;
+            padding: 22px 18px;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .form-label {
@@ -160,12 +165,30 @@ if (is_string($designTokens)) {
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
         }
 
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+
+        .terms-checkbox input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--gold-primary);
+            width: 16px;
+            height: 16px;
+        }
+
         .dropzone-area {
             border: 2px dashed var(--gold-primary);
             border-radius: 12px;
             padding: 24px 16px;
             text-align: center;
-            background: rgba(4, 27, 22, 0.4);
+            background: rgba(4, 27, 22, 0.45);
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
@@ -184,9 +207,10 @@ if (is_string($designTokens)) {
         }
 
         .dropzone-area p {
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             color: var(--text-light);
             margin-bottom: 4px;
+            font-weight: 500;
         }
 
         .dropzone-area span {
@@ -198,43 +222,103 @@ if (is_string($designTokens)) {
             display: none;
         }
 
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        /* Cola de Archivos */
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 18px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+            color: var(--gold-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .queue-list {
+            display: flex;
+            flex-direction: column;
             gap: 10px;
-            margin-top: 16px;
+            margin-bottom: 16px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
-        .preview-item {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid rgba(200, 162, 74, 0.4);
-            background: #000;
-        }
-
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .preview-item .remove-btn {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: rgba(230, 50, 50, 0.85);
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 0.7rem;
-            cursor: pointer;
+        .queue-item {
+            background: rgba(3, 23, 19, 0.8);
+            border: 1px solid rgba(200, 162, 74, 0.25);
+            border-radius: 10px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .queue-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(200, 162, 74, 0.3);
+            background: #000;
+            flex-shrink: 0;
+        }
+
+        .queue-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .queue-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-light);
+        }
+
+        .queue-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 2px;
+        }
+
+        .status-pill {
+            display: inline-block;
+            font-size: 0.68rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .status-selected { background: rgba(255, 255, 255, 0.15); color: #fff; }
+        .status-processing { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
+        .status-ready { background: rgba(52, 152, 219, 0.3); color: #3498db; }
+        .status-uploading { background: rgba(230, 126, 34, 0.3); color: #e67e22; }
+        .status-success { background: rgba(46, 204, 113, 0.3); color: #2ecc71; }
+        .status-error { background: rgba(231, 76, 60, 0.3); color: #e74c3c; }
+
+        .queue-action {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .queue-action:hover {
+            color: #e74c3c;
         }
 
         .btn-submit {
@@ -248,7 +332,6 @@ if (is_string($designTokens)) {
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            margin-top: 18px;
             box-shadow: 0 4px 15px rgba(200, 162, 74, 0.3);
             display: flex;
             align-items: center;
@@ -291,6 +374,8 @@ if (is_string($designTokens)) {
             font-size: 0.85rem;
             margin-top: 16px;
             display: none;
+            align-items: center;
+            gap: 10px;
         }
 
         .alert-success {
@@ -300,19 +385,19 @@ if (is_string($designTokens)) {
         }
 
         .alert-error {
-            background: rgba(200, 40, 40, 0.25);
+            background: rgba(180, 40, 40, 0.25);
             border: 1px solid #e74c3c;
-            color: #fca5a5;
+            color: #f8b4b4;
         }
 
         .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             margin-top: 24px;
             color: var(--gold-light);
             text-decoration: none;
             font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             transition: color 0.2s;
         }
 
@@ -324,37 +409,50 @@ if (is_string($designTokens)) {
 <body>
 
     <header class="header">
-        <div class="badge-crown">
-            <i class="fas fa-crown"></i>
-            <span>XV Experience</span>
+        <div class="badge-celebration">
+            <i class="fas <?= $isSophia ? 'fa-butterfly' : 'fa-crown' ?>"></i>
+            <span><?= $nombreEvento ?></span>
         </div>
-        <h1>Álbum Colaborativo</h1>
-        <p>Comparte las fotos que tomaste durante la fiesta de <strong><?= $festejada ?></strong> para que se proyecten en vivo en las pantallas.</p>
+        <h1><?= $festejada ?></h1>
+        <p>Comparte tus fotos y momentos especiales para proyectarlos en la fiesta en vivo.</p>
     </header>
 
     <main class="upload-card">
         <form id="albumForm">
+            <input type="hidden" name="evento_id" id="hidden_evento_id" value="<?= (int)($event['id'] ?? 1) ?>">
             <div class="form-group">
-                <label class="form-label" for="nombre_invitado"><i class="fas fa-user-tag"></i> Tu Nombre / Familia</label>
-                <input type="text" id="nombre_invitado" name="nombre_invitado" class="form-input" placeholder="Ej. Tío Roberto y Familia" required maxlength="60">
+                <label class="form-label" for="nombre_invitado">Tu Nombre o Apodo:</label>
+                <input type="text" id="nombre_invitado" class="form-input" placeholder="Ej. Tía Carmen / Primo David" required maxlength="60">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="mensaje"><i class="fas fa-comment-heart"></i> Mensaje o Dedicatoria (Opcional)</label>
-                <textarea id="mensaje" name="mensaje" class="form-textarea" rows="2" placeholder="¡Felicidades Angie en tu noche mágica!" maxlength="300"></textarea>
+                <label class="form-label" for="mensaje">Dedicatoria o Mensaje (Opcional):</label>
+                <textarea id="mensaje" class="form-textarea" rows="2" placeholder="¡Muchas felicidades en tus XV!" maxlength="300"></textarea>
             </div>
 
             <div class="form-group">
-                <label class="form-label"><i class="fas fa-camera"></i> Selecciona tus Fotos</label>
+                <label class="form-label">Seleccionar Fotografías:</label>
                 <div class="dropzone-area" id="dropzone">
                     <i class="fas fa-cloud-arrow-up"></i>
                     <p>Toca aquí o arrastra tus fotografías</p>
-                    <span>Formatos JPG, PNG, WEBP (Hasta 12 MB)</span>
+                    <span>Formatos JPG, PNG, WEBP (Comprimidas automáticamente)</span>
                 </div>
                 <input type="file" id="fotoInput" class="file-input" accept="image/jpeg,image/png,image/webp,image/heic" multiple>
             </div>
 
-            <div class="preview-grid" id="previewGrid"></div>
+            <!-- Lista interactiva de la cola -->
+            <div id="queueContainer" style="display: none;">
+                <div class="queue-header">
+                    <span>Fotos para enviar (<span id="queueCount">0</span>)</span>
+                    <button type="button" id="btnClearAll" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.75rem;">Limpiar todo</button>
+                </div>
+                <div class="queue-list" id="queueList"></div>
+            </div>
+
+            <label class="terms-checkbox">
+                <input type="checkbox" id="termsCheck" checked required>
+                <span>Acepto que estas fotografías se proyecten en la fiesta y formen parte del álbum digital de recuerdos.</span>
+            </label>
 
             <div class="progress-bar-container" id="progressContainer">
                 <div class="progress-bar" id="progressBar"></div>
@@ -379,9 +477,14 @@ if (is_string($designTokens)) {
     </a>
 
     <script>
+    (() => {
+        const eventoId = <?= (int)($event['id'] ?? 1) ?>;
         const dropzone = document.getElementById('dropzone');
         const fotoInput = document.getElementById('fotoInput');
-        const previewGrid = document.getElementById('previewGrid');
+        const queueContainer = document.getElementById('queueContainer');
+        const queueList = document.getElementById('queueList');
+        const queueCount = document.getElementById('queueCount');
+        const btnClearAll = document.getElementById('btnClearAll');
         const btnSubmit = document.getElementById('btnSubmit');
         const albumForm = document.getElementById('albumForm');
         const progressContainer = document.getElementById('progressContainer');
@@ -390,66 +493,143 @@ if (is_string($designTokens)) {
         const alertError = document.getElementById('alertError');
         const successMsg = document.getElementById('successMsg');
         const errorMsg = document.getElementById('errorMsg');
+        const termsCheck = document.getElementById('termsCheck');
 
-        let selectedFiles = [];
+        // Estado de la cola de archivos
+        // Cada elemento: { id, file, originalSize, optimizedFile, optimizedSize, status, progress, error, uuid }
+        let uploadQueue = [];
+        let isUploading = false;
 
+        function generateUuid() {
+            if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+            return 'c_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Dropzone interactions
         dropzone.addEventListener('click', () => fotoInput.click());
-
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('dragover');
-        });
-
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
         dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
+            handleIncomingFiles(e.dataTransfer.files);
         });
-
         fotoInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
+            handleIncomingFiles(e.target.files);
+            fotoInput.value = '';
         });
 
-        function handleFiles(files) {
-            for (let file of files) {
-                if (file.type.startsWith('image/')) {
-                    selectedFiles.push(file);
-                }
+        btnClearAll.addEventListener('click', () => {
+            if (isUploading) return;
+            uploadQueue = [];
+            renderQueue();
+        });
+
+        termsCheck.addEventListener('change', updateSubmitState);
+
+        function handleIncomingFiles(files) {
+            if (!files || files.length === 0) return;
+            for (let f of files) {
+                if (!f.type.startsWith('image/')) continue;
+                uploadQueue.push({
+                    id: 'q_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+                    uuid: generateUuid(),
+                    file: f,
+                    name: f.name,
+                    originalSize: f.size,
+                    optimizedFile: null,
+                    optimizedSize: 0,
+                    status: 'selected', // selected, processing, ready, uploading, success, error
+                    error: null
+                });
             }
-            renderPreviews();
+            renderQueue();
+            processQueueCompression();
         }
 
-        function renderPreviews() {
-            previewGrid.innerHTML = '';
-            selectedFiles.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.className = 'preview-item';
+        function renderQueue() {
+            if (uploadQueue.length === 0) {
+                queueContainer.style.display = 'none';
+                updateSubmitState();
+                return;
+            }
 
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
+            queueContainer.style.display = 'block';
+            queueCount.textContent = uploadQueue.length;
+            queueList.innerHTML = '';
 
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                removeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    selectedFiles.splice(index, 1);
-                    renderPreviews();
-                };
+            uploadQueue.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'queue-item';
 
-                item.appendChild(img);
-                item.appendChild(removeBtn);
-                previewGrid.appendChild(item);
+                // Status label & badge class
+                let statusClass = 'status-selected';
+                let statusLabel = 'Seleccionada';
+                if (item.status === 'processing') { statusClass = 'status-processing'; statusLabel = 'Optimizando...'; }
+                else if (item.status === 'ready') { statusClass = 'status-ready'; statusLabel = 'Lista'; }
+                else if (item.status === 'uploading') { statusClass = 'status-uploading'; statusLabel = 'Subiendo...'; }
+                else if (item.status === 'success') { statusClass = 'status-success'; statusLabel = 'Recibida ✔'; }
+                else if (item.status === 'error') { statusClass = 'status-error'; statusLabel = 'Error ✖'; }
+
+                const thumbUrl = URL.createObjectURL(item.file);
+                const sizeText = item.optimizedSize > 0 
+                    ? `${formatBytes(item.originalSize)} → ${formatBytes(item.optimizedSize)}` 
+                    : formatBytes(item.originalSize);
+
+                el.innerHTML = `
+                    <img class="queue-thumb" src="${thumbUrl}" alt="Vista previa">
+                    <div class="queue-info">
+                        <div class="queue-name" title="${item.name}">${item.name}</div>
+                        <div class="queue-meta">
+                            <span>${sizeText}</span>
+                            <span class="status-pill ${statusClass}">${statusLabel}</span>
+                        </div>
+                        ${item.error ? `<div style="font-size:0.7rem; color:#e74c3c; margin-top:2px;">${item.error}</div>` : ''}
+                    </div>
+                    ${item.status === 'error' ? `<button type="button" class="queue-action retry-btn" data-id="${item.id}" title="Reintentar"><i class="fas fa-redo"></i></button>` : ''}
+                    ${item.status !== 'uploading' ? `<button type="button" class="queue-action delete-btn" data-id="${item.id}" title="Quitar"><i class="fas fa-trash-alt"></i></button>` : ''}
+                `;
+
+                const delBtn = el.querySelector('.delete-btn');
+                if (delBtn) {
+                    delBtn.onclick = () => {
+                        uploadQueue.splice(index, 1);
+                        renderQueue();
+                    };
+                }
+
+                const retryBtn = el.querySelector('.retry-btn');
+                if (retryBtn) {
+                    retryBtn.onclick = () => {
+                        item.status = 'ready';
+                        item.error = null;
+                        renderQueue();
+                    };
+                }
+
+                queueList.appendChild(el);
             });
 
-            btnSubmit.disabled = selectedFiles.length === 0;
+            updateSubmitState();
         }
 
-        function compressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.82) {
+        function updateSubmitState() {
+            const hasPending = uploadQueue.some(i => i.status === 'selected' || i.status === 'processing' || i.status === 'ready');
+            btnSubmit.disabled = !hasPending || isUploading || !termsCheck.checked;
+        }
+
+        // Módulo de compresión Canvas / WebP
+        async function compressImageFile(file, maxWidth = 2048, maxHeight = 2048, quality = 0.82) {
             return new Promise((resolve) => {
-                if (!file.type.startsWith('image/') || file.size < 250 * 1024) {
+                if (!file.type.startsWith('image/') || file.size < 200 * 1024) {
                     resolve(file);
                     return;
                 }
@@ -458,33 +638,41 @@ if (is_string($designTokens)) {
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        let width = img.width;
-                        let height = img.height;
+                        let w = img.width;
+                        let h = img.height;
 
-                        if (width > maxWidth || height > maxHeight) {
-                            if (width / height > maxWidth / maxHeight) {
-                                height = Math.round((height * maxWidth) / width);
-                                width = maxWidth;
+                        if (w > maxWidth || h > maxHeight) {
+                            if (w / h > maxWidth / maxHeight) {
+                                h = Math.round((h * maxWidth) / w);
+                                w = maxWidth;
                             } else {
-                                width = Math.round((width * maxHeight) / height);
-                                height = maxHeight;
+                                w = Math.round((w * maxHeight) / h);
+                                h = maxHeight;
                             }
                         }
 
                         const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
+                        canvas.width = w;
+                        canvas.height = h;
                         const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
+                        ctx.drawImage(img, 0, 0, w, h);
 
+                        // Probar WebP primero, fallback a JPEG
                         canvas.toBlob((blob) => {
-                            if (blob) {
-                                const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                                resolve(new File([blob], cleanName, { type: 'image/jpeg', lastModified: Date.now() }));
+                            if (blob && blob.size < file.size) {
+                                const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+                                resolve(new File([blob], cleanName, { type: 'image/webp', lastModified: Date.now() }));
                             } else {
-                                resolve(file);
+                                canvas.toBlob((blobJpeg) => {
+                                    if (blobJpeg) {
+                                        const cleanNameJpeg = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                                        resolve(new File([blobJpeg], cleanNameJpeg, { type: 'image/jpeg', lastModified: Date.now() }));
+                                    } else {
+                                        resolve(file);
+                                    }
+                                }, 'image/jpeg', quality);
                             }
-                        }, 'image/jpeg', quality);
+                        }, 'image/webp', quality);
                     };
                     img.onerror = () => resolve(file);
                     img.src = e.target.result;
@@ -494,10 +682,37 @@ if (is_string($designTokens)) {
             });
         }
 
+        // Procesa la compresión secuencial de la cola para no saturar CPU en móviles
+        async function processQueueCompression() {
+            for (let item of uploadQueue) {
+                if (item.status === 'selected') {
+                    item.status = 'processing';
+                    renderQueue();
+
+                    try {
+                        const opt = await compressImageFile(item.file);
+                        item.optimizedFile = opt;
+                        item.optimizedSize = opt.size;
+                        item.status = 'ready';
+                    } catch (e) {
+                        item.optimizedFile = item.file;
+                        item.optimizedSize = item.file.size;
+                        item.status = 'ready';
+                    }
+                    renderQueue();
+                }
+            }
+        }
+
+        // Envío con concurrencia limitada (máx. 2 simultáneas)
         albumForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (selectedFiles.length === 0) return;
+            if (isUploading) return;
 
+            const itemsToUpload = uploadQueue.filter(i => i.status === 'ready');
+            if (itemsToUpload.length === 0) return;
+
+            isUploading = true;
             btnSubmit.disabled = true;
             alertSuccess.style.display = 'none';
             alertError.style.display = 'none';
@@ -506,55 +721,80 @@ if (is_string($designTokens)) {
 
             const nombre = document.getElementById('nombre_invitado').value.trim();
             const mensaje = document.getElementById('mensaje').value.trim();
-            let sentCount = 0;
-            let errors = 0;
 
-            for (let i = 0; i < selectedFiles.length; i++) {
-                const originalFile = selectedFiles[i];
-                const fileToUpload = await compressImage(originalFile);
+            let completedCount = 0;
+            let successCount = 0;
+            let errorCount = 0;
+            const total = itemsToUpload.length;
 
-                const formData = new FormData();
-                formData.append('evento_id', '<?= (int)($event['id'] ?? 1) ?>');
-                formData.append('foto', fileToUpload);
-                formData.append('nombre_invitado', nombre);
-                formData.append('mensaje', mensaje);
+            const CONCURRENCY = 2;
+            let currentIndex = 0;
 
-                try {
-                    const res = await fetch('../api/fotos.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        sentCount++;
-                    } else {
-                        errors++;
+            async function uploadWorker() {
+                while (currentIndex < itemsToUpload.length) {
+                    const item = itemsToUpload[currentIndex++];
+                    item.status = 'uploading';
+                    renderQueue();
+
+                    const formData = new FormData();
+                    formData.append('evento_id', '<?= (int)($event['id'] ?? 1) ?>');
+                    formData.append('foto', item.optimizedFile || item.file);
+                    formData.append('nombre_invitado', nombre);
+                    formData.append('mensaje', mensaje);
+                    formData.append('subida_uuid', item.uuid);
+
+                    try {
+                        const res = await fetch('../api/fotos.php', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (data && data.success) {
+                            item.status = 'success';
+                            successCount++;
+                        } else {
+                            item.status = 'error';
+                            item.error = data.error || 'Fallo en servidor';
+                            errorCount++;
+                        }
+                    } catch (err) {
+                        item.status = 'error';
+                        item.error = 'Error de conexión';
+                        errorCount++;
                     }
-                } catch (err) {
-                    errors++;
-                }
 
-                const pct = Math.round(((i + 1) / selectedFiles.length) * 100);
-                progressBar.style.width = pct + '%';
+                    completedCount++;
+                    const pct = Math.round((completedCount / total) * 100);
+                    progressBar.style.width = pct + '%';
+                    renderQueue();
+                }
             }
 
+            // Iniciar workers en paralelo con concurrencia limitada
+            const workers = [];
+            for (let w = 0; w < Math.min(CONCURRENCY, itemsToUpload.length); w++) {
+                workers.push(uploadWorker());
+            }
+
+            await Promise.all(workers);
+
+            isUploading = false;
             progressContainer.style.display = 'none';
 
-            if (sentCount > 0) {
-                successMsg.textContent = `¡Listo! Se compartieron ${sentCount} fotografía(s) en la pantalla de la fiesta.`;
-                alertSuccess.style.display = 'block';
-                selectedFiles = [];
-                renderPreviews();
+            if (successCount > 0) {
+                successMsg.textContent = `¡Listo! Se compartieron ${successCount} fotografía(s) en la fiesta de ${nombre ? nombre : 'los anfitriones'}.`;
+                alertSuccess.style.display = 'flex';
                 document.getElementById('mensaje').value = '';
             }
 
-            if (errors > 0) {
-                errorMsg.textContent = `${errors} fotografía(s) no pudieron enviarse. Inténtalo nuevamente.`;
-                alertError.style.display = 'block';
+            if (errorCount > 0) {
+                errorMsg.textContent = `${errorCount} foto(s) no se pudieron enviar. Puedes tocar el botón de reintentar.`;
+                alertError.style.display = 'flex';
             }
 
-            btnSubmit.disabled = selectedFiles.length === 0;
+            updateSubmitState();
         });
+    })();
     </script>
 </body>
 </html>

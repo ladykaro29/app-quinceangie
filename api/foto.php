@@ -4,6 +4,10 @@
  * Invitación XV Años - Angie Karolina
  */
 
+require_once __DIR__ . '/../app/autoload.php';
+
+use App\Services\StorageService;
+
 $filename = $_GET['f'] ?? '';
 $filename = basename($filename); // Evitar Directory Traversal
 
@@ -12,9 +16,21 @@ if (empty($filename)) {
     exit('Archivo no especificado');
 }
 
-$filepath = __DIR__ . '/../public/assets/fotos/' . $filename;
-if (!file_exists($filepath) || !is_readable($filepath)) {
-    $filepath = __DIR__ . '/../database/uploads/fotos/' . $filename;
+$thumb = isset($_GET['thumb']) && $_GET['thumb'] == '1';
+$eventoId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : null;
+
+$filepath = null;
+if (class_exists(StorageService::class)) {
+    $filepath = $thumb 
+        ? StorageService::resolveThumbPath($filename, $eventoId)
+        : StorageService::resolvePhotoPath($filename, $eventoId);
+}
+
+if (!$filepath || !file_exists($filepath) || !is_readable($filepath)) {
+    $filepath = __DIR__ . '/../public/assets/fotos/' . $filename;
+    if (!file_exists($filepath) || !is_readable($filepath)) {
+        $filepath = __DIR__ . '/../database/uploads/fotos/' . $filename;
+    }
 }
 
 if (!file_exists($filepath) || !is_readable($filepath)) {

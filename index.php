@@ -59,12 +59,26 @@ Router::get('/subir-fotos/{slug}', function($slug) {
     require_once __DIR__ . '/public/subir-fotos.php';
 });
 
+// Tarjeta imprimible con QR para mesas (10x15 cm)
+Router::get('/tarjeta-qr', function() {
+    require_once __DIR__ . '/public/tarjeta-qr.php';
+});
+
+Router::get('/tarjeta-qr/{slug}', function($slug) {
+    $_GET['evento'] = $slug;
+    require_once __DIR__ . '/public/tarjeta-qr.php';
+});
+
 // ==============================================================================
 // 4. RUTAS DEL PANEL ADMINISTRATIVO
 // ==============================================================================
 
 Router::any('/admin', function() {
     require_once __DIR__ . '/admin/index.php';
+});
+
+Router::any('/admin/moderacion-fotos', function() {
+    require_once __DIR__ . '/admin/moderacion-fotos.php';
 });
 
 // ==============================================================================

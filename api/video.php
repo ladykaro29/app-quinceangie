@@ -8,9 +8,9 @@
 $filename = $_GET['v'] ?? '';
 $filename = basename($filename); // Evitar Directory Traversal
 
-if (empty($filename)) {
+if (empty($filename) || !str_ends_with(strtolower($filename), '.mp4')) {
     http_response_code(400);
-    exit('Archivo no especificado');
+    exit('Archivo no especificado o formato no permitido');
 }
 
 $filepath = __DIR__ . '/../public/assets/videos/' . $filename;

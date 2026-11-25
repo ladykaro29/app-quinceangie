@@ -8,7 +8,7 @@
         "details": "Verde esmeralda, fecha 3 Oct, fotos de Angie presentes, sin rastros de Sophia",
         "evidence": {
             "http_code": 200,
-            "body_len": 202803
+            "body_len": 201506
         }
     },
     {
@@ -29,11 +29,11 @@
         "description": "Registro de confirmación en Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Invitado guardado correctamente con evento_id = 2 (ID 1)",
+        "details": "Invitado guardado correctamente con evento_id = 2 (ID 4)",
         "evidence": {
             "response": {
                 "success": true,
-                "id": 1,
+                "id": 4,
                 "evento_id": 2,
                 "nombre": "Test Invitado Sophia Integracion",
                 "asistira": true,
@@ -41,16 +41,16 @@
                     "Test Acompanante Sophia Integracion"
                 ],
                 "total_pases": 2,
-                "qr_code": "XV-SOPHIA-0001-F608DD",
+                "qr_code": "XV-SOPHIA-0004-BAE8C7",
                 "boletos_rifa": [
                     {
                         "nombre": "Test Invitado Sophia Integracion",
-                        "codigo": "RIFA-1264",
+                        "codigo": "RIFA-3266",
                         "es_titular": true
                     },
                     {
                         "nombre": "Test Acompanante Sophia Integracion",
-                        "codigo": "RIFA-4307",
+                        "codigo": "RIFA-4781",
                         "es_titular": false
                     }
                 ],
@@ -76,9 +76,9 @@
         "description": "Prefijo de Pase VIP correspondiente a la celebración (XV-SOPHIA)",
         "passed": true,
         "status": "PASS",
-        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0001-F608DD",
+        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0004-BAE8C7",
         "evidence": {
-            "qr_payload": "XV-SOPHIA-0001-F608DD"
+            "qr_payload": "XV-SOPHIA-0004-BAE8C7"
         }
     },
     {
@@ -92,7 +92,7 @@
             "response": {
                 "success": true,
                 "ya_registrado": true,
-                "id": 1,
+                "id": 4,
                 "evento_id": 2,
                 "nombre": "Test Invitado Sophia Integracion",
                 "asistira": true,
@@ -100,16 +100,16 @@
                     "Test Acompanante Sophia Integracion"
                 ],
                 "total_pases": 2,
-                "qr_code": "XV-SOPHIA-0001-F608DD",
+                "qr_code": "XV-SOPHIA-0004-BAE8C7",
                 "boletos_rifa": [
                     {
                         "nombre": "Test Invitado Sophia Integracion",
-                        "codigo": "RIFA-1264",
+                        "codigo": "RIFA-3266",
                         "es_titular": true
                     },
                     {
                         "nombre": "Test Acompanante Sophia Integracion",
-                        "codigo": "RIFA-4307",
+                        "codigo": "RIFA-4781",
                         "es_titular": false
                     }
                 ],
@@ -124,9 +124,9 @@
         "description": "Subida física y registro de fotografía para Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto guardada en disco (angie_xv_20261118_205210_db00ec3a7a27.png) e insertada con ID 169",
+        "details": "Foto guardada en disco (angie_xv_20261125_170125_47aec0f76871.png) e insertada con ID 177",
         "evidence": {
-            "photo_id": 169,
+            "photo_id": 177,
             "file_exists": true
         }
     },
@@ -136,9 +136,9 @@
         "description": "Subida física y registro de fotografía para Angie (evento_id = 1)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto guardada en disco (angie_xv_20261118_205211_655d4884cf07.png) e insertada con ID 170",
+        "details": "Foto guardada en disco (angie_xv_20261125_170125_ed3fac247f4e.png) e insertada con ID 178",
         "evidence": {
-            "photo_id": 170,
+            "photo_id": 178,
             "file_exists": true
         }
     },
@@ -148,9 +148,9 @@
         "description": "Aislamiento de galería Sophia (excluye fotos de Angie y recuerdos oficiales de Angie)",
         "passed": true,
         "status": "PASS",
-        "details": "Sophia solo ve sus fotos (4 fotos). Cero fotos de Angie filtradas",
+        "details": "Sophia solo ve sus fotos (1 fotos). Cero fotos de Angie filtradas",
         "evidence": {
-            "total_sophia": 4,
+            "total_sophia": 1,
             "leaked_angie": false
         }
     },
@@ -160,9 +160,9 @@
         "description": "Aislamiento de galería Angie (excluye fotos de Sophia)",
         "passed": true,
         "status": "PASS",
-        "details": "Angie conserva sus fotos oficiales y de prueba (161). Cero fotos de Sophia filtradas",
+        "details": "Angie conserva sus fotos oficiales y de prueba (160). Cero fotos de Sophia filtradas",
         "evidence": {
-            "total_angie": 161,
+            "total_angie": 160,
             "leaked_sophia": false
         }
     },
@@ -172,20 +172,20 @@
         "description": "Publicación de dedicatoria en Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Dedicatoria guardada con ID 107",
+        "details": "Dedicatoria guardada con ID 113",
         "evidence": {
             "response": {
                 "success": true,
-                "message": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨",
+                "message": "¡Dedicatoria guardada en el libro de recuerdos de Sophia con éxito! ✨",
                 "mensaje_nuevo": {
-                    "id": 107,
+                    "id": 113,
                     "nombre": "Madrina Test Sophia",
                     "mensaje": "¡Felicidades Sophia Valentina en tu noche mágica!",
                     "icono": "👑",
                     "color": "rose",
                     "likes": 0,
                     "fecha_formateada": "Hace un momento",
-                    "created_at": "2026-11-18 20:52:11"
+                    "created_at": "2026-11-25 17:01:27"
                 }
             }
         }
@@ -196,20 +196,20 @@
         "description": "Publicación de dedicatoria en Angie (evento_id = 1)",
         "passed": true,
         "status": "PASS",
-        "details": "Dedicatoria guardada con ID 108",
+        "details": "Dedicatoria guardada con ID 114",
         "evidence": {
             "response": {
                 "success": true,
                 "message": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨",
                 "mensaje_nuevo": {
-                    "id": 108,
+                    "id": 114,
                     "nombre": "Padrino Test Angie",
                     "mensaje": "¡Que Dios te bendiga Angie Karolina!",
                     "icono": "✨",
                     "color": "emerald",
                     "likes": 0,
                     "fecha_formateada": "Hace un momento",
-                    "created_at": "2026-11-18 20:52:11"
+                    "created_at": "2026-11-25 17:01:28"
                 }
             }
         }
@@ -222,7 +222,7 @@
         "status": "PASS",
         "details": "Sophia ve exclusivamente sus mensajes. Cero dedicatorias de Angie filtradas",
         "evidence": {
-            "total_mensajes": 4,
+            "total_mensajes": 2,
             "leaked_angie": false
         }
     },
@@ -230,12 +230,12 @@
         "section": "PRUEBA 4 - LIBRO DE RECUERDOS",
         "test_id": "P4.4",
         "description": "Auditoría de videos y textos residuales en api\/libro.php",
-        "passed": false,
-        "status": "FAIL",
-        "details": "Hallazgo: Mensaje de respuesta dice '...libro de recuerdos de Angie...'. Hallazgo: api\/libro.php retorna 19 videos de Angie a Sophia.",
+        "passed": true,
+        "status": "PASS",
+        "details": "",
         "evidence": {
-            "videos_count_in_sophia": 19,
-            "response_message_text": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨"
+            "videos_count_in_sophia": 0,
+            "response_message_text": "¡Dedicatoria guardada en el libro de recuerdos de Sophia con éxito! ✨"
         }
     },
     {
@@ -300,13 +300,12 @@
     {
         "section": "PRUEBA 6 - SEGURIDAD",
         "test_id": "P6.4",
-        "description": "Auditoría de api\/invitados.php (aislamiento multi-evento)",
-        "passed": false,
-        "status": "FAIL",
-        "details": "Hallazgo de Seguridad: api\/invitados.php expone la lista completa de invitados sin autenticación ni filtro por evento_id",
+        "description": "Protección de datos privados en api\/invitados.php (Rechazo sin autenticación)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Rechazado correctamente con HTTP 401 (Acceso privado protegido)",
         "evidence": {
-            "http_code": 200,
-            "total_asistentes": 2
+            "http_code": 401
         }
     },
     {
@@ -326,10 +325,10 @@
         "description": "Recepción y guardado de múltiples fotos enviadas por QR",
         "passed": true,
         "status": "PASS",
-        "details": "Fotos recibidas y registradas (ID 171 y ID 172) para evento_id = 2",
+        "details": "Fotos recibidas y registradas (ID 179 y ID 180) para evento_id = 2",
         "evidence": {
-            "photo_1": 171,
-            "photo_2": 172
+            "photo_1": 179,
+            "photo_2": 180
         }
     },
     {
@@ -350,10 +349,124 @@
         "description": "Moderación administrativa de fotos QR (ocultar\/desaprobar foto)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto 171 ocultada exitosamente por administración y retirada de la galería en vivo",
+        "details": "Foto 179 ocultada exitosamente por administración y retirada de la galería en vivo",
         "evidence": {
             "visible_db": 0,
             "visible_in_feed": false
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.1",
+        "description": "Consulta autenticada de invitados filtrada por Angie Karolina (evento_id = 1)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Retornó exclusivamente los invitados de Angie con evento_id = 1",
+        "evidence": {
+            "http_code": 200,
+            "evento": {
+                "id": 1,
+                "slug": "angie-xv",
+                "titulo": "Mis XV Años - Angie Karolina"
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.2",
+        "description": "Consulta autenticada de invitados filtrada por Sophia Valentina (evento_id = 2)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Retornó exclusivamente los invitados de Sophia con evento_id = 2",
+        "evidence": {
+            "http_code": 200,
+            "evento": {
+                "id": 2,
+                "slug": "sophia-xv",
+                "titulo": "Mis XV Años - Sophia Valentina"
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.3",
+        "description": "Bloqueo de pase de Angie en check-in de Sophia (HTTP 403 Forbidden)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Pase de Angie rechazado exitosamente en Sophia por pertenecer a otra celebración",
+        "evidence": {
+            "http_code": 403,
+            "response": {
+                "success": false,
+                "error": "Pase no válido para esta celebración. Este pase pertenece a la celebración de Angie Karolina (ID 1).",
+                "cross_event": true,
+                "evento_actual": 2,
+                "evento_nombre": "Mis XV Años - Sophia Valentina"
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.4",
+        "description": "Bloqueo de pase de Sophia en check-in de Angie (HTTP 403 Forbidden)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Pase de Sophia rechazado exitosamente en Angie por pertenecer a otra celebración",
+        "evidence": {
+            "http_code": 403,
+            "response": {
+                "success": false,
+                "error": "Pase no válido para esta celebración. Este pase pertenece a la celebración de Sophia Valentina (ID 2).",
+                "cross_event": true,
+                "evento_actual": 1,
+                "evento_nombre": "Mis XV Años - Angie Karolina"
+            }
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.5",
+        "description": "Aislamiento de videos: Sophia no recibe los videos de Angie (colección vacía [])",
+        "passed": true,
+        "status": "PASS",
+        "details": "api\/libro.php retorna 0 videos para Sophia (aislamiento total de assets de gala)",
+        "evidence": {
+            "total_videos_sophia": 0
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.6",
+        "description": "Aislamiento de sugerencias musicales en api\/canciones.php",
+        "passed": true,
+        "status": "PASS",
+        "details": "Canción guardada en Sophia (evento_id=2) y ausente en Angie (evento_id=1)",
+        "evidence": {
+            "found_sophia": true,
+            "found_angie": false
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.7",
+        "description": "Rutas con slug inexistente devuelven 404 y no exponen datos de Angie",
+        "passed": true,
+        "status": "PASS",
+        "details": "Manejado correctamente con HTTP 404 sin filtración de datos de Angie",
+        "evidence": {
+            "http_code": 404
+        }
+    },
+    {
+        "section": "PRUEBA 8 - FASE 0",
+        "test_id": "P8.8",
+        "description": "Bloqueo de Directory Traversal y archivos no permitidos en api\/video.php (HTTP 400)",
+        "passed": true,
+        "status": "PASS",
+        "details": "Petición con ruta maliciosa rechazada con HTTP 400",
+        "evidence": {
+            "http_code": 400,
+            "body": "Archivo no especificado o formato no permitido"
         }
     }
 ]

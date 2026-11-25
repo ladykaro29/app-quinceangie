@@ -9,7 +9,11 @@ require_once __DIR__ . '/../app/autoload.php';
 use App\Middleware\TenantResolverMiddleware;
 use App\Core\CurrentEventContext;
 
-TenantResolverMiddleware::resolve();
+if (!TenantResolverMiddleware::resolve()) {
+    http_response_code(404);
+    echo "<!DOCTYPE html><html lang='es'><head><meta charset='utf-8'><title>404 - Celebración No Encontrada</title><style>body{background:#062E25;color:#FFD700;font-family:sans-serif;text-align:center;padding:50px;}</style></head><body><h1>404 · Celebración No Encontrada</h1><p style='color:#FFF;'>El libro de recuerdos solicitado no existe o ha expirado.</p><a href='/' style='color:#FFD700;'>Volver al inicio</a></body></html>";
+    exit;
+}
 
 $currentEvent = CurrentEventContext::get();
 $currentConfigs = CurrentEventContext::allConfigs();

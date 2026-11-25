@@ -117,7 +117,17 @@ if ($method === 'POST' && $action === 'like') {
 if ($method === 'GET') {
     header('Content-Type: application/json; charset=utf-8');
 
-    $eventoId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : (isset($_GET['evento']) ? (int)$_GET['evento'] : 1);
+    $eventoId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : (isset($_GET['evento']) && is_numeric($_GET['evento']) ? (int)$_GET['evento'] : null);
+    if (!$eventoId) {
+        require_once __DIR__ . '/../app/autoload.php';
+        if (\App\Core\CurrentEventContext::isLoaded()) {
+            $eventoId = \App\Core\CurrentEventContext::id();
+        } else {
+            $slug = $_GET['evento'] ?? null;
+            \App\Middleware\TenantResolverMiddleware::resolve($slug);
+            $eventoId = \App\Core\CurrentEventContext::id() ?: 1;
+        }
+    }
     if ($eventoId <= 0) $eventoId = 1;
 
     // Mensajes filtrados por evento_id
@@ -133,72 +143,79 @@ if ($method === 'GET') {
         $m['fecha_formateada'] = date('d/m/Y H:i', strtotime($m['created_at']));
     }
 
-    // Videos disponibles (buscar en public/assets/videos y database/uploads/videos)
-    $videosDir = __DIR__ . '/../public/assets/videos';
-    if (!is_dir($videosDir) || empty(glob($videosDir . '/*.mp4'))) {
-        $videosDir = __DIR__ . '/../database/uploads/videos';
-    }
-
-    $titulosMomentos = [
-        1 => ["Llegada triunfal de Angie ✨", "4.79 MB"],
-        2 => ["Entrada mágica al salón 👑", "10.44 MB"],
-        3 => ["El Vals con Papá 💖", "2.01 MB"],
-        4 => ["Brindis con la Familia 🥂", "2.82 MB"],
-        5 => ["Baile sorpresa con el cortejo 💃", "2.43 MB"],
-        6 => ["Sesión de fotos y sonrisas 📸", "1.12 MB"],
-        7 => ["Momento de la torta de XV 🎂", "1.63 MB"],
-        8 => ["Abrazos y felicitaciones emotivas 💕", "1.34 MB"],
-        9 => ["La hora loca y luces neón 🎊", "1.24 MB"],
-        10 => ["Pista de baile encendida 🎶", "1.60 MB"],
-        11 => ["Diversión con los amigos 🥳", "0.85 MB"],
-        12 => ["Palabras especiales para Angie 🎙️", "2.93 MB"],
-        13 => ["El cotillón y la alegría dorada 🌟", "6.76 MB"],
-        14 => ["Coreografía de Angie y amigas 💃✨", "4.67 MB"],
-        15 => ["Risas y recuerdos inolvidables 💫", "2.56 MB"],
-        16 => ["Brindis de honor con los padrinos 🥂✨", "1.45 MB"],
-        17 => ["Sorpresa especial de la noche 🎁", "1.96 MB"],
-        18 => ["Momentos espontáneos de pura emoción ✨", "1.32 MB"],
-        19 => ["Gran cierre de una noche mágica 👑💫", "6.69 MB"]
-    ];
-
     $videosList = [];
-    if (is_dir($videosDir)) {
-        $videoFiles = glob($videosDir . '/*.mp4');
-        if (!empty($videoFiles)) {
-            natsort($videoFiles);
-            foreach ($videoFiles as $idx => $vf) {
-                $base = basename($vf);
-                $size = filesize($vf);
-                $num = $idx + 1;
-                $info = $titulosMomentos[$num] ?? ["Momento Especial #{$num}", round($size / 1024 / 1024, 2) . ' MB'];
 
+    // Los 19 videos originales pertenecen exclusivamente a Angie Karolina (evento_id = 1)
+    if ($eventoId === 1) {
+        $videosDir = __DIR__ . '/../public/assets/videos';
+        if (!is_dir($videosDir) || empty(glob($videosDir . '/*.mp4'))) {
+            $videosDir = __DIR__ . '/../database/uploads/videos';
+        }
+
+        $titulosMomentos = [
+            1 => ["Llegada triunfal de Angie ✨", "4.79 MB"],
+            2 => ["Entrada mágica al salón 👑", "10.44 MB"],
+            3 => ["El Vals con Papá 💖", "2.01 MB"],
+            4 => ["Brindis con la Familia 🥂", "2.82 MB"],
+            5 => ["Baile sorpresa con el cortejo 💃", "2.43 MB"],
+            6 => ["Sesión de fotos y sonrisas 📸", "1.12 MB"],
+            7 => ["Momento de la torta de XV 🎂", "1.63 MB"],
+            8 => ["Abrazos y felicitaciones emotivas 💕", "1.34 MB"],
+            9 => ["La hora loca y luces neón 🎊", "1.24 MB"],
+            10 => ["Pista de baile encendida 🎶", "1.60 MB"],
+            11 => ["Diversión con los amigos 🥳", "0.85 MB"],
+            12 => ["Palabras especiales para Angie 🎙️", "2.93 MB"],
+            13 => ["El cotillón y la alegría dorada 🌟", "6.76 MB"],
+            14 => ["Coreografía de Angie y amigas 💃✨", "4.67 MB"],
+            15 => ["Risas y recuerdos inolvidables 💫", "2.56 MB"],
+            16 => ["Brindis de honor con los padrinos 🥂✨", "1.45 MB"],
+            17 => ["Sorpresa especial de la noche 🎁", "1.96 MB"],
+            18 => ["Momentos espontáneos de pura emoción ✨", "1.32 MB"],
+            19 => ["Gran cierre de una noche mágica 👑💫", "6.69 MB"]
+        ];
+
+        if (is_dir($videosDir)) {
+            $videoFiles = glob($videosDir . '/*.mp4');
+            if (!empty($videoFiles)) {
+                natsort($videoFiles);
+                foreach ($videoFiles as $idx => $vf) {
+                    $base = basename($vf);
+                    $size = filesize($vf);
+                    $num = $idx + 1;
+                    $info = $titulosMomentos[$num] ?? ["Momento Especial #{$num}", round($size / 1024 / 1024, 2) . ' MB'];
+
+                    $videosList[] = [
+                        'id'         => $num,
+                        'titulo'     => $info[0],
+                        'archivo'    => $base,
+                        'url'        => 'api/video.php?v=' . rawurlencode($base),
+                        'direct_url' => 'assets/videos/' . rawurlencode($base),
+                        'tamano'     => round($size / 1024 / 1024, 2) . ' MB'
+                    ];
+                }
+            }
+        }
+
+        // Fallback garantizado para Angie Karolina si no se montaron los archivos en Docker
+        if (empty($videosList)) {
+            for ($i = 1; $i <= 19; $i++) {
+                $numStr = str_pad($i, 2, '0', STR_PAD_LEFT);
+                $base = "angie_xv_video_{$numStr}.mp4";
+                $info = $titulosMomentos[$i] ?? ["Momento Especial #{$i}", "2.5 MB"];
                 $videosList[] = [
-                    'id'         => $num,
+                    'id'         => $i,
                     'titulo'     => $info[0],
                     'archivo'    => $base,
                     'url'        => 'api/video.php?v=' . rawurlencode($base),
                     'direct_url' => 'assets/videos/' . rawurlencode($base),
-                    'tamano'     => round($size / 1024 / 1024, 2) . ' MB'
+                    'tamano'     => $info[1]
                 ];
             }
         }
-    }
-
-    // Fallback garantizado: si por alguna razón del contenedor Docker glob no encontró archivos, devolver los 19 videos
-    if (empty($videosList)) {
-        for ($i = 1; $i <= 19; $i++) {
-            $numStr = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $base = "angie_xv_video_{$numStr}.mp4";
-            $info = $titulosMomentos[$i] ?? ["Momento Especial #{$i}", "2.5 MB"];
-            $videosList[] = [
-                'id'         => $i,
-                'titulo'     => $info[0],
-                'archivo'    => $base,
-                'url'        => 'api/video.php?v=' . rawurlencode($base),
-                'direct_url' => 'assets/videos/' . rawurlencode($base),
-                'tamano'     => $info[1]
-            ];
-        }
+    } else {
+        // Para celebraciones como Sophia (evento_id = 2) u otras que aún no tienen videos propios,
+        // no se devuelven los videos de Angie; la colección queda vacía []
+        $videosList = [];
     }
 
     // Resumen fotos
@@ -267,9 +284,23 @@ if ($method === 'POST') {
 
     $newId = (int)$pdo->lastInsertId();
 
+    $celebracionNombre = 'la festejada';
+    if ($eventoId === 1) {
+        $celebracionNombre = 'Angie';
+    } elseif ($eventoId === 2) {
+        $celebracionNombre = 'Sophia';
+    } else {
+        $stmtEvNom = $pdo->prepare('SELECT festejada_nombre FROM eventos WHERE id = :id');
+        $stmtEvNom->execute([':id' => $eventoId]);
+        $evNom = $stmtEvNom->fetchColumn();
+        if ($evNom) {
+            $celebracionNombre = explode(' ', trim($evNom))[0];
+        }
+    }
+
     echo json_encode([
         'success' => true,
-        'message' => '¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨',
+        'message' => "¡Dedicatoria guardada en el libro de recuerdos de {$celebracionNombre} con éxito! ✨",
         'mensaje_nuevo' => [
             'id' => $newId,
             'nombre' => htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'),

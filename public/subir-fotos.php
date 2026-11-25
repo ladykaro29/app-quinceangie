@@ -447,6 +447,53 @@ if (is_string($designTokens)) {
             btnSubmit.disabled = selectedFiles.length === 0;
         }
 
+        function compressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.82) {
+            return new Promise((resolve) => {
+                if (!file.type.startsWith('image/') || file.size < 250 * 1024) {
+                    resolve(file);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth || height > maxHeight) {
+                            if (width / height > maxWidth / maxHeight) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            } else {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                                resolve(new File([blob], cleanName, { type: 'image/jpeg', lastModified: Date.now() }));
+                            } else {
+                                resolve(file);
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = () => resolve(file);
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => resolve(file);
+                reader.readAsDataURL(file);
+            });
+        }
+
         albumForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (selectedFiles.length === 0) return;
@@ -463,9 +510,12 @@ if (is_string($designTokens)) {
             let errors = 0;
 
             for (let i = 0; i < selectedFiles.length; i++) {
+                const originalFile = selectedFiles[i];
+                const fileToUpload = await compressImage(originalFile);
+
                 const formData = new FormData();
                 formData.append('evento_id', '<?= (int)($event['id'] ?? 1) ?>');
-                formData.append('foto', selectedFiles[i]);
+                formData.append('foto', fileToUpload);
                 formData.append('nombre_invitado', nombre);
                 formData.append('mensaje', mensaje);
 

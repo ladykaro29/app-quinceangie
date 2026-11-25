@@ -38,6 +38,7 @@ class MultiTenantTestSuite
             $this->test5_PantallaEnVivo();
             $this->test6_Seguridad();
             $this->test7_AlbumColaborativoQR();
+            $this->test8_AislamientoFase0();
         } finally {
             $this->cleanup();
         }
@@ -610,21 +611,19 @@ class MultiTenantTestSuite
             ['escaped' => $escaped]
         );
 
-        // 6.4 Auditoría de api/invitados.php (Riesgo de fuga transversal de invitados)
+        // 6.4 Protección y aislamiento de api/invitados.php (Rechazo sin autenticación)
         $respAllGuests = $this->executeRequest([
             'script' => 'api/invitados.php',
             'method' => 'GET'
         ]);
-        $jsonAllGuests = $respAllGuests['json'] ?? [];
-        $apiInvitadosFilters = isset($_GET['evento_id']) ? true : false;
-        // Inspección: api/invitados.php no filtra por evento_id
+        $p64_ok = ($respAllGuests['statusCode'] === 401);
         $this->recordResult(
             'PRUEBA 6 - SEGURIDAD',
             'P6.4',
-            'Auditoría de api/invitados.php (aislamiento multi-evento)',
-            false,
-            'Hallazgo de Seguridad: api/invitados.php expone la lista completa de invitados sin autenticación ni filtro por evento_id',
-            ['http_code' => $respAllGuests['statusCode'], 'total_asistentes' => $jsonAllGuests['total_asistentes'] ?? 0]
+            'Protección de datos privados en api/invitados.php (Rechazo sin autenticación)',
+            $p64_ok,
+            $p64_ok ? 'Rechazado correctamente con HTTP 401 (Acceso privado protegido)' : 'Falló: api/invitados.php no bloqueó petición anónima',
+            ['http_code' => $respAllGuests['statusCode']]
         );
     }
 
@@ -752,6 +751,192 @@ class MultiTenantTestSuite
             $p74_ok,
             $p74_ok ? "Foto $f1Id ocultada exitosamente por administración y retirada de la galería en vivo" : 'La moderación no ocultó la foto en la galería',
             ['visible_db' => $newVisible, 'visible_in_feed' => $f1StillVisible]
+        );
+    }
+
+    // =========================================================================
+    // PRUEBA 8 — REGRESIÓN, NEGATIVAS Y AISLAMIENTO CRUZADO (FASE 0)
+    // =========================================================================
+    private function test8_AislamientoFase0(): void
+    {
+        echo "\n--- PRUEBA 8: PRUEBAS DE REGRESIÓN Y AISLAMIENTO CRUZADO (FASE 0) ---\n";
+
+        // 8.1 Angie consulta únicamente sus invitados (autenticado)
+        $respAngieGuests = $this->executeRequest([
+            'script'  => 'api/invitados.php',
+            'method'  => 'GET',
+            'get'     => ['evento' => 'angie-xv'],
+            'session' => ['admin_auth' => true]
+        ]);
+        $jsonAngieGuests = $respAngieGuests['json'] ?? [];
+        $p81_ok = ($respAngieGuests['statusCode'] === 200 && ($jsonAngieGuests['evento']['id'] ?? 0) === 1);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.1',
+            'Consulta autenticada de invitados filtrada por Angie Karolina (evento_id = 1)',
+            $p81_ok,
+            $p81_ok ? 'Retornó exclusivamente los invitados de Angie con evento_id = 1' : 'Falló consulta autenticada de Angie',
+            ['http_code' => $respAngieGuests['statusCode'], 'evento' => $jsonAngieGuests['evento'] ?? []]
+        );
+
+        // 8.2 Sophia consulta únicamente sus invitados (autenticado)
+        $respSophiaGuests = $this->executeRequest([
+            'script'  => 'api/invitados.php',
+            'method'  => 'GET',
+            'get'     => ['evento' => 'sophia-xv'],
+            'session' => ['admin_auth' => true]
+        ]);
+        $jsonSophiaGuests = $respSophiaGuests['json'] ?? [];
+        $p82_ok = ($respSophiaGuests['statusCode'] === 200 && ($jsonSophiaGuests['evento']['id'] ?? 0) === 2);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.2',
+            'Consulta autenticada de invitados filtrada por Sophia Valentina (evento_id = 2)',
+            $p82_ok,
+            $p82_ok ? 'Retornó exclusivamente los invitados de Sophia con evento_id = 2' : 'Falló consulta autenticada de Sophia',
+            ['http_code' => $respSophiaGuests['statusCode'], 'evento' => $jsonSophiaGuests['evento'] ?? []]
+        );
+
+        // 8.3 Prevención de pase cruzado: Intentar usar pase de Angie en check-in de Sophia
+        $respCross1 = $this->executeRequest([
+            'script' => 'api/checkin.php',
+            'method' => 'POST',
+            'post'   => [
+                'qr_text'      => 'XV-ANGIE | PASE #12 | TITULAR: Invitado Angie',
+                'operator_key' => 'sophia2026',
+                'evento'       => 'sophia-xv'
+            ]
+        ]);
+        $jsonCross1 = $respCross1['json'] ?? [];
+        $p83_ok = ($respCross1['statusCode'] === 403 && ($jsonCross1['cross_event'] ?? false) === true);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.3',
+            'Bloqueo de pase de Angie en check-in de Sophia (HTTP 403 Forbidden)',
+            $p83_ok,
+            $p83_ok ? 'Pase de Angie rechazado exitosamente en Sophia por pertenecer a otra celebración' : 'El check-in no bloqueó el pase cruzado de Angie en Sophia',
+            ['http_code' => $respCross1['statusCode'], 'response' => $jsonCross1]
+        );
+
+        // 8.4 Prevención de pase cruzado: Intentar usar pase de Sophia en check-in de Angie
+        $respCross2 = $this->executeRequest([
+            'script' => 'api/checkin.php',
+            'method' => 'POST',
+            'post'   => [
+                'qr_text'      => 'XV-SOPHIA | PASE #5 | TITULAR: Invitado Sophia',
+                'operator_key' => 'angie2026',
+                'evento'       => 'angie-xv'
+            ]
+        ]);
+        $jsonCross2 = $respCross2['json'] ?? [];
+        $p84_ok = ($respCross2['statusCode'] === 403 && ($jsonCross2['cross_event'] ?? false) === true);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.4',
+            'Bloqueo de pase de Sophia en check-in de Angie (HTTP 403 Forbidden)',
+            $p84_ok,
+            $p84_ok ? 'Pase de Sophia rechazado exitosamente en Angie por pertenecer a otra celebración' : 'El check-in no bloqueó el pase cruzado de Sophia en Angie',
+            ['http_code' => $respCross2['statusCode'], 'response' => $jsonCross2]
+        );
+
+        // 8.5 Aislamiento de videos: Celebración sin videos propios recibe colección vacía []
+        $respVideosSophia = $this->executeRequest([
+            'script' => 'api/libro.php',
+            'method' => 'GET',
+            'get'    => ['evento_id' => 2]
+        ]);
+        $jsonVideosSophia = $respVideosSophia['json'] ?? [];
+        $p85_ok = ($respVideosSophia['statusCode'] === 200 && count($jsonVideosSophia['videos'] ?? [1]) === 0);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.5',
+            'Aislamiento de videos: Sophia no recibe los videos de Angie (colección vacía [])',
+            $p85_ok,
+            $p85_ok ? 'api/libro.php retorna 0 videos para Sophia (aislamiento total de assets de gala)' : 'Sophia recibió videos indebidos',
+            ['total_videos_sophia' => count($jsonVideosSophia['videos'] ?? [])]
+        );
+
+        // 8.6 Aislamiento de sugerencias de canciones en api/canciones.php
+        $testSongSophia = 'Cancion Test Sophia ' . uniqid();
+        $respSongSophia = $this->executeRequest([
+            'script' => 'api/canciones.php',
+            'method' => 'POST',
+            'input'  => [
+                'cancion'         => $testSongSophia,
+                'nombre_invitado' => 'Amiga de Sophia',
+                'evento_id'       => 2
+            ]
+        ]);
+        $p86_ok_post = ($respSongSophia['statusCode'] === 200 && ($respSongSophia['json']['success'] ?? false) === true);
+
+        // Verificar que aparezca en Sophia y NO en Angie
+        $respGetSongsSophia = $this->executeRequest([
+            'script' => 'api/canciones.php',
+            'method' => 'GET',
+            'get'    => ['evento_id' => 2]
+        ]);
+        $respGetSongsAngie = $this->executeRequest([
+            'script' => 'api/canciones.php',
+            'method' => 'GET',
+            'get'    => ['evento_id' => 1]
+        ]);
+
+        $songsSophia = $respGetSongsSophia['json']['canciones'] ?? [];
+        $songsAngie = $respGetSongsAngie['json']['canciones'] ?? [];
+
+        $foundInSophia = false;
+        $foundInAngie = false;
+        foreach ($songsSophia as $s) {
+            if ($s['cancion'] === $testSongSophia) $foundInSophia = true;
+        }
+        foreach ($songsAngie as $s) {
+            if ($s['cancion'] === $testSongSophia) $foundInAngie = true;
+        }
+
+        $p86_ok = ($p86_ok_post && $foundInSophia && !$foundInAngie);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.6',
+            'Aislamiento de sugerencias musicales en api/canciones.php',
+            $p86_ok,
+            $p86_ok ? 'Canción guardada en Sophia (evento_id=2) y ausente en Angie (evento_id=1)' : 'Falla en el aislamiento de canciones',
+            ['found_sophia' => $foundInSophia, 'found_angie' => $foundInAngie]
+        );
+
+        // Limpiar canción de prueba
+        $this->pdo->exec("DELETE FROM canciones WHERE cancion = " . $this->pdo->quote($testSongSophia));
+
+        // 8.7 Rutas inválidas devuelven HTTP 404 y no exponen datos de Angie
+        $respInvalidRoute = $this->executeRequest([
+            'script' => 'public/index.php',
+            'method' => 'GET',
+            'get'    => ['evento' => 'celebracion-inexistente-404'],
+            'uri'    => '/e/celebracion-inexistente-404'
+        ]);
+        $p87_ok = ($respInvalidRoute['statusCode'] === 404 && strpos($respInvalidRoute['body'], 'Angie Karolina') === false);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.7',
+            'Rutas con slug inexistente devuelven 404 y no exponen datos de Angie',
+            $p87_ok,
+            $p87_ok ? 'Manejado correctamente con HTTP 404 sin filtración de datos de Angie' : 'Ruta inválida devolvió contenido de Angie en lugar de 404',
+            ['http_code' => $respInvalidRoute['statusCode']]
+        );
+
+        // 8.8 Bloqueo de Path Traversal y formatos no válidos en api/video.php
+        $respTraversal = $this->executeRequest([
+            'script' => 'api/video.php',
+            'method' => 'GET',
+            'get'    => ['v' => '../../config/database.php']
+        ]);
+        $p88_ok = ($respTraversal['statusCode'] === 400);
+        $this->recordResult(
+            'PRUEBA 8 - FASE 0',
+            'P8.8',
+            'Bloqueo de Directory Traversal y archivos no permitidos en api/video.php (HTTP 400)',
+            $p88_ok,
+            $p88_ok ? 'Petición con ruta maliciosa rechazada con HTTP 400' : 'No rechazó path traversal',
+            ['http_code' => $respTraversal['statusCode'], 'body' => $respTraversal['body']]
         );
     }
 

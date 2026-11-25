@@ -23,6 +23,8 @@ class TenantResolverMiddleware
             $slug = trim($_GET['evento']);
         }
 
+        $isExplicit = !empty($slug);
+
         // 3. Fallback: Si no se especifica slug, el evento predeterminado es Angie Karolina ('angie-xv' o ID 1)
         if (!$slug) {
             $slug = 'angie-xv';
@@ -41,7 +43,11 @@ class TenantResolverMiddleware
         }
 
         if (!$event) {
-            // Intentar por ID 1 como garantía
+            // Si el slug fue solicitado explícitamente y no existe, rechazar para evitar fuga cruzada
+            if ($isExplicit) {
+                return false;
+            }
+            // Intentar por ID 1 solo como fallback de ruta raíz
             $stmt = $db->query("SELECT * FROM eventos WHERE id = 1 LIMIT 1");
             $event = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$event) {

@@ -60,6 +60,13 @@ $colorReserva = $currentEvent['color_reserva'] ?? 'Verde Esmeralda';
 $portadaImgUrl = !empty($currentEvent['portada_url']) ? $currentEvent['portada_url'] : 'angie-portada.jpg';
 $despedidaImgUrl = !empty($currentEvent['avatar_url']) ? $currentEvent['avatar_url'] : 'angie-xv.jpg';
 
+// Detección de versión WebP optimizada disponible
+$portadaWebpUrl = null;
+$portadaWebpFile = pathinfo($portadaImgUrl, PATHINFO_FILENAME) . '.webp';
+if (file_exists(__DIR__ . '/' . $portadaWebpFile)) {
+    $portadaWebpUrl = $portadaWebpFile;
+}
+
 $designTokens = $currentConfigs['design_tokens'] ?? null;
 if (is_string($designTokens)) {
     $designTokens = json_decode($designTokens, true);
@@ -2869,7 +2876,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <div class="cover-photo-container">
                     <div class="cover-photo-wrapper">
                         <div class="cover-photo-frame">
-                            <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($portadaImgUrl) ?>';if(!this.complete)this.src='angie-portada.jpg';}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> - Mis XV Años" class="cover-photo-img" loading="eager">
+                            <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($portadaImgUrl) ?>';<?= ($currentEvent['id'] == 1) ? "if(!this.complete)this.src='angie-portada.jpg';" : "" ?>}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> - Mis XV Años" class="cover-photo-img" loading="eager">
                             <div class="cover-photo-sheen"></div>
                         </div>
                     </div>
@@ -3479,7 +3486,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <!-- Marco dorado con la foto de la festejada -->
                 <div class="angie-photo-wrapper">
                     <div class="angie-photo-frame">
-                        <img src="<?= htmlspecialchars($despedidaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($despedidaImgUrl) ?>';if(!this.complete)this.src='angie-xv.jpg';}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> — Mis XV Años" class="angie-photo-img" loading="eager">
+                        <img src="<?= htmlspecialchars($despedidaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($despedidaImgUrl) ?>';<?= ($currentEvent['id'] == 1) ? "if(!this.complete)this.src='angie-xv.jpg';" : "" ?>}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> — Mis XV Años" class="angie-photo-img" loading="eager">
                         <div class="angie-photo-sheen"></div>
                     </div>
                 </div>
@@ -3528,7 +3535,9 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
     <audio id="bgMusic" loop preload="auto" playsinline webkit-playsinline>
         <source src="<?= htmlspecialchars($musicaUrl) ?>" type="audio/mpeg">
         <source src="public/<?= htmlspecialchars($musicaUrl) ?>" type="audio/mpeg">
+        <?php if ($currentEvent['id'] == 1): ?>
         <source src="musica.mp3" type="audio/mpeg">
+        <?php endif; ?>
     </audio>
 
     <!-- Modal de Subida de Fotos en Vivo -->

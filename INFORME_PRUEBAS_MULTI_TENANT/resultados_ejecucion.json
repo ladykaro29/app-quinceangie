@@ -29,11 +29,11 @@
         "description": "Registro de confirmación en Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Invitado guardado correctamente con evento_id = 2 (ID 6)",
+        "details": "Invitado guardado correctamente con evento_id = 2 (ID 7)",
         "evidence": {
             "response": {
                 "success": true,
-                "id": 6,
+                "id": 7,
                 "evento_id": 2,
                 "nombre": "Test Invitado Sophia Integracion",
                 "asistira": true,
@@ -41,16 +41,16 @@
                     "Test Acompanante Sophia Integracion"
                 ],
                 "total_pases": 2,
-                "qr_code": "XV-SOPHIA-0006-205554",
+                "qr_code": "XV-SOPHIA-0007-69872B",
                 "boletos_rifa": [
                     {
                         "nombre": "Test Invitado Sophia Integracion",
-                        "codigo": "RIFA-1626",
+                        "codigo": "RIFA-7724",
                         "es_titular": true
                     },
                     {
                         "nombre": "Test Acompanante Sophia Integracion",
-                        "codigo": "RIFA-9164",
+                        "codigo": "RIFA-1616",
                         "es_titular": false
                     }
                 ],
@@ -76,9 +76,9 @@
         "description": "Prefijo de Pase VIP correspondiente a la celebración (XV-SOPHIA)",
         "passed": true,
         "status": "PASS",
-        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0006-205554",
+        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0007-69872B",
         "evidence": {
-            "qr_payload": "XV-SOPHIA-0006-205554"
+            "qr_payload": "XV-SOPHIA-0007-69872B"
         }
     },
     {
@@ -92,7 +92,7 @@
             "response": {
                 "success": true,
                 "ya_registrado": true,
-                "id": 6,
+                "id": 7,
                 "evento_id": 2,
                 "nombre": "Test Invitado Sophia Integracion",
                 "asistira": true,
@@ -100,16 +100,16 @@
                     "Test Acompanante Sophia Integracion"
                 ],
                 "total_pases": 2,
-                "qr_code": "XV-SOPHIA-0006-205554",
+                "qr_code": "XV-SOPHIA-0007-69872B",
                 "boletos_rifa": [
                     {
                         "nombre": "Test Invitado Sophia Integracion",
-                        "codigo": "RIFA-1626",
+                        "codigo": "RIFA-7724",
                         "es_titular": true
                     },
                     {
                         "nombre": "Test Acompanante Sophia Integracion",
-                        "codigo": "RIFA-9164",
+                        "codigo": "RIFA-1616",
                         "es_titular": false
                     }
                 ],
@@ -124,9 +124,9 @@
         "description": "Subida física y registro de fotografía para Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto guardada en disco (angie_xv_20261125_191030_48d92f25a114.png) e insertada con ID 185",
+        "details": "Foto guardada en disco (angie_xv_20261125_200528_957b66888df5.png) e insertada con ID 189",
         "evidence": {
-            "photo_id": 185,
+            "photo_id": 189,
             "file_exists": true
         }
     },
@@ -136,9 +136,9 @@
         "description": "Subida física y registro de fotografía para Angie (evento_id = 1)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto guardada en disco (angie_xv_20261125_191031_a296e750a1c8.png) e insertada con ID 186",
+        "details": "Foto guardada en disco (angie_xv_20261125_200528_133967f2b42c.png) e insertada con ID 190",
         "evidence": {
-            "photo_id": 186,
+            "photo_id": 190,
             "file_exists": true
         }
     },
@@ -172,20 +172,20 @@
         "description": "Publicación de dedicatoria en Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Dedicatoria guardada con ID 119",
+        "details": "Dedicatoria guardada con ID 122",
         "evidence": {
             "response": {
                 "success": true,
                 "message": "¡Dedicatoria guardada en el libro de recuerdos de Sophia con éxito! ✨",
                 "mensaje_nuevo": {
-                    "id": 119,
+                    "id": 122,
                     "nombre": "Madrina Test Sophia",
                     "mensaje": "¡Felicidades Sophia Valentina en tu noche mágica!",
                     "icono": "👑",
                     "color": "rose",
                     "likes": 0,
                     "fecha_formateada": "Hace un momento",
-                    "created_at": "2026-11-25 19:10:32"
+                    "created_at": "2026-11-25 20:05:30"
                 }
             }
         }
@@ -196,20 +196,20 @@
         "description": "Publicación de dedicatoria en Angie (evento_id = 1)",
         "passed": true,
         "status": "PASS",
-        "details": "Dedicatoria guardada con ID 120",
+        "details": "Dedicatoria guardada con ID 123",
         "evidence": {
             "response": {
                 "success": true,
                 "message": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨",
                 "mensaje_nuevo": {
-                    "id": 120,
+                    "id": 123,
                     "nombre": "Padrino Test Angie",
                     "mensaje": "¡Que Dios te bendiga Angie Karolina!",
                     "icono": "✨",
                     "color": "emerald",
                     "likes": 0,
                     "fecha_formateada": "Hace un momento",
-                    "created_at": "2026-11-25 19:10:33"
+                    "created_at": "2026-11-25 20:05:31"
                 }
             }
         }
@@ -325,10 +325,10 @@
         "description": "Recepción y guardado de múltiples fotos enviadas por QR",
         "passed": true,
         "status": "PASS",
-        "details": "Fotos recibidas y registradas (ID 187 y ID 188) para evento_id = 2",
+        "details": "Fotos recibidas y registradas (ID 191 y ID 192) para evento_id = 2",
         "evidence": {
-            "photo_1": 187,
-            "photo_2": 188
+            "photo_1": 191,
+            "photo_2": 192
         }
     },
     {
@@ -349,7 +349,7 @@
         "description": "Moderación administrativa de fotos QR (ocultar\/desaprobar foto)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto 187 ocultada exitosamente por administración y retirada de la galería en vivo",
+        "details": "Foto 191 ocultada exitosamente por administración y retirada de la galería en vivo",
         "evidence": {
             "visible_db": 0,
             "visible_in_feed": false

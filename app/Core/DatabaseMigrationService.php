@@ -222,10 +222,19 @@ class DatabaseMigrationService
                     if (!in_array('evento_id', $names)) {
                         $pdo->exec("ALTER TABLE $t ADD COLUMN evento_id INTEGER NOT NULL DEFAULT 1;");
                     }
+                    if ($t === 'fotos_fiesta' && !in_array('aprobada', $names)) {
+                        $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN aprobada INTEGER NOT NULL DEFAULT 1;");
+                    }
                 } else {
                     $cols = $pdo->query("SHOW COLUMNS FROM $t LIKE 'evento_id'")->fetchAll();
                     if (empty($cols)) {
                         $pdo->exec("ALTER TABLE $t ADD COLUMN evento_id INT NOT NULL DEFAULT 1;");
+                    }
+                    if ($t === 'fotos_fiesta') {
+                        $colsAp = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'aprobada'")->fetchAll();
+                        if (empty($colsAp)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN aprobada TINYINT NOT NULL DEFAULT 1;");
+                        }
                     }
                 }
             } catch (\Exception $e) {}

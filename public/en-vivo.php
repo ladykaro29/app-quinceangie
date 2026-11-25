@@ -516,6 +516,15 @@ $qrUploadUrl = ($slug === 'angie-xv')
             </div>
         </div>
 
+        <div id="blackoutOverlay" style="display: none; position: fixed; inset: 0; background: #000; z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column;">
+            <div style="font-family: 'Great Vibes', cursive; font-size: clamp(3rem, 7vw, 6rem); color: var(--dorado-brillante); text-align: center; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">
+                <?= htmlspecialchars($festejadaNombreCorto) ?>
+            </div>
+            <div style="letter-spacing: 5px; text-transform: uppercase; color: var(--dorado-claro); font-size: 1rem; margin-top: 10px;">
+                <?= htmlspecialchars($tituloCelebracion) ?>
+            </div>
+        </div>
+
         <div class="qr-floating">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($qrUploadUrl) ?>&color=062E25&bgcolor=FFFFFF" alt="QR para subir fotos">
             <span class="qr-text">📸 Sube tu foto<br>aquí con tu celular</span>
@@ -573,7 +582,7 @@ $qrUploadUrl = ($slug === 'angie-xv')
             setTimeout(() => {
                 currentImg.src = f.url;
                 currentGuest.textContent = f.nombre_invitado || 'Invitado Especial';
-                currentMsg.textContent = f.mensaje ? `"${f.mensaje}"` : '✨ ¡Celebrando los XV Años de Angie!';
+                currentMsg.textContent = f.mensaje ? `"${f.mensaje}"` : '✨ ¡Celebrando los XV Años de <?= htmlspecialchars($festejadaNombreCorto) ?>!';
                 currentLikes.textContent = f.likes || 0;
 
                 photoCard.style.opacity = '1';
@@ -600,6 +609,15 @@ $qrUploadUrl = ($slug === 'angie-xv')
                     document.exitFullscreen();
                     btnFs.innerHTML = '<i class="fas fa-expand"></i>';
                 }
+            }
+        });
+
+        // Blackout switch para proyector (Presionando 'B' en el teclado)
+        const blackout = document.getElementById('blackoutOverlay');
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'b' || e.key === 'B') {
+                const isOff = blackout.style.display === 'none' || !blackout.style.display;
+                blackout.style.display = isOff ? 'flex' : 'none';
             }
         });
     })();

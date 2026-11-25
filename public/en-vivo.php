@@ -501,8 +501,12 @@ $qrUploadUrl = ($slug === 'angie-xv')
         </div>
 
         <div class="photo-card" id="photoCard" style="display: none;">
-            <div class="photo-img-wrap">
-                <img id="currentImg" src="" alt="Momento en vivo">
+            <div class="photo-img-wrap" style="position: relative; overflow: hidden;">
+                <div id="bgBlurImg" style="position: absolute; inset: -20px; background-size: cover; background-position: center; filter: blur(25px) brightness(0.4); transform: scale(1.1); z-index: 1;"></div>
+                <img id="currentImg" src="" alt="Momento en vivo" style="position: relative; z-index: 2; width: 100%; height: 100%; object-fit: contain;">
+                <div id="badgeDestacada" style="display: none; position: absolute; top: 18px; right: 18px; background: rgba(0,0,0,0.7); border: 1.5px solid var(--dorado-brillante); color: var(--dorado-brillante); padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; z-index: 5; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);">
+                    <i class="fas fa-star" style="color: #FFD700;"></i> Momento Destacado ✨
+                </div>
             </div>
             <div class="photo-meta">
                 <div class="guest-info">
@@ -541,10 +545,16 @@ $qrUploadUrl = ($slug === 'angie-xv')
         const photoCard = document.getElementById('photoCard');
         const emptyView = document.getElementById('emptyView');
         const currentImg = document.getElementById('currentImg');
+        const bgBlurImg = document.getElementById('bgBlurImg');
+        const badgeDestacada = document.getElementById('badgeDestacada');
         const currentGuest = document.getElementById('currentGuest');
         const currentMsg = document.getElementById('currentMsg');
         const currentLikes = document.getElementById('currentLikes');
         const btnFs = document.getElementById('btnFs');
+
+        let isPaused = false;
+        const urlParams = new URLSearchParams(window.location.search);
+        const slideDuration = Math.max(3000, parseInt(urlParams.get('duracion') || '7000'));
 
         async function fetchFotos() {
             try {
@@ -571,7 +581,7 @@ $qrUploadUrl = ($slug === 'angie-xv')
         }
 
         function showNextPhoto() {
-            if (fotos.length === 0) return;
+            if (fotos.length === 0 || isPaused) return;
             currentIndex = (currentIndex + 1) % fotos.length;
             const f = fotos[currentIndex];
 
@@ -581,6 +591,10 @@ $qrUploadUrl = ($slug === 'angie-xv')
 
             setTimeout(() => {
                 currentImg.src = f.url;
+                if (bgBlurImg) bgBlurImg.style.backgroundImage = `url('${f.url}')`;
+                if (badgeDestacada) {
+                    badgeDestacada.style.display = (f.es_destacada == 1) ? 'inline-flex' : 'none';
+                }
                 currentGuest.textContent = f.nombre_invitado || 'Invitado Especial';
                 currentMsg.textContent = f.mensaje ? `"${f.mensaje}"` : '✨ ¡Celebrando los XV Años de <?= htmlspecialchars($festejadaNombreCorto) ?>!';
                 currentLikes.textContent = f.likes || 0;
@@ -590,8 +604,8 @@ $qrUploadUrl = ($slug === 'angie-xv')
             }, 400);
         }
 
-        // Cambiar diapositiva cada 7 segundos
-        slideTimer = setInterval(showNextPhoto, 7000);
+        // Cambiar diapositiva según duración configurada
+        slideTimer = setInterval(showNextPhoto, slideDuration);
 
         // Consultar nuevas fotos del servidor cada 10 segundos
         setInterval(fetchFotos, 10000);
@@ -612,12 +626,17 @@ $qrUploadUrl = ($slug === 'angie-xv')
             }
         });
 
-        // Blackout switch para proyector (Presionando 'B' en el teclado)
+        // Controles de Teclado:
+        // 'B': Blackout de emergencia para proyector
+        // 'Space': Pausar / Reanudar proyección
         const blackout = document.getElementById('blackoutOverlay');
         document.addEventListener('keydown', (e) => {
             if (e.key === 'b' || e.key === 'B') {
                 const isOff = blackout.style.display === 'none' || !blackout.style.display;
                 blackout.style.display = isOff ? 'flex' : 'none';
+            } else if (e.code === 'Space') {
+                isPaused = !isPaused;
+                if (!isPaused) showNextPhoto();
             }
         });
     })();

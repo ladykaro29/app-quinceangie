@@ -222,8 +222,42 @@ class DatabaseMigrationService
                     if (!in_array('evento_id', $names)) {
                         $pdo->exec("ALTER TABLE $t ADD COLUMN evento_id INTEGER NOT NULL DEFAULT 1;");
                     }
-                    if ($t === 'fotos_fiesta' && !in_array('aprobada', $names)) {
-                        $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN aprobada INTEGER NOT NULL DEFAULT 1;");
+                    if ($t === 'fotos_fiesta') {
+                        if (!in_array('aprobada', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN aprobada INTEGER NOT NULL DEFAULT 1;");
+                        }
+                        if (!in_array('estado', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN estado TEXT NOT NULL DEFAULT 'aprobada';");
+                        }
+                        if (!in_array('subida_uuid', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN subida_uuid TEXT NULL;");
+                        }
+                        if (!in_array('hash_sha256', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN hash_sha256 TEXT NULL;");
+                        }
+                        if (!in_array('peso_bytes', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN peso_bytes INTEGER NULL;");
+                        }
+                        if (!in_array('ancho_px', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN ancho_px INTEGER NULL;");
+                        }
+                        if (!in_array('alto_px', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN alto_px INTEGER NULL;");
+                        }
+                        if (!in_array('mime_type', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN mime_type TEXT NULL;");
+                        }
+                        if (!in_array('moderada_at', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN moderada_at DATETIME NULL;");
+                        }
+                        if (!in_array('moderador_nombre', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN moderador_nombre TEXT NULL;");
+                        }
+                        if (!in_array('es_destacada', $names)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN es_destacada INTEGER NOT NULL DEFAULT 0;");
+                        }
+                        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_fotos_evento_estado ON fotos_fiesta (evento_id, estado, visible);");
+                        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_fotos_evento_hash ON fotos_fiesta (evento_id, hash_sha256);");
                     }
                 } else {
                     $cols = $pdo->query("SHOW COLUMNS FROM $t LIKE 'evento_id'")->fetchAll();
@@ -234,6 +268,46 @@ class DatabaseMigrationService
                         $colsAp = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'aprobada'")->fetchAll();
                         if (empty($colsAp)) {
                             $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN aprobada TINYINT NOT NULL DEFAULT 1;");
+                        }
+                        $colsEst = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'estado'")->fetchAll();
+                        if (empty($colsEst)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'aprobada';");
+                        }
+                        $colsUuid = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'subida_uuid'")->fetchAll();
+                        if (empty($colsUuid)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN subida_uuid VARCHAR(64) NULL;");
+                        }
+                        $colsHash = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'hash_sha256'")->fetchAll();
+                        if (empty($colsHash)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN hash_sha256 VARCHAR(64) NULL;");
+                        }
+                        $colsBytes = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'peso_bytes'")->fetchAll();
+                        if (empty($colsBytes)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN peso_bytes INT NULL;");
+                        }
+                        $colsAncho = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'ancho_px'")->fetchAll();
+                        if (empty($colsAncho)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN ancho_px INT NULL;");
+                        }
+                        $colsAlto = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'alto_px'")->fetchAll();
+                        if (empty($colsAlto)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN alto_px INT NULL;");
+                        }
+                        $colsMime = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'mime_type'")->fetchAll();
+                        if (empty($colsMime)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN mime_type VARCHAR(50) NULL;");
+                        }
+                        $colsModAt = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'moderada_at'")->fetchAll();
+                        if (empty($colsModAt)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN moderada_at DATETIME NULL;");
+                        }
+                        $colsModNom = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'moderador_nombre'")->fetchAll();
+                        if (empty($colsModNom)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN moderador_nombre VARCHAR(100) NULL;");
+                        }
+                        $colsDest = $pdo->query("SHOW COLUMNS FROM fotos_fiesta LIKE 'es_destacada'")->fetchAll();
+                        if (empty($colsDest)) {
+                            $pdo->exec("ALTER TABLE fotos_fiesta ADD COLUMN es_destacada TINYINT NOT NULL DEFAULT 0;");
                         }
                     }
                 }

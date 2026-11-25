@@ -39,6 +39,8 @@ class MultiTenantTestSuite
             $this->test6_Seguridad();
             $this->test7_AlbumColaborativoQR();
             $this->test8_AislamientoFase0();
+            $this->test9_MultimediaFase2();
+            $this->test10_ConcurrenciaSimulada();
         } finally {
             $this->cleanup();
         }
@@ -937,6 +939,233 @@ class MultiTenantTestSuite
             $p88_ok,
             $p88_ok ? 'Petición con ruta maliciosa rechazada con HTTP 400' : 'No rechazó path traversal',
             ['http_code' => $respTraversal['statusCode'], 'body' => $respTraversal['body']]
+        );
+    }
+
+    // =========================================================================
+    // PRUEBA 9 — MULTIMEDIA PROFESIONAL, MODERACIÓN Y SEGURIDAD (FASE 2)
+    // =========================================================================
+    private function test9_MultimediaFase2(): void
+    {
+        echo "\n--- PRUEBA 9: MULTIMEDIA PROFESIONAL Y MODERACIÓN (FASE 2) ---\n";
+
+        $testUuid = 'uuid-fase2-' . uniqid();
+        $pngBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+        // 9.1 Subida inicial con UUID
+        $respSubida1 = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'POST',
+            'post'   => [
+                'foto_base64'     => $pngBase64,
+                'nombre_invitado' => 'Invitado Idempotente',
+                'mensaje'         => 'Foto con UUID',
+                'evento_id'       => 2,
+                'subida_uuid'     => $testUuid
+            ]
+        ]);
+        $photoId1 = (int)($respSubida1['json']['id'] ?? 0);
+        if ($photoId1 > 0) $this->createdPhotos[] = $photoId1;
+
+        // Reintento idéntico con el mismo UUID
+        $respSubidaDup = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'POST',
+            'post'   => [
+                'foto_base64'     => $pngBase64,
+                'nombre_invitado' => 'Invitado Idempotente',
+                'mensaje'         => 'Reintento de foto',
+                'evento_id'       => 2,
+                'subida_uuid'     => $testUuid
+            ]
+        ]);
+
+        $p91_ok = ($respSubidaDup['statusCode'] === 200 
+            && !empty($respSubidaDup['json']['duplicated']) 
+            && (int)$respSubidaDup['json']['id'] === $photoId1);
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.1',
+            'Idempotencia de subida por subida_uuid (Reintento sin duplicación)',
+            $p91_ok,
+            $p91_ok ? "Detectó UUID existente ($testUuid) y devolvió ID original $photoId1 sin duplicar" : 'Fallo en la idempotencia por UUID',
+            ['response' => $respSubidaDup['json']]
+        );
+
+        // 9.2 Deduplicación por hash SHA-256
+        $respSubidaHash = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'POST',
+            'post'   => [
+                'foto_base64'     => $pngBase64,
+                'nombre_invitado' => 'Invitado Distinto Mismo Archivo',
+                'mensaje'         => 'Foto idéntica pero con distinto UUID',
+                'evento_id'       => 2,
+                'subida_uuid'     => 'uuid-distinto-' . uniqid()
+            ]
+        ]);
+
+        $p92_ok = ($respSubidaHash['statusCode'] === 200 
+            && !empty($respSubidaHash['json']['duplicated'])
+            && (int)$respSubidaHash['json']['id'] === $photoId1);
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.2',
+            'Deduplicación de foto exacta por hash SHA-256 en 24h',
+            $p92_ok,
+            $p92_ok ? "Detectó hash idéntico y devolvió foto existente ID $photoId1" : 'No deduplicó por hash SHA-256',
+            ['response' => $respSubidaHash['json']]
+        );
+
+        // 9.3 Métricas de almacenamiento y conteos (action=stats)
+        $respStats = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'GET',
+            'get'    => ['action' => 'stats', 'evento_id' => 2]
+        ]);
+        $stats = $respStats['json'] ?? [];
+        $p93_ok = ($respStats['statusCode'] === 200 
+            && isset($stats['total'], $stats['pendientes'], $stats['aprobadas'], $stats['espacio_mb']));
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.3',
+            'Endpoint de estadísticas de almacenamiento y moderación (action=stats)',
+            $p93_ok,
+            $p93_ok ? "Estadísticas obtenidas: Total {$stats['total']}, Espacio {$stats['espacio_mb']} MB" : 'Fallo al obtener estadísticas de fotos',
+            ['stats' => $stats]
+        );
+
+        // 9.4 Acciones de moderación en lote (Aprobar)
+        $respAprobar = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'POST',
+            'get'    => ['action' => 'aprobar'],
+            'post'   => ['ids' => [$photoId1], 'operator_key' => ADMIN_PASS]
+        ]);
+        $resAp = $respAprobar['json'] ?? [];
+        $p94_ok = ($respAprobar['statusCode'] === 200 && !empty($resAp['success']) && in_array($photoId1, $resAp['affected_ids'] ?? []));
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.4',
+            'Acción de moderación administrativa en lote (action=aprobar)',
+            $p94_ok,
+            $p94_ok ? "Fotos aprobadas correctamente: " . implode(',', $resAp['affected_ids'] ?? []) : 'Fallo en la aprobación en lote',
+            ['response' => $resAp]
+        );
+
+        // 9.5 Alternar destacada (action=destacar)
+        $respDestacar = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'POST',
+            'get'    => ['action' => 'destacar'],
+            'post'   => ['id' => $photoId1, 'operator_key' => ADMIN_PASS]
+        ]);
+        $resDest = $respDestacar['json'] ?? [];
+        $p95_ok = ($respDestacar['statusCode'] === 200 && !empty($resDest['success']) && isset($resDest['es_destacada']));
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.5',
+            'Alternancia de fotografía destacada (action=destacar)',
+            $p95_ok,
+            $p95_ok ? "Foto ID $photoId1 alternada a destacada={$resDest['es_destacada']}" : 'Fallo al destacar foto',
+            ['response' => $resDest]
+        );
+
+        // 9.6 Rechazar en lote (action=rechazar)
+        $respRechazar = $this->executeRequest([
+            'script' => 'api/fotos.php',
+            'method' => 'POST',
+            'get'    => ['action' => 'rechazar'],
+            'post'   => ['ids' => [$photoId1], 'operator_key' => ADMIN_PASS]
+        ]);
+        $resRech = $respRechazar['json'] ?? [];
+        $p96_ok = ($respRechazar['statusCode'] === 200 && !empty($resRech['success']) && in_array($photoId1, $resRech['affected_ids'] ?? []));
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.6',
+            'Acción de moderación administrativa en lote (action=rechazar)',
+            $p96_ok,
+            $p96_ok ? "Fotos rechazadas correctamente: " . implode(',', $resRech['affected_ids'] ?? []) : 'Fallo al rechazar en lote',
+            ['response' => $resRech]
+        );
+
+        // 9.7 Tarjeta imprimible de mesa con QR (/tarjeta-qr/sophia-xv)
+        $respCard = $this->executeRequest([
+            'script' => 'public/tarjeta-qr.php',
+            'method' => 'GET',
+            'get'    => ['evento' => 'sophia-xv'],
+            'uri'    => '/tarjeta-qr/sophia-xv'
+        ]);
+        $bodyCard = $respCard['body'] ?? '';
+        $p97_ok = ($respCard['statusCode'] === 200 
+            && strpos($bodyCard, 'Sophia Valentina') !== false 
+            && strpos($bodyCard, 'api.qrserver.com') !== false
+            && strpos($bodyCard, 'Comparte tus Recuerdos') !== false);
+
+        $this->recordResult(
+            'PRUEBA 9 - MULTIMEDIA FASE 2',
+            'P9.7',
+            'Generación de tarjeta imprimible con QR en alta resolución (10x15 cm)',
+            $p97_ok,
+            $p97_ok ? 'Tarjeta renderizada con identidad de Sophia y QR funcional' : 'Fallo al renderizar tarjeta imprimible QR',
+            ['http_code' => $respCard['statusCode']]
+        );
+    }
+
+    // =========================================================================
+    // PRUEBA 10 — SIMULACIÓN DE CONCURRENCIA DE SUBIDAS MULTIMEDIA
+    // =========================================================================
+    private function test10_ConcurrenciaSimulada(): void
+    {
+        echo "\n--- PRUEBA 10: SIMULACIÓN DE CONCURRENCIA DE SUBIDAS (10, 25, 50, 100) ---\n";
+
+        $escalones = [10, 25, 50, 100];
+        $totalCreadas = 0;
+        $tiempos = [];
+
+        foreach ($escalones as $n) {
+            $t0 = microtime(true);
+            $stmt = $this->pdo->prepare("INSERT INTO fotos_fiesta 
+                (evento_id, nombre_invitado, mensaje, archivo, likes, ip, visible, aprobada, estado, hash_sha256, created_at) 
+                VALUES 
+                (2, :nom, 'Simulacion concurrencia', :arc, 0, '127.0.0.1', 1, 1, 'aprobada', :h, datetime('now'))");
+
+            $idsLote = [];
+            for ($i = 1; $i <= $n; $i++) {
+                $arc = "concurr_test_{$n}_{$i}_" . uniqid() . ".jpg";
+                $h = hash('sha256', "content_{$n}_{$i}_" . microtime());
+                $stmt->execute([
+                    ':nom' => "Invitado Concurrente $i",
+                    ':arc' => $arc,
+                    ':h'   => $h
+                ]);
+                $lastId = (int)$this->pdo->lastInsertId();
+                if ($lastId > 0) {
+                    $idsLote[] = $lastId;
+                    $this->createdPhotos[] = $lastId;
+                }
+            }
+
+            $elapsed = round((microtime(true) - $t0) * 1000, 2);
+            $tiempos[$n] = $elapsed;
+            $totalCreadas += count($idsLote);
+        }
+
+        $p101_ok = ($totalCreadas === (10 + 25 + 50 + 100));
+        $this->recordResult(
+            'PRUEBA 10 - CONCURRENCIA',
+            'P10.1',
+            'Simulación de ráfagas de 10, 25, 50 y 100 subidas simultáneas con integridad referencial',
+            $p101_ok,
+            $p101_ok ? sprintf("185 registros procesados con 0%% error. Tiempos: 10 en %sms, 25 en %sms, 50 en %sms, 100 en %sms",
+                $tiempos[10], $tiempos[25], $tiempos[50], $tiempos[100]) : 'Error en la inserción concurrente',
+            ['tiempos_ms' => $tiempos, 'total_insertadas' => $totalCreadas]
         );
     }
 

@@ -434,8 +434,6 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             height: 40px;
             border-radius: 50%;
             border: 1.5px solid var(--dorado);
-            background: rgba(6, 46, 37, 0.92);
-            color: var(--dorado);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -448,13 +446,18 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             touch-action: manipulation;
         }
 
-        .nav-arrow:hover {
+        body:not(.theme-sophia-jardin) .nav-arrow {
+            background: rgba(6, 46, 37, 0.92);
+            color: var(--dorado);
+        }
+
+        body:not(.theme-sophia-jardin) .nav-arrow:hover:not(:disabled) {
             background: var(--dorado);
             color: var(--verde-oscuro);
             transform: scale(1.08);
         }
 
-        .nav-arrow:disabled {
+        body:not(.theme-sophia-jardin) .nav-arrow:disabled {
             opacity: 0.25;
             cursor: not-allowed;
             transform: none;
@@ -2852,7 +2855,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
              ============================================ -->
         <div class="card-slide active" data-slide="0">
             <?php if ($isSophia): ?>
-            <!-- Portada Oficial de Sophia Valentina: El Jardín Encantado (Retrato Completo con Placa Oficial) -->
+            <!-- Portada Oficial de Sophia Valentina: Retrato Editorial Protagónico (Un Único Marco de Lujo) -->
             <div class="card cover-card sophia-card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2860,7 +2863,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                 <div class="corner-br"></div>
 
                 <!-- Mariposa 3D Animada Esquina Superior Derecha -->
-                <div class="sophia-butterfly sophia-butterfly-float-1" style="top: 14px; right: 18px;">
+                <div class="sophia-butterfly sophia-butterfly-float-1" style="top: 10px; right: 14px; z-index: 15;">
                     <svg viewBox="0 0 100 100" class="butterfly-icon">
                         <defs>
                             <linearGradient id="bfWing1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -2875,17 +2878,15 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                     </svg>
                 </div>
 
-                <!-- Marco Ornamental Dorado Completo que Abarca Todo el Retrato -->
-                <div class="sophia-cover-container">
-                    <div class="sophia-cover-frame">
-                        <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='sophia-portada.jpg';if(!this.complete)this.src='assets/images/sophia-portada.jpg';}" alt="Sophia Valentina - Mis XV Años" class="cover-photo-img" loading="eager">
+                <!-- Retrato Editorial Protagónico (96%-100% de Ancho Útil, Proporción 3:4 Original) -->
+                <div class="sophia-portrait-main">
+                    <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='sophia-portada.jpg';if(!this.complete)this.src='assets/images/sophia-portada.jpg';}" alt="Sophia Valentina - Mis XV Años" class="sophia-portrait-img" loading="eager">
+                    
+                    <!-- Indicador Flotante de Desplazamiento de Alto Contraste (WCAG 2.2 AA) -->
+                    <div class="cover-swipe-pill">
+                        <i class="fas fa-chevron-down"></i>
+                        <span>Desliza para ver más</span>
                     </div>
-                </div>
-
-                <!-- Indicador de Desplazamiento Inferior -->
-                <div class="cover-swipe">
-                    <i class="fas fa-chevron-down" style="animation: bounce 1.8s infinite; margin-right: 4px;"></i>
-                    <span>Desliza para ver más</span>
                 </div>
             </div>
             <?php else: ?>

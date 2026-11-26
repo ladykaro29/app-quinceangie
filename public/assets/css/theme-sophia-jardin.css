@@ -222,40 +222,64 @@ body.theme-sophia-jardin .card-icon i {
 /* ==============================================================================
    5. NAVEGACIÓN, FLECHAS Y PUNTOS INDICADORES (SIN HERENCIA VERDE)
    ============================================================================== */
-body.theme-sophia-jardin .nav-arrows {
-    z-index: 120;
+body.theme-sophia-jardin .card-slide {
+    padding: 10px 14px 85px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
 }
 
-body.theme-sophia-jardin .nav-arrow {
-    background: rgba(74, 48, 59, 0.95) !important;
+body.theme-sophia-jardin .nav-arrows {
+    z-index: 120 !important;
+    bottom: 14px !important;
+}
+
+body.theme-sophia-jardin .nav-arrow,
+body.theme-sophia-jardin #prevBtn,
+body.theme-sophia-jardin #nextBtn {
+    background: linear-gradient(135deg, #4A303B, #301A22) !important;
     border: 1.5px solid var(--sophia-dorado) !important;
     color: var(--sophia-marfil) !important;
     box-shadow: 0 4px 16px rgba(48, 26, 34, 0.6) !important;
 }
 
-body.theme-sophia-jardin .nav-arrow:hover:not(:disabled) {
-    background: var(--sophia-rosa-intenso) !important;
+body.theme-sophia-jardin .nav-arrow:hover:not(:disabled),
+body.theme-sophia-jardin #prevBtn:hover:not(:disabled),
+body.theme-sophia-jardin #nextBtn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso), #4A303B) !important;
     color: #FFFFFF !important;
-    border-color: var(--sophia-dorado) !important;
+    border-color: var(--sophia-rosa-blush) !important;
     transform: scale(1.08) !important;
 }
 
-body.theme-sophia-jardin .nav-arrow:disabled {
+body.theme-sophia-jardin .nav-arrow:disabled,
+body.theme-sophia-jardin #prevBtn:disabled,
+body.theme-sophia-jardin #nextBtn:disabled {
     opacity: 0.3 !important;
     background: rgba(74, 48, 59, 0.5) !important;
     color: rgba(255, 243, 231, 0.4) !important;
+    border-color: rgba(197, 161, 106, 0.3) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
 }
 
+body.theme-sophia-jardin .nav-dots {
+    bottom: 58px !important;
+}
+
+body.theme-sophia-jardin .nav-dot,
 body.theme-sophia-jardin .nav-dots .dot {
     background: rgba(121, 84, 77, 0.45) !important;
     border: 1px solid rgba(197, 161, 106, 0.6) !important;
 }
 
+body.theme-sophia-jardin .nav-dot.active,
 body.theme-sophia-jardin .nav-dots .dot.active {
-    background: var(--sophia-rosa-intenso) !important;
-    border-color: var(--sophia-dorado) !important;
-    box-shadow: 0 0 10px rgba(133, 71, 97, 0.6) !important;
-    transform: scale(1.25) !important;
+    background: var(--sophia-dorado) !important;
+    border-color: #FFF3E7 !important;
+    box-shadow: 0 0 10px rgba(197, 161, 106, 0.8) !important;
+    transform: scale(1.3) !important;
 }
 
 /* ==============================================================================
@@ -300,14 +324,29 @@ body.theme-sophia-jardin .admin-link-btn:hover {
 }
 
 /* ==============================================================================
-   7. TARJETA 1: PORTADA OFICIAL (RETRATO EN MARCO DORADO COMPLETO)
+   7. TARJETA 1: PORTADA OFICIAL (RETRATO EDITORIAL EN MARCO ÚNICO DE LUJO)
    ============================================================================== */
 body.theme-sophia-jardin .cover-card.sophia-card {
-    padding: 10px 10px 8px 10px !important;
+    padding: 6px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 430px !important;
+    aspect-ratio: 3 / 4 !important;
+    height: auto !important;
+    max-height: calc(100dvh - 105px) !important;
+    max-height: calc(100vh - 105px) !important;
+    background: #FFF3E7 !important;
+    border: 2px solid var(--sophia-dorado) !important;
+    border-radius: 24px !important;
+    box-shadow: 
+        0 16px 40px rgba(74, 48, 59, 0.22),
+        0 0 25px rgba(197, 161, 106, 0.2) !important;
+    position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: space-between !important;
     align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
     box-sizing: border-box !important;
 }
 
@@ -315,57 +354,65 @@ body.theme-sophia-jardin .cover-card.sophia-card::before {
     display: none !important;
 }
 
-body.theme-sophia-jardin .sophia-cover-container {
-    position: relative;
-    width: 100% !important;
-    max-width: 380px !important;
-    flex: 1 1 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 2px auto !important;
-}
-
-body.theme-sophia-jardin .sophia-cover-frame {
-    border-radius: 20px !important;
-    overflow: hidden !important;
-    border: 3px solid var(--sophia-dorado) !important;
-    box-shadow: 
-        0 12px 35px rgba(56, 33, 40, 0.42),
-        0 0 25px rgba(197, 161, 106, 0.45) !important;
-    position: relative;
-    width: 100% !important;
-    aspect-ratio: 3 / 4 !important;
-    max-height: calc(100vh - 95px) !important;
-    max-height: calc(100dvh - 95px) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: linear-gradient(160deg, rgba(255, 243, 231, 0.95), rgba(235, 197, 204, 0.9)) !important;
-}
-
-body.theme-sophia-jardin .sophia-cover-frame img,
-body.theme-sophia-jardin .cover-photo-img {
+/* Contenedor protagónico único: abarca el 100% del interior de la tarjeta sin marcos dobles */
+body.theme-sophia-jardin .sophia-portrait-main {
     width: 100% !important;
     height: 100% !important;
-    display: block !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    border-radius: 19px !important;
+    background: #FFF3E7 !important;
+}
+
+/* Fotografía oficial completa: 100% visible, sin recorte de vestido, rostro ni placa dorada */
+body.theme-sophia-jardin .sophia-portrait-img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     object-fit: contain !important;
-    border-radius: 17px !important;
-    transition: transform 0.6s ease;
+    display: block !important;
+    border-radius: 19px !important;
+    aspect-ratio: 3 / 4 !important;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
 
-body.theme-sophia-jardin .sophia-cover-frame:hover img {
-    transform: scale(1.02);
+body.theme-sophia-jardin .sophia-portrait-main:hover .sophia-portrait-img {
+    transform: scale(1.015);
 }
 
-body.theme-sophia-jardin .cover-swipe {
-    margin: 6px auto 2px auto !important;
-    color: var(--sophia-dorado) !important;
+/* Indicador flotante 'Desliza para ver más' con contraste WCAG 2.2 AA (10.4:1) */
+body.theme-sophia-jardin .cover-swipe-pill {
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: rgba(255, 243, 231, 0.94) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 30px !important;
+    padding: 7px 22px !important;
+    color: var(--sophia-malva) !important;
+    font-family: var(--font-sans) !important;
     font-size: 0.8rem !important;
-    text-align: center !important;
-    font-weight: 600 !important;
-    letter-spacing: 1px !important;
-    z-index: 5 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    box-shadow: 0 4px 16px rgba(74, 48, 59, 0.28) !important;
+    z-index: 10 !important;
+    white-space: nowrap !important;
+}
+
+body.theme-sophia-jardin .cover-swipe-pill i {
+    color: var(--sophia-rosa-intenso) !important;
+    font-size: 0.85rem !important;
+    animation: bounce 1.8s infinite !important;
 }
 
 /* ==============================================================================

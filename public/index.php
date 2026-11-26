@@ -4452,10 +4452,12 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         const input = document.getElementById('playlist-song-input');
         const addBtn = document.getElementById('playlist-add-btn');
         const list = document.getElementById('playlist-songs');
+        const playlistEventoId = <?= (int)($currentEvent['id'] ?? 1) ?>;
+        const playlistEventoSlug = <?= json_encode($currentEvent['slug'] ?? 'angie-xv') ?>;
 
         async function loadSongs() {
             try {
-                const res = await fetch('api/canciones.php');
+                const res = await fetch('api/canciones.php?evento=' + encodeURIComponent(playlistEventoSlug) + '&evento_id=' + playlistEventoId + '&t=' + Date.now());
                 const data = await res.json();
                 if (data && data.success && Array.isArray(data.canciones)) {
                     list.innerHTML = '';
@@ -4487,10 +4489,12 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                const res = await fetch('api/canciones.php', {
+                const res = await fetch('api/canciones.php?evento=' + encodeURIComponent(playlistEventoSlug) + '&evento_id=' + playlistEventoId, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        evento: playlistEventoSlug,
+                        evento_id: playlistEventoId,
                         cancion: song,
                         nombre: guestName
                     })

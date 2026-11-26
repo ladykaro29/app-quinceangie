@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../app/autoload.php';
 
@@ -34,20 +35,22 @@ try {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Resolver celebración activa
+// Resolver celebración activa de forma estricta (priorizando evento_id o slug explícitos)
+$requestedEventId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : (isset($_POST['evento_id']) ? (int)$_POST['evento_id'] : 0);
 $requestedEvent = $_GET['evento'] ?? $_POST['evento'] ?? null;
-if (!$requestedEvent && isset($_GET['evento_id'])) {
-    $requestedEventId = (int)$_GET['evento_id'];
+if (!$requestedEvent && $requestedEventId > 0) {
     $stmtSlug = $pdo->prepare('SELECT slug FROM eventos WHERE id = :id LIMIT 1');
     $stmtSlug->execute([':id' => $requestedEventId]);
     $requestedEvent = $stmtSlug->fetchColumn() ?: null;
 }
 
-if (!CurrentEventContext::isLoaded()) {
+if ($requestedEvent) {
     TenantResolverMiddleware::resolve($requestedEvent);
+} elseif (!CurrentEventContext::isLoaded()) {
+    TenantResolverMiddleware::resolve(null);
 }
 
-$eventoId = CurrentEventContext::id() ?: 1;
+$eventoId = ($requestedEventId > 0) ? $requestedEventId : (CurrentEventContext::id() ?: 1);
 
 // ============================================================================
 // 1. LISTAR CANCIONES (GET)
@@ -79,15 +82,18 @@ if ($method === 'POST') {
 
     // Verificar si en el body viene un evento específico
     if (!empty($data['evento']) || !empty($data['evento_id'])) {
+        $postEventId = !empty($data['evento_id']) ? (int)$data['evento_id'] : 0;
         $postEvent = $data['evento'] ?? null;
-        if (!$postEvent && !empty($data['evento_id'])) {
+        if (!$postEvent && $postEventId > 0) {
             $stmtSlug = $pdo->prepare('SELECT slug FROM eventos WHERE id = :id LIMIT 1');
-            $stmtSlug->execute([':id' => (int)$data['evento_id']]);
+            $stmtSlug->execute([':id' => $postEventId]);
             $postEvent = $stmtSlug->fetchColumn() ?: null;
         }
         if ($postEvent) {
             TenantResolverMiddleware::resolve($postEvent);
             $eventoId = CurrentEventContext::id() ?: $eventoId;
+        } elseif ($postEventId > 0) {
+            $eventoId = $postEventId;
         }
     }
 

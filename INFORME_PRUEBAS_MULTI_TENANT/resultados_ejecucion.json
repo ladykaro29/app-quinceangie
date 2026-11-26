@@ -8,7 +8,7 @@
         "details": "Verde esmeralda, fecha 3 Oct, fotos de Angie presentes, sin rastros de Sophia",
         "evidence": {
             "http_code": 200,
-            "body_len": 210290
+            "body_len": 210600
         }
     },
     {
@@ -20,7 +20,7 @@
         "details": "Paleta ciruela\/rosa\/champagne, Salón Nova Roma (dirección pendiente), padres oficiales, canción oficial de Sophia, sin datos de Angie",
         "evidence": {
             "http_code": 200,
-            "body_len": 281901
+            "body_len": 282269
         }
     },
     {
@@ -29,11 +29,11 @@
         "description": "Registro de confirmación en Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Invitado guardado correctamente con evento_id = 2 (ID 28)",
+        "details": "Invitado guardado correctamente con evento_id = 2 (ID 29)",
         "evidence": {
             "response": {
                 "success": true,
-                "id": 28,
+                "id": 29,
                 "evento_id": 2,
                 "nombre": "Test Invitado Sophia Integracion",
                 "asistira": true,
@@ -41,16 +41,16 @@
                     "Test Acompanante Sophia Integracion"
                 ],
                 "total_pases": 2,
-                "qr_code": "XV-SOPHIA-0028-113C15",
+                "qr_code": "XV-SOPHIA-0029-16FB10",
                 "boletos_rifa": [
                     {
                         "nombre": "Test Invitado Sophia Integracion",
-                        "codigo": "RIFA-5573",
+                        "codigo": "RIFA-4772",
                         "es_titular": true
                     },
                     {
                         "nombre": "Test Acompanante Sophia Integracion",
-                        "codigo": "RIFA-9886",
+                        "codigo": "RIFA-5664",
                         "es_titular": false
                     }
                 ],
@@ -76,9 +76,9 @@
         "description": "Prefijo de Pase VIP correspondiente a la celebración (XV-SOPHIA)",
         "passed": true,
         "status": "PASS",
-        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0028-113C15",
+        "details": "Pase VIP generado con prefijo oficial: XV-SOPHIA-0029-16FB10",
         "evidence": {
-            "qr_payload": "XV-SOPHIA-0028-113C15"
+            "qr_payload": "XV-SOPHIA-0029-16FB10"
         }
     },
     {
@@ -92,7 +92,7 @@
             "response": {
                 "success": true,
                 "ya_registrado": true,
-                "id": 28,
+                "id": 29,
                 "evento_id": 2,
                 "nombre": "Test Invitado Sophia Integracion",
                 "asistira": true,
@@ -100,16 +100,16 @@
                     "Test Acompanante Sophia Integracion"
                 ],
                 "total_pases": 2,
-                "qr_code": "XV-SOPHIA-0028-113C15",
+                "qr_code": "XV-SOPHIA-0029-16FB10",
                 "boletos_rifa": [
                     {
                         "nombre": "Test Invitado Sophia Integracion",
-                        "codigo": "RIFA-5573",
+                        "codigo": "RIFA-4772",
                         "es_titular": true
                     },
                     {
                         "nombre": "Test Acompanante Sophia Integracion",
-                        "codigo": "RIFA-9886",
+                        "codigo": "RIFA-5664",
                         "es_titular": false
                     }
                 ],
@@ -124,9 +124,9 @@
         "description": "Subida física y registro de fotografía para Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto guardada en disco (xv_2_20261126_110744_2f8e4d37.png) e insertada con ID 3430",
+        "details": "Foto guardada en disco (xv_2_20261126_111323_15e43a6a.png) e insertada con ID 3620",
         "evidence": {
-            "photo_id": 3430,
+            "photo_id": 3620,
             "file_exists": true
         }
     },
@@ -136,9 +136,9 @@
         "description": "Subida física y registro de fotografía para Angie (evento_id = 1)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto guardada en disco (xv_1_20261126_110745_6adba8ec.png) e insertada con ID 3431",
+        "details": "Foto guardada en disco (xv_1_20261126_111324_da146710.png) e insertada con ID 3621",
         "evidence": {
-            "photo_id": 3431,
+            "photo_id": 3621,
             "file_exists": true
         }
     },
@@ -172,20 +172,20 @@
         "description": "Publicación de dedicatoria en Sophia (evento_id = 2)",
         "passed": true,
         "status": "PASS",
-        "details": "Dedicatoria guardada con ID 190",
+        "details": "Dedicatoria guardada con ID 193",
         "evidence": {
             "response": {
                 "success": true,
                 "message": "¡Dedicatoria guardada en el libro de recuerdos de Sophia con éxito! ✨",
                 "mensaje_nuevo": {
-                    "id": 190,
+                    "id": 193,
                     "nombre": "Madrina Test Sophia",
                     "mensaje": "¡Felicidades Sophia Valentina en tu noche mágica!",
                     "icono": "👑",
                     "color": "rose",
                     "likes": 0,
                     "fecha_formateada": "Hace un momento",
-                    "created_at": "2026-11-26 11:07:48"
+                    "created_at": "2026-11-26 11:13:27"
                 }
             }
         }
@@ -196,20 +196,20 @@
         "description": "Publicación de dedicatoria en Angie (evento_id = 1)",
         "passed": true,
         "status": "PASS",
-        "details": "Dedicatoria guardada con ID 191",
+        "details": "Dedicatoria guardada con ID 194",
         "evidence": {
             "response": {
                 "success": true,
                 "message": "¡Dedicatoria guardada en el libro de recuerdos de Angie con éxito! ✨",
                 "mensaje_nuevo": {
-                    "id": 191,
+                    "id": 194,
                     "nombre": "Padrino Test Angie",
                     "mensaje": "¡Que Dios te bendiga Angie Karolina!",
                     "icono": "✨",
                     "color": "emerald",
                     "likes": 0,
                     "fecha_formateada": "Hace un momento",
-                    "created_at": "2026-11-26 11:07:49"
+                    "created_at": "2026-11-26 11:13:28"
                 }
             }
         }
@@ -325,10 +325,10 @@
         "description": "Recepción y guardado de múltiples fotos enviadas por QR",
         "passed": true,
         "status": "PASS",
-        "details": "Fotos recibidas y registradas (ID 3432 y ID 3433) para evento_id = 2",
+        "details": "Fotos recibidas y registradas (ID 3622 y ID 3623) para evento_id = 2",
         "evidence": {
-            "photo_1": 3432,
-            "photo_2": 3433
+            "photo_1": 3622,
+            "photo_2": 3623
         }
     },
     {
@@ -349,7 +349,7 @@
         "description": "Moderación administrativa de fotos QR (ocultar\/desaprobar foto)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto 3432 ocultada exitosamente por administración y retirada de la galería en vivo",
+        "details": "Foto 3622 ocultada exitosamente por administración y retirada de la galería en vivo",
         "evidence": {
             "visible_db": 0,
             "visible_in_feed": false
@@ -475,17 +475,17 @@
         "description": "Idempotencia de subida por subida_uuid (Reintento sin duplicación)",
         "passed": true,
         "status": "PASS",
-        "details": "Detectó UUID existente (uuid-fase2-6b08131b2028b) y devolvió ID original 3434 sin duplicar",
+        "details": "Detectó UUID existente (uuid-fase2-6b08146e05f32) y devolvió ID original 3624 sin duplicar",
         "evidence": {
             "response": {
                 "success": true,
-                "id": 3434,
-                "archivo": "xv_2_20261126_110812_1a9ca5ff.png",
+                "id": 3624,
+                "archivo": "xv_2_20261126_111350_89bca6c5.png",
                 "foto": {
-                    "id": 3434,
-                    "archivo": "xv_2_20261126_110812_1a9ca5ff.png"
+                    "id": 3624,
+                    "archivo": "xv_2_20261126_111350_89bca6c5.png"
                 },
-                "url": "api\/foto.php?f=xv_2_20261126_110812_1a9ca5ff.png&evento_id=2",
+                "url": "api\/foto.php?f=xv_2_20261126_111350_89bca6c5.png&evento_id=2",
                 "duplicated": true,
                 "idempotent": true,
                 "mensaje": "Fotografía ya registrada previamente."
@@ -498,17 +498,17 @@
         "description": "Deduplicación de foto exacta por hash SHA-256 en 24h",
         "passed": true,
         "status": "PASS",
-        "details": "Detectó hash idéntico y devolvió foto existente ID 3434",
+        "details": "Detectó hash idéntico y devolvió foto existente ID 3624",
         "evidence": {
             "response": {
                 "success": true,
-                "id": 3434,
-                "archivo": "xv_2_20261126_110812_1a9ca5ff.png",
+                "id": 3624,
+                "archivo": "xv_2_20261126_111350_89bca6c5.png",
                 "foto": {
-                    "id": 3434,
-                    "archivo": "xv_2_20261126_110812_1a9ca5ff.png"
+                    "id": 3624,
+                    "archivo": "xv_2_20261126_111350_89bca6c5.png"
                 },
-                "url": "api\/foto.php?f=xv_2_20261126_110812_1a9ca5ff.png&evento_id=2",
+                "url": "api\/foto.php?f=xv_2_20261126_111350_89bca6c5.png&evento_id=2",
                 "duplicated": true,
                 "idempotent": true,
                 "mensaje": "Esta fotografía ya fue compartida anteriormente."
@@ -543,13 +543,13 @@
         "description": "Acción de moderación administrativa en lote (action=aprobar)",
         "passed": true,
         "status": "PASS",
-        "details": "Fotos aprobadas correctamente: 3434",
+        "details": "Fotos aprobadas correctamente: 3624",
         "evidence": {
             "response": {
                 "success": true,
                 "action": "aprobar",
                 "affected_ids": [
-                    3434
+                    3624
                 ],
                 "aprobada": 1,
                 "visible": 1
@@ -562,11 +562,11 @@
         "description": "Alternancia de fotografía destacada (action=destacar)",
         "passed": true,
         "status": "PASS",
-        "details": "Foto ID 3434 alternada a destacada=1",
+        "details": "Foto ID 3624 alternada a destacada=1",
         "evidence": {
             "response": {
                 "success": true,
-                "id": 3434,
+                "id": 3624,
                 "es_destacada": 1
             }
         }
@@ -577,13 +577,13 @@
         "description": "Acción de moderación administrativa en lote (action=rechazar)",
         "passed": true,
         "status": "PASS",
-        "details": "Fotos rechazadas correctamente: 3434",
+        "details": "Fotos rechazadas correctamente: 3624",
         "evidence": {
             "response": {
                 "success": true,
                 "action": "rechazar",
                 "affected_ids": [
-                    3434
+                    3624
                 ],
                 "aprobada": 0,
                 "visible": 0
@@ -607,13 +607,13 @@
         "description": "Simulación de ráfagas de 10, 25, 50 y 100 subidas simultáneas con integridad referencial",
         "passed": true,
         "status": "PASS",
-        "details": "185 registros procesados con 0% error. Tiempos: 10 en 96.85ms, 25 en 260.03ms, 50 en 484.57ms, 100 en 929.45ms",
+        "details": "185 registros procesados con 0% error. Tiempos: 10 en 124.05ms, 25 en 298.29ms, 50 en 519.2ms, 100 en 1045.12ms",
         "evidence": {
             "tiempos_ms": {
-                "10": 96.85,
-                "25": 260.03,
-                "50": 484.57,
-                "100": 929.45
+                "10": 124.05,
+                "25": 298.29,
+                "50": 519.2,
+                "100": 1045.12
             },
             "total_insertadas": 185
         }

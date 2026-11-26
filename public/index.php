@@ -92,6 +92,9 @@ $baseUrl = rtrim($protocol . $host, '/');
 $shareImageUrl = $baseUrl . '/' . $portadaImgUrl;
 $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 $isSophia = (($currentEvent['id'] ?? null) == 2 || ($currentEvent['slug'] ?? '') === 'sophia-xv');
+$videoPosterUrl = ($isSophia && file_exists(__DIR__ . '/assets/images/sophia-nina-poster.jpg'))
+    ? 'assets/images/sophia-nina-poster.jpg'
+    : $despedidaImgUrl;
 $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')) ? '/InvitacionAngie/' : '/';
 ?>
 <!DOCTYPE html>
@@ -3770,7 +3773,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                 <!-- Marco con la foto o video de la festejada -->
                 <?php if (!empty($videoDespedidaUrl)): ?>
                 <div class="farewell-video-wrapper" style="position: relative; width: 100%; max-width: 290px; margin: 0 auto 10px auto; border-radius: 20px; overflow: hidden; border: 2.5px solid var(--dorado); box-shadow: 0 10px 25px rgba(0,0,0,0.35);">
-                    <video id="farewellVideo" src="<?= htmlspecialchars($videoDespedidaUrl) ?>" playsinline webkit-playsinline loop muted autoplay style="width: 100%; height: auto; max-height: 320px; display: block; border-radius: 17px; object-fit: cover;" poster="<?= htmlspecialchars($despedidaImgUrl) ?>">
+                    <video id="farewellVideo" src="<?= htmlspecialchars($videoDespedidaUrl) ?>" playsinline webkit-playsinline loop muted preload="auto" style="width: 100%; height: auto; max-height: 320px; display: block; border-radius: 17px; object-fit: cover; object-position: center 22%;" poster="<?= htmlspecialchars($videoPosterUrl) ?>">
                         Tu navegador no soporta reproducción de video.
                     </video>
                     <!-- Controles flotantes de audio y reproducción -->
@@ -4083,13 +4086,18 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             prevBtn.disabled = currentSlide === 0;
             nextBtn.disabled = currentSlide === totalSlides - 1;
 
-            // Reproducción automática del video al alcanzar la última tarjeta
+            // Reproducción desde t=0 (foto de niña) al alcanzar la última tarjeta
             const farewellVid = document.getElementById('farewellVideo');
             if (farewellVid) {
                 if (currentSlide === totalSlides - 1) {
-                    farewellVid.play().catch(() => {});
+                    try { farewellVid.currentTime = 0; } catch (e) {}
+                    const playPromise = farewellVid.play();
+                    if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(() => {});
+                    }
                 } else {
                     farewellVid.pause();
+                    try { farewellVid.currentTime = 0; } catch (e) {}
                 }
             }
 

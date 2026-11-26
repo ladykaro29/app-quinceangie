@@ -433,6 +433,45 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     }
 }
 
+// Exportar CSV de Ganadores del Cofre Mágico
+if (isset($_GET['export']) && $_GET['export'] === 'cofre_csv') {
+    try {
+        if (class_exists('App\Core\DatabaseMigrationService')) {
+            \App\Core\DatabaseMigrationService::ensureJuegoRecompensasTable($pdo);
+        }
+        $stmtCofreCsv = $pdo->prepare('SELECT id, nombre_invitado, recompensa_cofre, recompensa_secreta, capturas, puntos, combo_max, modo_accesible, created_at FROM juego_recompensas WHERE evento_id = :evento_id ORDER BY created_at DESC');
+        $stmtCofreCsv->execute([':evento_id' => $activeEventoId]);
+        $cofreRows = $stmtCofreCsv->fetchAll();
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="ganadores_cofre_' . $slugActivo . '_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        fwrite($output, "\xEF\xBB\xBF");
+        fputcsv($output, ['ID', 'Invitado', 'Cofre (Guardián de mis sueños)', 'Mariposa Secreta (La mariposa de los sueños)', 'Mariposas Capturadas', 'Puntos', 'Combo Máximo', 'Modo', 'Fecha']);
+
+        foreach ($cofreRows as $r) {
+            fputcsv($output, [
+                $r['id'],
+                $r['nombre_invitado'],
+                !empty($r['recompensa_cofre']) ? 'Sí' : 'No',
+                !empty($r['recompensa_secreta']) ? 'Sí' : 'No',
+                $r['capturas'],
+                $r['puntos'],
+                $r['combo_max'],
+                !empty($r['modo_accesible']) ? 'Accesible' : 'Normal (15s)',
+                $r['created_at']
+            ]);
+        }
+        fclose($output);
+        exit;
+    } catch (\PDOException $e) {
+        http_response_code(500);
+        echo 'Error al exportar ganadores: ' . htmlspecialchars($e->getMessage());
+        exit;
+    }
+}
+
 // Descargar todas las fotos en ZIP
 if (isset($_GET['export']) && $_GET['export'] === 'fotos_zip') {
     try {
@@ -551,6 +590,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_cancion']) && 
             $stmt->execute([':id' => $cancionId]);
         }
         header('Location: index.php?tab=canciones');
+        exit;
+    } catch (\Exception $e) {}
+}
+
+// Acciones de Ganadores del Cofre (eliminar individual o pruebas)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_cofre'])) {
+    $actCofre = $_POST['action_cofre'];
+    $regId = (int)($_POST['registro_id'] ?? 0);
+    try {
+        $pdo = getDBConnection();
+        if (class_exists('App\Core\DatabaseMigrationService')) {
+            \App\Core\DatabaseMigrationService::ensureJuegoRecompensasTable($pdo);
+        }
+        if ($actCofre === 'delete' && $regId > 0) {
+            $stmt = $pdo->prepare('DELETE FROM juego_recompensas WHERE id = :id AND evento_id = :evento_id');
+            $stmt->execute([':id' => $regId, ':evento_id' => $activeEventoId]);
+        } elseif ($actCofre === 'delete_test') {
+            $stmt = $pdo->prepare("DELETE FROM juego_recompensas WHERE evento_id = :evento_id AND (LOWER(nombre_invitado) LIKE '%prueba%' OR LOWER(nombre_invitado) LIKE '%test%')");
+            $stmt->execute([':evento_id' => $activeEventoId]);
+        }
+        header('Location: index.php?tab=cofre');
         exit;
     } catch (\Exception $e) {}
 }
@@ -685,6 +745,21 @@ try {
     $cancionesSugeridas = $stmtCancionesAdmin->fetchAll();
     $totalCanciones = count($cancionesSugeridas);
 
+    // Cargar ganadores del cofre y mariposa secreta
+    if (class_exists('App\Core\DatabaseMigrationService')) {
+        \App\Core\DatabaseMigrationService::ensureJuegoRecompensasTable($pdo);
+    }
+    $stmtCofreAdmin = $pdo->prepare('SELECT id, nombre_invitado, recompensa_cofre, recompensa_secreta, capturas, puntos, combo_max, modo_accesible, created_at FROM juego_recompensas WHERE evento_id = :evento_id ORDER BY created_at DESC');
+    $stmtCofreAdmin->execute([':evento_id' => $activeEventoId]);
+    $ganadoresCofre = $stmtCofreAdmin->fetchAll();
+    $totalGanadoresJuego = count($ganadoresCofre);
+    $totalCofresAbiertos = 0;
+    $totalMariposaSecreta = 0;
+    foreach ($ganadoresCofre as $gc) {
+        if (!empty($gc['recompensa_cofre'])) $totalCofresAbiertos++;
+        if (!empty($gc['recompensa_secreta'])) $totalMariposaSecreta++;
+    }
+
     $dbError = null;
 } catch (\PDOException $e) {
     // Si el error es por columna evento_id faltante en alguna tabla, auto-reparar en caliente y reintentar
@@ -732,6 +807,8 @@ try {
         $totalFotosFiesta = 0;
         $cancionesSugeridas = [];
         $totalCanciones = 0;
+        $ganadoresCofre = [];
+        $totalGanadoresJuego = $totalCofresAbiertos = $totalMariposaSecreta = 0;
         $totalRegistros = $totalConfirmados = $totalNoAsistiran = $totalPersonas = 0;
     }
 }
@@ -1340,6 +1417,10 @@ try {
             <div class="stat-number" style="<?= $isSophiaAdmin ? 'color: #C5A16A; text-shadow: 0 0 15px rgba(197, 161, 106, 0.4);' : 'color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);' ?>"><?= count($todosBoletosRifa) ?></div>
             <div class="stat-label" style="<?= $isSophiaAdmin ? 'color: #FFF3E7;' : 'color: #FFE680;' ?>">🎟️ Boletos en Rifa</div>
         </div>
+        <div class="stat-card" style="<?= $isSophiaAdmin ? 'border-color: rgba(235, 197, 204, 0.55); background: linear-gradient(145deg, rgba(133, 71, 97, 0.35), rgba(74, 48, 59, 0.85));' : 'border-color: rgba(200, 162, 74, 0.45); background: linear-gradient(145deg, rgba(200, 162, 74, 0.14), rgba(6, 46, 37, 0.8));' ?>">
+            <div class="stat-number" style="<?= $isSophiaAdmin ? 'color: #FFF3E7;' : 'color: #FFD700;' ?>"><?= $totalCofresAbiertos ?></div>
+            <div class="stat-label" style="<?= $isSophiaAdmin ? 'color: #EBC5CC;' : 'color: #FFE680;' ?>">🎁 Cofres Ganados (<?= $totalMariposaSecreta ?> ✨)</div>
+        </div>
     </div>
 
     <!-- Pestañas de Navegación del Panel -->
@@ -1354,6 +1435,9 @@ try {
             </a>
             <a href="?tab=canciones" class="action-btn <?= $activeTab === 'canciones' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-music"></i> Playlist Sugerida (<?= $totalCanciones ?>)
+            </a>
+            <a href="?tab=cofre" class="action-btn <?= $activeTab === 'cofre' ? 'primary' : '' ?>" style="padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-gift"></i> Ganadores Cofre (<?= $totalGanadoresJuego ?>)
             </a>
         </div>
         <div>
@@ -1525,6 +1609,103 @@ try {
                                     <form method="POST" onsubmit="return confirm('¿Eliminar esta canción?');" style="display: inline;">
                                         <input type="hidden" name="action_cancion" value="delete">
                                         <input type="hidden" name="cancion_id" value="<?= $cs['id'] ?>">
+                                        <button type="submit" class="action-btn" style="padding: 4px 10px; font-size: 0.72rem; border-color: #ff6b6b; color: #ff9999;">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+
+    <?php elseif ($activeTab === 'cofre'): ?>
+        <!-- ============================================================
+             SECCIÓN DE GANADORES DE LA SORPRESA DEL COFRE Y MARIPOSA SECRETA
+             ============================================================ -->
+        <div class="actions-bar">
+            <div>
+                <span style="font-size: 0.85rem; color: var(--dorado-claro);">
+                    🎁 Cofres "Guardián de mis sueños": <strong><?= $totalCofresAbiertos ?></strong> · ✨ Mariposas secretas: <strong><?= $totalMariposaSecreta ?></strong>
+                </span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="?export=cofre_csv" class="action-btn primary">
+                    <i class="fas fa-file-csv"></i> Exportar Ganadores CSV
+                </a>
+                <form method="POST" onsubmit="return confirm('¿Eliminar registros de prueba (prueba/test) de ganadores del cofre?');" style="display: inline;">
+                    <input type="hidden" name="action_cofre" value="delete_test">
+                    <button type="submit" class="action-btn" style="border-color: #EBC5CC; color: #EBC5CC;">
+                        <i class="fas fa-broom"></i> Borrar Pruebas
+                    </button>
+                </form>
+                <a href="?tab=cofre" class="action-btn">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </a>
+            </div>
+        </div>
+
+        <div class="table-container" style="max-width: 1200px; margin: 0 auto 30px auto;">
+            <?php if (empty($ganadoresCofre)): ?>
+                <div class="empty-state">
+                    <i class="fas fa-gift"></i>
+                    <p>Aún no hay invitados registrados que hayan desbloqueado el cofre o la mariposa secreta.</p>
+                </div>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 48px;">#</th>
+                            <th>Invitado</th>
+                            <th>Recompensas Desbloqueadas</th>
+                            <th>Capturas</th>
+                            <th>Puntos</th>
+                            <th>Combo Máx.</th>
+                            <th>Modo</th>
+                            <th>Fecha</th>
+                            <th style="text-align: right; width: 90px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($ganadoresCofre as $idx => $gc): ?>
+                            <tr>
+                                <td style="color: var(--dorado); opacity: 0.65;"><?= $idx + 1 ?></td>
+                                <td>
+                                    <strong style="color: var(--dorado-claro); font-size: 0.95rem;">
+                                        <?= htmlspecialchars($gc['nombre_invitado']) ?>
+                                    </strong>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                        <?php if (!empty($gc['recompensa_cofre'])): ?>
+                                            <span style="display: inline-flex; align-items: center; gap: 5px; background: <?= $isSophiaAdmin ? 'linear-gradient(135deg, #854761, #68344B)' : 'rgba(200, 162, 74, 0.25)' ?>; color: #FFFFFF; border: 1px solid #C5A16A; padding: 3px 10px; border-radius: 14px; font-size: 0.74rem; font-weight: 700;">
+                                                <i class="fas fa-gift"></i> Guardián de mis sueños (Cofre)
+                                            </span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($gc['recompensa_secreta'])): ?>
+                                            <span style="display: inline-flex; align-items: center; gap: 5px; background: <?= $isSophiaAdmin ? 'rgba(197, 161, 106, 0.22)' : 'rgba(255, 215, 0, 0.2)' ?>; color: #FFF3E7; border: 1px solid #C5A16A; padding: 3px 10px; border-radius: 14px; font-size: 0.74rem; font-weight: 600;">
+                                                <i class="fas fa-crown"></i> La mariposa de los sueños
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td><strong style="color: #FFF3E7;"><?= (int)$gc['capturas'] ?> / 15</strong></td>
+                                <td style="color: var(--dorado-claro); font-weight: 600;"><?= (int)$gc['puntos'] ?> pts</td>
+                                <td style="color: #EBC5CC; font-weight: 600;">x<?= max(1, (int)$gc['combo_max']) ?></td>
+                                <td>
+                                    <span style="font-size: 0.75rem; color: #EAD8B8;">
+                                        <?= !empty($gc['modo_accesible']) ? 'Accesible' : 'Normal (15s)' ?>
+                                    </span>
+                                </td>
+                                <td class="date-cell">
+                                    <?= date('d/m/Y H:i', strtotime($gc['created_at'])) ?>
+                                </td>
+                                <td style="text-align: right;">
+                                    <form method="POST" onsubmit="return confirm('¿Eliminar este registro de ganador?');" style="display: inline;">
+                                        <input type="hidden" name="action_cofre" value="delete">
+                                        <input type="hidden" name="registro_id" value="<?= (int)$gc['id'] ?>">
                                         <button type="submit" class="action-btn" style="padding: 4px 10px; font-size: 0.72rem; border-color: #ff6b6b; color: #ff9999;">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>

@@ -239,18 +239,21 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             transform: translateX(0);
             opacity: 1;
             z-index: 10;
+            pointer-events: auto;
         }
 
         .card-slide.prev {
             transform: translateX(-100%);
             opacity: 0;
             z-index: 5;
+            pointer-events: none;
         }
 
         .card-slide.next {
             transform: translateX(100%);
             opacity: 0;
             z-index: 5;
+            pointer-events: none;
         }
 
         .card-slide.hidden {
@@ -3257,84 +3260,188 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                 <div class="corner-br"></div>
 
                 <?php if ($isSophia): ?>
-                <!-- MINIJUEGO DE MARIPOSAS EXCLUSIVO DE SOPHIA (WCAG 2.2 AA SIN VERDE) -->
-                <div class="card-icon" style="margin-bottom: 2px;">
-                    <i class="fas fa-wand-magic-sparkles"></i>
+                <!-- MINIJUEGO DE MARIPOSAS V2.0 EXCLUSIVO DE SOPHIA: EL JARDÍN ENCANTADO (SIN TRIVIA, CERO VERDE) -->
+                <div class="sophia-game-header">
+                    <div class="card-icon sophia-game-crest" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" width="28" height="28">
+                            <defs>
+                                <linearGradient id="crestWingL" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFF3E7" />
+                                    <stop offset="60%" stop-color="#EBC5CC" />
+                                    <stop offset="100%" stop-color="#C6AEDB" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M24 25 C14 9, 4 14, 7 25 C9 33, 18 32, 24 26 Z" fill="url(#crestWingL)" stroke="#C5A16A" stroke-width="1.4" />
+                            <path d="M24 25 C34 9, 44 14, 41 25 C39 33, 30 32, 24 26 Z" fill="url(#crestWingL)" stroke="#C5A16A" stroke-width="1.4" />
+                            <path d="M24 27 C17 30, 13 38, 19 41 C22 42, 24 34, 24 27 Z" fill="#D9A5B5" stroke="#C5A16A" stroke-width="1.1" />
+                            <path d="M24 27 C31 30, 35 38, 29 41 C26 42, 24 34, 24 27 Z" fill="#D9A5B5" stroke="#C5A16A" stroke-width="1.1" />
+                            <ellipse cx="24" cy="26" rx="2.1" ry="9" fill="#4A303B" />
+                            <path d="M23 17 Q20 11 17 12 M25 17 Q28 11 31 12" stroke="#C5A16A" stroke-width="1.2" fill="none" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="card-title-script" style="font-size: 2.15rem; margin-bottom: 0;">El Jardín Encantado</div>
+                    <div class="card-title-serif" style="font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 6px;">ATRAPA 15 MARIPOSAS EN 15 SEGUNDOS</div>
+                    <div class="gold-divider" style="margin: 6px auto 10px auto;"></div>
                 </div>
-                <div class="card-title-script" style="font-size: 2.3rem; margin-bottom: 0px;">El Jardín Encantado</div>
-                <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; margin-bottom: 6px;">MINIJUEGO DE MARIPOSAS</div>
-                <div class="gold-divider" style="margin-bottom: 10px;"></div>
 
-                <!-- Selector de modos: Minijuego o Trivia -->
-                <div class="sophia-mode-selector" style="display: flex; justify-content: center; gap: 8px; margin-bottom: 10px;">
-                    <button type="button" id="tabBtnGame" class="sophia-game-btn" style="padding: 6px 14px; font-size: 0.72rem;">
-                        <i class="fas fa-butterfly"></i> Atrapa Mariposas
-                    </button>
-                    <button type="button" id="tabBtnTrivia" class="sophia-game-btn" style="padding: 6px 14px; font-size: 0.72rem; background: #FFF3E7; color: #4A303B; border-color: #C5A16A;">
-                        <i class="fas fa-question-circle"></i> Trivia de Sophia
-                    </button>
-                </div>
+                <div id="sophiaGamePanel" class="sophia-game-card">
+                    <!-- HUD de Alto Contraste WCAG 2.2 AA -->
+                    <div class="sophia-game-hud" id="sophiaGameHud" role="status" aria-live="polite">
+                        <div class="sophia-hud-stat sophia-hud-captures" title="Mariposas atrapadas">
+                            <svg class="sophia-hud-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                <path d="M12 12 C7 4, 2 7, 3 13 C4 17, 9 16, 12 13 Z" fill="#854761" />
+                                <path d="M12 12 C17 4, 22 7, 21 13 C20 17, 15 16, 12 13 Z" fill="#C5A16A" />
+                                <ellipse cx="12" cy="13" rx="1.2" ry="5" fill="#4A303B" />
+                            </svg>
+                            <div class="sophia-hud-meta">
+                                <span class="sophia-hud-label">Meta</span>
+                                <span class="sophia-hud-val"><strong id="sophiaCapturesCount">0</strong> / 15</span>
+                            </div>
+                        </div>
 
-                <!-- Panel 1: Minijuego de Mariposas -->
-                <div id="sophiaGamePanel">
-                    <p class="card-text" style="font-size: 0.8rem; line-height: 1.4; margin-bottom: 6px; text-align: center;">
-                        ¡Toca las mariposas mágicas que vuelan en el jardín antes de que se acabe el tiempo! ✨
-                    </p>
+                        <div class="sophia-hud-stat sophia-hud-points" title="Puntuación acumulada">
+                            <svg class="sophia-hud-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                <path d="M12 2 L14.6 9.4 L22 12 L14.6 14.6 L12 22 L9.4 14.6 L2 12 L9.4 9.4 Z" fill="#C5A16A" stroke="#854761" stroke-width="1" />
+                            </svg>
+                            <div class="sophia-hud-meta">
+                                <span class="sophia-hud-label">Puntos</span>
+                                <span class="sophia-hud-val"><strong id="sophiaPointsCount">0</strong></span>
+                            </div>
+                        </div>
 
+                        <div class="sophia-game-timer" id="sophiaTimerPill" title="Tiempo restante">
+                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                                <circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+                                <path d="M12 9 V13 L15 15 M9 3 H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
+                            </svg>
+                            <span id="sophiaGameTimer">15s</span>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Progreso hacia el Cofre -->
+                    <div class="sophia-progress-track" aria-hidden="true">
+                        <div class="sophia-progress-fill" id="sophiaProgressBar"></div>
+                    </div>
+
+                    <!-- Escenario Inmersivo del Jardín Encantado -->
                     <div class="sophia-game-arena" id="sophiaGameArena">
-                        <div class="sophia-game-backdrop">
-                            <!-- Ramas y flores decorativas en paleta oficial (CERO VERDE) -->
-                            <svg class="branch-decor" viewBox="0 0 300 200" preserveAspectRatio="none">
-                                <path d="M 0,180 Q 80,120 180,150 T 300,100" stroke="#79544D" stroke-width="2.5" fill="none" opacity="0.4" />
-                                <path d="M 20,20 Q 120,60 220,30 T 300,70" stroke="#79544D" stroke-width="1.8" fill="none" opacity="0.3" />
-                                <circle cx="80" cy="120" r="5" fill="#EBC5CC" opacity="0.7" />
-                                <circle cx="180" cy="150" r="6" fill="#C6AEDB" opacity="0.7" />
-                                <circle cx="220" cy="30" r="4" fill="#EAD8B8" opacity="0.7" />
+                        <!-- Capa 1: Iluminación Cálida y Flores Rosadas/Lavanda (CERO VERDE) -->
+                        <div class="sophia-game-backdrop" aria-hidden="true">
+                            <svg class="garden-scenery-svg" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <radialGradient id="warmGardenGlow" cx="50%" cy="38%" r="65%">
+                                        <stop offset="0%" stop-color="#FFF3E7" stop-opacity="0.95" />
+                                        <stop offset="55%" stop-color="#F6DCE2" stop-opacity="0.72" />
+                                        <stop offset="100%" stop-color="#EBC5CC" stop-opacity="0.88" />
+                                    </radialGradient>
+                                    <radialGradient id="petalGlow1" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#C5A16A" stop-opacity="0.35" />
+                                        <stop offset="100%" stop-color="#C5A16A" stop-opacity="0" />
+                                    </radialGradient>
+                                </defs>
+                                <rect width="400" height="320" fill="url(#warmGardenGlow)" />
+                                <circle cx="200" cy="130" r="135" fill="url(#petalGlow1)" />
+
+                                <!-- Ramas cálidas marrón rosado (sin hojas verdes) -->
+                                <path d="M-10,275 Q85,220 165,260 T330,230 T415,265" stroke="#79544D" stroke-width="2.6" stroke-opacity="0.35" fill="none" />
+                                <path d="M-10,48 Q90,82 175,38 T340,65 T415,30" stroke="#79544D" stroke-width="2" stroke-opacity="0.28" fill="none" />
+                                <path d="M35,320 Q60,260 110,245" stroke="#854761" stroke-width="1.6" stroke-opacity="0.25" fill="none" />
+                                <path d="M365,320 Q330,255 280,242" stroke="#854761" stroke-width="1.6" stroke-opacity="0.25" fill="none" />
+
+                                <!-- Flores rosadas y lavanda estilizadas -->
+                                <g transform="translate(52, 245)" opacity="0.85">
+                                    <circle cx="0" cy="-9" r="7" fill="#EBC5CC" />
+                                    <circle cx="9" cy="-2" r="7" fill="#D9A5B5" />
+                                    <circle cx="5" cy="8" r="7" fill="#EBC5CC" />
+                                    <circle cx="-6" cy="8" r="7" fill="#C6AEDB" />
+                                    <circle cx="-9" cy="-2" r="7" fill="#D9A5B5" />
+                                    <circle cx="0" cy="1" r="4.5" fill="#C5A16A" />
+                                </g>
+                                <g transform="translate(348, 238) scale(1.1)" opacity="0.85">
+                                    <circle cx="0" cy="-9" r="7" fill="#C6AEDB" />
+                                    <circle cx="9" cy="-2" r="7" fill="#EBC5CC" />
+                                    <circle cx="5" cy="8" r="7" fill="#D9A5B5" />
+                                    <circle cx="-6" cy="8" r="7" fill="#EBC5CC" />
+                                    <circle cx="-9" cy="-2" r="7" fill="#C6AEDB" />
+                                    <circle cx="0" cy="1" r="4.5" fill="#C5A16A" />
+                                </g>
+                                <g transform="translate(335, 58) scale(0.85)" opacity="0.78">
+                                    <circle cx="0" cy="-8" r="6.5" fill="#D9A5B5" />
+                                    <circle cx="8" cy="-2" r="6.5" fill="#EBC5CC" />
+                                    <circle cx="4" cy="7" r="6.5" fill="#C6AEDB" />
+                                    <circle cx="-5" cy="7" r="6.5" fill="#EBC5CC" />
+                                    <circle cx="-8" cy="-2" r="6.5" fill="#D9A5B5" />
+                                    <circle cx="0" cy="1" r="4" fill="#C5A16A" />
+                                </g>
+                                <g transform="translate(58, 56) scale(0.8)" opacity="0.75">
+                                    <circle cx="0" cy="-8" r="6.5" fill="#C6AEDB" />
+                                    <circle cx="8" cy="-2" r="6.5" fill="#EBC5CC" />
+                                    <circle cx="4" cy="7" r="6.5" fill="#D9A5B5" />
+                                    <circle cx="-5" cy="7" r="6.5" fill="#EBC5CC" />
+                                    <circle cx="-8" cy="-2" r="6.5" fill="#C6AEDB" />
+                                    <circle cx="0" cy="1" r="4" fill="#C5A16A" />
+                                </g>
+                                <g transform="translate(200, 290) scale(0.95)" opacity="0.75">
+                                    <circle cx="0" cy="-8" r="6.5" fill="#EBC5CC" />
+                                    <circle cx="8" cy="-2" r="6.5" fill="#C6AEDB" />
+                                    <circle cx="4" cy="7" r="6.5" fill="#D9A5B5" />
+                                    <circle cx="-5" cy="7" r="6.5" fill="#EBC5CC" />
+                                    <circle cx="-8" cy="-2" r="6.5" fill="#D9A5B5" />
+                                    <circle cx="0" cy="1" r="4" fill="#C5A16A" />
+                                </g>
                             </svg>
                         </div>
 
-                        <!-- HUD de juego -->
-                        <div class="sophia-game-hud">
-                            <div class="sophia-game-score">
-                                <i class="fas fa-sparkles" style="color: #C5A16A;"></i>
-                                Puntos: <span id="sophiaGameScore">0</span>
-                            </div>
-                            <div class="sophia-game-timer">
-                                <i class="fas fa-stopwatch"></i>
-                                <span id="sophiaGameTimer">30s</span>
-                            </div>
+                        <!-- Capa 2: Canvas FX (Partículas doradas, pétalos flotantes, explosión de victoria) -->
+                        <canvas id="sophiaFxCanvas" class="sophia-fx-canvas" aria-hidden="true"></canvas>
+
+                        <!-- Capa 3: Mariposas Interactivas -->
+                        <div id="sophiaTargetsArea" class="sophia-targets-area"></div>
+
+                        <!-- Indicadores Dinámicos Durante la Partida (No bloqueantes) -->
+                        <div id="sophiaComboBadge" class="sophia-combo-badge" aria-hidden="true">COMBO x2</div>
+                        <div id="sophiaSecretToast" class="sophia-secret-toast" role="status" aria-live="polite">
+                            ¡Encontraste la mariposa secreta!
                         </div>
 
-                        <!-- Área interactiva donde vuelan las mariposas -->
-                        <div id="sophiaTargetsArea" style="position: absolute; top: 38px; left: 0; right: 0; bottom: 0; overflow: hidden;"></div>
+                        <!-- Cuenta Regresiva Animada 3 - 2 - 1 -->
+                        <div id="sophiaCountdownOverlay" class="sophia-countdown-overlay" style="display: none;" aria-live="assertive">
+                            <span id="sophiaCountdownNum" class="sophia-countdown-num">3</span>
+                        </div>
 
-                        <!-- Pantalla de inicio / fin dentro del juego -->
-                        <div id="sophiaGameOverOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 243, 231, 0.94); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; text-align: center; z-index: 15;">
-                            <div style="font-size: 2.2rem; margin-bottom: 4px;">🦋✨</div>
-                            <h4 id="sophiaGameTitle" style="font-family: 'Great Vibes', cursive; font-size: 2rem; color: #4A303B; margin: 0 0 4px 0;">El Jardín Encantado</h4>
-                            <p id="sophiaGameMsg" style="font-size: 0.8rem; color: #79544D; margin: 0 0 10px 0; max-width: 250px;">
-                                Atrapa mariposas rosadas, lavanda y doradas para sumar puntos.
+                        <!-- Pantalla Inicial / Fin Rápida -->
+                        <div id="sophiaStartOverlay" class="sophia-start-overlay">
+                            <div class="sophia-emblem-ring" aria-hidden="true">
+                                <svg viewBox="0 0 80 80" width="58" height="58">
+                                    <circle cx="40" cy="40" r="36" fill="#FFF3E7" stroke="#C5A16A" stroke-width="2" />
+                                    <circle cx="40" cy="40" r="31" fill="none" stroke="#D9A5B5" stroke-width="1" stroke-dasharray="3 3" />
+                                    <path d="M40 40 C26 16, 10 24, 15 41 C18 52, 32 50, 40 42 Z" fill="#EBC5CC" stroke="#854761" stroke-width="1.4" />
+                                    <path d="M40 40 C54 16, 70 24, 65 41 C62 52, 48 50, 40 42 Z" fill="#C6AEDB" stroke="#854761" stroke-width="1.4" />
+                                    <path d="M40 43 C30 47, 25 57, 33 60 C37 61, 40 52, 40 43 Z" fill="#C5A16A" stroke="#4A303B" stroke-width="1" />
+                                    <path d="M40 43 C50 47, 55 57, 47 60 C43 61, 40 52, 40 43 Z" fill="#C5A16A" stroke="#4A303B" stroke-width="1" />
+                                    <ellipse cx="40" cy="42" rx="2.6" ry="12" fill="#4A303B" />
+                                    <path d="M39 30 Q35 22 30 23 M41 30 Q45 22 50 23" stroke="#C5A16A" stroke-width="1.4" fill="none" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                            <h4 id="sophiaGameTitle" class="sophia-overlay-title">Atrapa 15 Mariposas</h4>
+                            <p id="sophiaGameMsg" class="sophia-overlay-desc">
+                                Toca las mariposas rosadas, lavanda y la dorada secreta antes de que termine el tiempo.
                             </p>
-                            <button type="button" id="btnStartGame" class="sophia-game-btn">
-                                <i class="fas fa-play"></i> Iniciar Juego
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Panel 2: Trivia de Sophia (Oculto por defecto si se usa pestaña) -->
-                <div id="trivia-container" style="display: none;">
-                    <div class="trivia-counter" id="trivia-counter">Pregunta 1 de 5</div>
-                    <div class="trivia-question" id="trivia-question"></div>
-                    <div class="trivia-options" id="trivia-options"></div>
-                    <div class="trivia-result" id="trivia-result"></div>
-                    <div class="trivia-nav" id="trivia-nav">
-                        <button class="trivia-nav-btn" id="trivia-prev" disabled>
-                            <i class="fas fa-arrow-left"></i> Anterior
-                        </button>
-                        <button class="trivia-nav-btn" id="trivia-next">
-                            Siguiente <i class="fas fa-arrow-right"></i>
-                        </button>
+                            <div class="sophia-overlay-actions">
+                                <button type="button" id="btnStartGame" class="sophia-game-btn">
+                                    <i class="fas fa-play"></i> Jugar Ahora
+                                </button>
+                                <button type="button" id="btnOpenSavedRewards" class="sophia-game-btn sophia-btn-secondary" style="display: none;">
+                                    <i class="fas fa-gift"></i> Mis Recuerdos
+                                </button>
+                            </div>
+
+                            <label class="sophia-accessible-toggle" for="sophiaAccessibleToggle">
+                                <input type="checkbox" id="sophiaAccessibleToggle">
+                                <span>Modo accesible (ritmo suave, sin límite de tiempo)</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <?php else: ?>
@@ -3731,6 +3838,116 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         <?php endif; ?>
     </audio>
 
+    <?php if ($isSophia): ?>
+    <!-- Modal Interactivo de Cofre Mágico 3D y Recuerdos Digitales (Sophia Valentina) -->
+    <div id="sophiaRewardModal" class="sophia-reward-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="sophiaRewardHeading">
+        <div class="sophia-reward-dialog">
+            <button type="button" id="btnCloseRewardModal" class="sophia-reward-close" aria-label="Cerrar ventana de recompensas">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Fase A: Cofre Mágico 3D Interactivo -->
+            <div id="sophiaChestStage" class="sophia-chest-stage" style="display: none;">
+                <div class="sophia-chest-rays" aria-hidden="true"></div>
+                <div class="sophia-chest-title" id="sophiaRewardHeading">¡Has desbloqueado una sorpresa!</div>
+                <p class="sophia-chest-subtitle">Atrapaste las 15 mariposas mágicas de Sophia. Toca el cofre para revelarla.</p>
+
+                <button type="button" id="btnOpenMagicChest" class="sophia-chest-btn" aria-label="Tocar el cofre mágico para abrirlo">
+                    <div class="sophia-chest-3d" id="sophiaChest3d">
+                        <!-- Tapa articulada del cofre en SVG rosa y dorado champagne -->
+                        <div class="sophia-chest-lid">
+                            <svg viewBox="0 0 220 82" width="190" height="71">
+                                <defs>
+                                    <linearGradient id="lidPink" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#D9A5B5" />
+                                        <stop offset="55%" stop-color="#854761" />
+                                        <stop offset="100%" stop-color="#4A303B" />
+                                    </linearGradient>
+                                    <linearGradient id="champGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#FFF3E7" />
+                                        <stop offset="45%" stop-color="#C5A16A" />
+                                        <stop offset="100%" stop-color="#8E6B38" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M22 76 C22 24, 52 10, 110 10 C168 10, 198 24, 198 76 Z" fill="url(#lidPink)" stroke="url(#champGold)" stroke-width="4" />
+                                <rect x="44" y="13" width="12" height="63" rx="4" fill="url(#champGold)" />
+                                <rect x="164" y="13" width="12" height="63" rx="4" fill="url(#champGold)" />
+                                <path d="M18 70 H202 V80 H18 Z" rx="4" fill="url(#champGold)" />
+                                <!-- Emblema mariposa en la tapa -->
+                                <path d="M110 42 C100 28, 88 33, 92 45 C95 52, 104 50, 110 44 Z" fill="#FFF3E7" stroke="#C5A16A" stroke-width="1.2" />
+                                <path d="M110 42 C120 28, 132 33, 128 45 C125 52, 116 50, 110 44 Z" fill="#EBC5CC" stroke="#C5A16A" stroke-width="1.2" />
+                                <ellipse cx="110" cy="43" rx="1.8" ry="7" fill="#C5A16A" />
+                            </svg>
+                        </div>
+                        <!-- Luz interior al abrirse -->
+                        <div class="sophia-chest-inner-glow" aria-hidden="true"></div>
+                        <!-- Base del cofre -->
+                        <div class="sophia-chest-base">
+                            <svg viewBox="0 0 220 96" width="190" height="83">
+                                <path d="M22 6 H198 L188 86 C187 90, 183 92, 178 92 H42 C37 92, 33 90, 32 86 Z" fill="url(#lidPink)" stroke="url(#champGold)" stroke-width="4" />
+                                <rect x="46" y="6" width="12" height="86" fill="url(#champGold)" />
+                                <rect x="162" y="6" width="12" height="86" fill="url(#champGold)" />
+                                <!-- Cerradura real -->
+                                <rect x="97" y="4" width="26" height="30" rx="8" fill="url(#champGold)" stroke="#4A303B" stroke-width="1.5" />
+                                <circle cx="110" cy="16" r="4.5" fill="#4A303B" />
+                                <path d="M107.5 18 H112.5 L114 27 H106 Z" fill="#4A303B" />
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="sophia-chest-cta">Toca el cofre para abrirlo</span>
+                </button>
+            </div>
+
+            <!-- Fase B: Vitrina de Recuerdos Digitales (Tarjeta Conmemorativa & Insignia Secreta) -->
+            <div id="sophiaRewardsShowcase" class="sophia-rewards-showcase" style="display: none;">
+                <div class="sophia-showcase-header">
+                    <div id="sophiaRewardTitleBanner" class="sophia-showcase-title">Guardián de mis sueños</div>
+                    <div id="sophiaShowcaseTabs" class="sophia-showcase-tabs" style="display: none;">
+                        <button type="button" id="btnTabCardReward" class="sophia-tab-pill active">
+                            <i class="fas fa-scroll"></i> Tarjeta del Cofre
+                        </button>
+                        <button type="button" id="btnTabBadgeReward" class="sophia-tab-pill">
+                            <i class="fas fa-crown"></i> Insignia Secreta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vista previa generada en Canvas 2D de alta resolución -->
+                <div class="sophia-canvas-preview-wrap">
+                    <canvas id="sophiaRewardCanvas" class="sophia-reward-canvas"></canvas>
+                </div>
+
+                <!-- Registro en el Salón Real (Admin Panel -> Ganadores Cofre) -->
+                <div class="sophia-winner-register-box" id="sophiaWinnerRegisterBox">
+                    <div class="sophia-register-row">
+                        <input type="text" id="sophiaWinnerNameInput" class="sophia-winner-input" placeholder="Tu nombre para personalizar y registrar tu premio..." maxlength="120" autocomplete="name">
+                        <button type="button" id="btnSaveWinnerName" class="sophia-register-btn">
+                            <i class="fas fa-check"></i> Guardar
+                        </button>
+                    </div>
+                    <div id="sophiaWinnerRegisterStatus" class="sophia-register-status"></div>
+                </div>
+
+                <!-- Acciones de Recuerdo Digital -->
+                <div class="sophia-showcase-actions">
+                    <button type="button" id="btnDownloadRewardPng" class="sophia-game-btn">
+                        <i class="fas fa-download"></i> Guardar PNG
+                    </button>
+                    <button type="button" id="btnShareReward" class="sophia-game-btn sophia-btn-secondary">
+                        <i class="fas fa-share-nodes"></i> Compartir
+                    </button>
+                    <button type="button" id="btnPlayAgainFromReward" class="sophia-game-btn sophia-btn-outline">
+                        <i class="fas fa-redo"></i> Volver a jugar
+                    </button>
+                    <button type="button" id="btnContinueInvitation" class="sophia-game-btn sophia-btn-outline">
+                        Seguir viendo <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Modal de Subida de Fotos en Vivo -->
     <div id="photoUploadModal" class="photo-upload-modal" style="display: none;">
         <div class="photo-upload-box">
@@ -3875,6 +4092,8 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                     farewellVid.pause();
                 }
             }
+
+            window.dispatchEvent(new CustomEvent('xv:slidechange', { detail: { index: currentSlide } }));
         }
 
         // Control de audio del video de despedida
@@ -3911,6 +4130,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
 
         prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
         nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+        window.xvGoToNextSlide = () => goToSlide(currentSlide + 1);
 
         // Touch/Swipe support
         let touchStartX = 0;
@@ -3918,11 +4138,17 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         const deck = document.getElementById('deckContainer');
 
         deck.addEventListener('touchstart', (e) => {
+            if (e.target && e.target.closest('#sophiaGameArena, #sophiaRewardModal')) {
+                touchStartX = null;
+                return;
+            }
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
         }, { passive: true });
 
         deck.addEventListener('touchend', (e) => {
+            if (touchStartX === null) return;
+            if (e.target && e.target.closest('#sophiaGameArena, #sophiaRewardModal')) return;
             const deltaX = e.changedTouches[0].screenX - touchStartX;
             const deltaY = e.changedTouches[0].screenY - touchStartY;
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
@@ -3990,6 +4216,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         }
     })();
 
+    <?php if (!$isSophia): ?>
     /* ================================================================
        TRIVIA
        ================================================================ */
@@ -4203,239 +4430,19 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         // Iniciar la trivia
         renderQuestion();
     })();
-
-    <?php if ($isSophia): ?>
-    /* ================================================================
-       MINIJUEGO DE MARIPOSAS DE SOPHIA: "EL JARDÍN ENCANTADO"
-       ================================================================ */
-    (() => {
-        const tabBtnGame = document.getElementById('tabBtnGame');
-        const tabBtnTrivia = document.getElementById('tabBtnTrivia');
-        const gamePanel = document.getElementById('sophiaGamePanel');
-        const triviaPanel = document.getElementById('trivia-container');
-        const arena = document.getElementById('sophiaGameArena');
-        const targetsArea = document.getElementById('sophiaTargetsArea');
-        const scoreEl = document.getElementById('sophiaGameScore');
-        const timerEl = document.getElementById('sophiaGameTimer');
-        const overlay = document.getElementById('sophiaGameOverOverlay');
-        const startBtn = document.getElementById('btnStartGame');
-        const gameTitle = document.getElementById('sophiaGameTitle');
-        const gameMsg = document.getElementById('sophiaGameMsg');
-
-        if (!gamePanel || !startBtn || !targetsArea) return;
-
-        // Pestañas / Alternador de modo (Juego vs Trivia)
-        if (tabBtnGame && tabBtnTrivia && triviaPanel) {
-            tabBtnGame.addEventListener('click', () => {
-                gamePanel.style.display = 'block';
-                triviaPanel.style.display = 'none';
-                tabBtnGame.style.background = 'linear-gradient(135deg, #854761 0%, #68344B 100%)';
-                tabBtnGame.style.color = '#FFFFFF';
-                tabBtnTrivia.style.background = '#FFF3E7';
-                tabBtnTrivia.style.color = '#4A303B';
-            });
-
-            tabBtnTrivia.addEventListener('click', () => {
-                gamePanel.style.display = 'none';
-                triviaPanel.style.display = 'block';
-                tabBtnTrivia.style.background = 'linear-gradient(135deg, #854761 0%, #68344B 100%)';
-                tabBtnTrivia.style.color = '#FFFFFF';
-                tabBtnGame.style.background = '#FFF3E7';
-                tabBtnGame.style.color = '#4A303B';
-            });
-        }
-
-        let score = 0;
-        let timeLeft = 30;
-        let gameActive = false;
-        let spawnInterval = null;
-        let timerInterval = null;
-        let record = parseInt(localStorage.getItem('sophia_butterfly_record') || '0', 10);
-
-        // SVG de Mariposas Oficiales (Sin ningún elemento verde)
-        const butterflyTypes = [
-            {
-                name: 'Rosa Blush',
-                pts: 10,
-                colorMain: '#EBC5CC',
-                colorStroke: '#D9A5B5',
-                colorBody: '#854761',
-                speed: 2.2,
-                weight: 5
-            },
-            {
-                name: 'Lavanda Mágica',
-                pts: 15,
-                colorMain: '#C6AEDB',
-                colorStroke: '#854761',
-                colorBody: '#4A303B',
-                speed: 1.8,
-                weight: 3
-            },
-            {
-                name: 'Dorado Champagne',
-                pts: 25,
-                colorMain: '#C5A16A',
-                colorStroke: '#FFF3E7',
-                colorBody: '#4A303B',
-                speed: 1.4,
-                weight: 2
-            }
-        ];
-
-        function createButterflySvg(bType) {
-            return `
-                <svg viewBox="0 0 50 50" class="target-butterfly-svg">
-                    <defs>
-                        <linearGradient id="g_${bType.pts}" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="${bType.colorMain}" />
-                            <stop offset="100%" stop-color="${bType.colorStroke}" />
-                        </linearGradient>
-                    </defs>
-                    <!-- Ala izquierda -->
-                    <path d="M 25 25 C 10 5, 2 15, 6 30 C 10 40, 22 32, 25 25 Z" fill="url(#g_${bType.pts})" stroke="${bType.colorStroke}" stroke-width="1.2" />
-                    <!-- Ala derecha -->
-                    <path d="M 25 25 C 40 5, 48 15, 44 30 C 40 40, 28 32, 25 25 Z" fill="url(#g_${bType.pts})" stroke="${bType.colorStroke}" stroke-width="1.2" />
-                    <!-- Cuerpo central -->
-                    <ellipse cx="25" cy="25" rx="2" ry="8" fill="${bType.colorBody}" />
-                    <circle cx="24" cy="15" r="1.2" fill="${bType.colorStroke}" />
-                    <circle cx="26" cy="15" r="1.2" fill="${bType.colorStroke}" />
-                </svg>
-            `;
-        }
-
-        function spawnTarget() {
-            if (!gameActive) return;
-
-            // Selección ponderada de mariposa
-            const totalWeight = butterflyTypes.reduce((acc, b) => acc + b.weight, 0);
-            let rnd = Math.random() * totalWeight;
-            let chosen = butterflyTypes[0];
-            for (let b of butterflyTypes) {
-                if (rnd < b.weight) {
-                    chosen = b;
-                    break;
-                }
-                rnd -= b.weight;
-            }
-
-            const w = targetsArea.clientWidth || 320;
-            const h = targetsArea.clientHeight || 220;
-
-            const el = document.createElement('div');
-            el.className = 'sophia-catch-target';
-            el.innerHTML = createButterflySvg(chosen);
-
-            const startX = Math.random() * (w - 50);
-            const startY = Math.random() * (h - 50);
-            el.style.left = `${startX}px`;
-            el.style.top = `${startY}px`;
-
-            // Animación de vuelo dentro del área
-            let posX = startX;
-            let posY = startY;
-            let vx = (Math.random() - 0.5) * chosen.speed * 2;
-            let vy = (Math.random() - 0.5) * chosen.speed * 2;
-
-            const moveInterval = setInterval(() => {
-                if (!gameActive) {
-                    clearInterval(moveInterval);
-                    el.remove();
-                    return;
-                }
-                posX += vx;
-                posY += vy;
-                if (posX < 5 || posX > w - 45) vx *= -1;
-                if (posY < 5 || posY > h - 45) vy *= -1;
-
-                el.style.transform = `translate3d(${posX - startX}px, ${posY - startY}px, 0)`;
-            }, 30);
-
-            // Tiempo de vida de la mariposa (desaparece tras unos segundos)
-            const lifeTimeout = setTimeout(() => {
-                clearInterval(moveInterval);
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 200);
-            }, 2800);
-
-            // Evento de captura al hacer clic o tocar
-            const catchHandler = (e) => {
-                e.stopPropagation();
-                if (!gameActive) return;
-
-                clearInterval(moveInterval);
-                clearTimeout(lifeTimeout);
-
-                score += chosen.pts;
-                scoreEl.textContent = score;
-
-                // Efecto flotante de puntuación (+10, +15, +25)
-                const fx = document.createElement('div');
-                fx.className = 'catch-sparkle-fx';
-                fx.textContent = `+${chosen.pts} ✨`;
-                fx.style.left = `${posX + 10}px`;
-                fx.style.top = `${posY}px`;
-                targetsArea.appendChild(fx);
-                setTimeout(() => fx.remove(), 800);
-
-                el.style.transform += ' scale(1.4)';
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 150);
-            };
-
-            el.addEventListener('pointerdown', catchHandler);
-            targetsArea.appendChild(el);
-        }
-
-        function startGame() {
-            score = 0;
-            timeLeft = 30;
-            gameActive = true;
-            scoreEl.textContent = '0';
-            timerEl.textContent = '30s';
-            overlay.style.display = 'none';
-            targetsArea.innerHTML = '';
-
-            // Generar mariposas periódicamente
-            spawnInterval = setInterval(() => {
-                if (targetsArea.children.length < 5) {
-                    spawnTarget();
-                }
-            }, 600);
-
-            // Cuenta regresiva del temporizador
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                timerEl.textContent = `${timeLeft}s`;
-
-                if (timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        function endGame() {
-            gameActive = false;
-            clearInterval(spawnInterval);
-            clearInterval(timerInterval);
-            targetsArea.innerHTML = '';
-
-            if (score > record) {
-                record = score;
-                localStorage.setItem('sophia_butterfly_record', record);
-            }
-
-            gameTitle.textContent = '¡Mágico Recorrido!';
-            gameMsg.innerHTML = `
-                Atrapaste <strong style="color: #854761; font-size: 1.15rem;">${score} puntos</strong> en el Jardín Encantado de Sophia.<br>
-                <span style="font-size: 0.75rem; color: #C5A16A; display: inline-block; margin-top: 4px;">🏆 Récord: ${record} puntos</span>
-            `;
-            startBtn.innerHTML = '<i class="fas fa-redo"></i> Jugar de Nuevo';
-            overlay.style.display = 'flex';
-        }
-
-        startBtn.addEventListener('click', startGame);
-    })();
+    <?php else: ?>
+    window.SOPHIA_GAME_CONFIG = {
+        eventoId: <?= (int)($currentEvent['id'] ?? 2) ?>,
+        eventoSlug: <?= json_encode($currentEvent['slug'] ?? 'sophia-xv') ?>,
+        festejada: <?= json_encode($festejadaNombreCorto) ?>,
+        fechaTexto: '21 de diciembre de 2026',
+        apiUrl: 'api/juego_recompensas.php',
+        durationSec: 15,
+        goalCaptures: 15,
+        minActive: 2,
+        maxActive: 4,
+        goldenChance: 0.14
+    };
     <?php endif; ?>
 
     /* ================================================================
@@ -4889,6 +4896,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
 
         let isPlaying = false;
         let userWantsMusic = true;
+        window.xvSoundEnabled = true;
         let tooltipTimeout = null;
         let lastToggleTimestamp = 0;
 
@@ -4963,10 +4971,12 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
 
             if (isPlaying) {
                 userWantsMusic = false;
+                window.xvSoundEnabled = false;
                 audio.pause();
                 showTooltip('Música en pausa', 2000);
             } else {
                 userWantsMusic = true;
+                window.xvSoundEnabled = true;
                 tryPlay();
             }
         }
@@ -5715,5 +5725,8 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         setInterval(fetchLivePhotos, 25000);
     })();
     </script>
+    <?php if ($isSophia): ?>
+    <script src="assets/js/sophia-butterfly-game.js?v=2.0"></script>
+    <?php endif; ?>
 </body>
 </html>

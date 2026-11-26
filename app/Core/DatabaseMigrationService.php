@@ -43,6 +43,9 @@ class DatabaseMigrationService
             // 3. Garantizar columnas evento_id en tablas auxiliares
             self::ensureEventoIdColumns($pdo, $isSqlite);
 
+            // 3b. Garantizar tabla de recompensas del minijuego (Ganadores del Cofre)
+            self::ensureJuegoRecompensasTable($pdo, $isSqlite);
+
             // 4. Garantizar catálogo base (roles, paquetes, plantillas)
             self::seedCatalog($pdo);
 
@@ -210,6 +213,34 @@ class DatabaseMigrationService
             ip VARCHAR(45) NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         )");
+
+        self::ensureJuegoRecompensasTable($pdo, $isSqlite);
+    }
+
+    public static function ensureJuegoRecompensasTable(PDO $pdo, ?bool $isSqlite = null): void
+    {
+        if ($isSqlite === null) {
+            $isSqlite = ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite');
+        }
+        $pk = $isSqlite ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT AUTO_INCREMENT PRIMARY KEY';
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS juego_recompensas (
+            id $pk,
+            evento_id INT NOT NULL DEFAULT 1,
+            nombre_invitado VARCHAR(150) NOT NULL,
+            recompensa_cofre TINYINT NOT NULL DEFAULT 0,
+            recompensa_secreta TINYINT NOT NULL DEFAULT 0,
+            capturas INT NOT NULL DEFAULT 0,
+            puntos INT NOT NULL DEFAULT 0,
+            combo_max INT NOT NULL DEFAULT 0,
+            modo_accesible TINYINT NOT NULL DEFAULT 0,
+            ip VARCHAR(45) NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        if ($isSqlite) {
+            $pdo->exec("CREATE INDEX IF NOT EXISTS idx_juego_recompensas_evento ON juego_recompensas (evento_id, created_at);");
+        }
     }
 
     private static function ensureEventoIdColumns(PDO $pdo, bool $isSqlite): void

@@ -65,6 +65,7 @@ class Router
             if (in_array($method, $route['methods']) && preg_match($route['regex'], $uri, $matches)) {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
                 
+                http_response_code(200);
                 if (is_callable($route['handler'])) {
                     call_user_func_array($route['handler'], $params);
                     return;

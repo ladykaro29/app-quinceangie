@@ -26,6 +26,14 @@ Router::get('/e/{slug}', function($slug) {
     require_once __DIR__ . '/public/index.php';
 });
 
+// Maqueta de Evaluación: Propuesta Visual 5 Tarjetas Sophia Valentina
+Router::get('/propuesta-sophia', function() {
+    require_once __DIR__ . '/public/propuesta-sophia-5-tarjetas.php';
+});
+Router::get('/propuesta-sophia-5-tarjetas.php', function() {
+    require_once __DIR__ . '/public/propuesta-sophia-5-tarjetas.php';
+});
+
 // ==============================================================================
 // 2. RUTAS DEL LIBRO MÁGICO 3D (RECUERDOS)
 // ==============================================================================

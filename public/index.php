@@ -17,6 +17,7 @@ if (!TenantResolverMiddleware::resolve()) {
 
 $currentEvent = CurrentEventContext::get();
 $currentConfigs = CurrentEventContext::allConfigs();
+http_response_code(200);
 
 // Variables dinámicas del evento
 $festejadaNombreCompleto = $currentEvent['festejada_nombre'] ?? 'Angie Karolina Avendaño Rivera';

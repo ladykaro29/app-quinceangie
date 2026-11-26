@@ -3,41 +3,88 @@
  * XV EXPERIENCE — TEMA OFICIAL: "EL JARDÍN ENCANTADO DE SOPHIA"
  * Celebración: Sophia Valentina Rivas Sánchez (21 de Diciembre de 2026)
  * ==============================================================================
- * PALETA OFICIAL:
- * - Rosa blush:         #EBC5CC
- * - Rosa empolvado:     #D9A5B5
- * - Lavanda:            #C6AEDB
- * - Dorado champagne:   #C5A16A
- * - Marfil cálido:      #FFF3E7
- * - Marrón rosado:      #79544D
+ * CONTROL ESTRICTO DE IDENTIDAD CROMÁTICA & WCAG 2.2 NIVEL AA
+ * 
+ * PALETA OFICIAL AUTORIZADA:
+ * - Marfil cálido:        #FFF3E7 (Fondo / Superficie base)
+ * - Rosa blush:           #EBC5CC (Superficie / Decoración)
+ * - Rosa empolvado:       #D9A5B5 (Superficie secundaria / Acentos suaves)
+ * - Lavanda:              #C6AEDB (Acento secundario / Alas de mariposa)
+ * - Dorado champagne:     #C5A16A (Bordes / Marcos / Divisores / Destellos)
+ * - Marrón rosado:        #79544D (Texto secundario / Ramas / Detalles cálidos)
+ * - Malva profundo:       #4A303B (Texto principal / Encabezados / Máxima legibilidad)
+ * - Rosa intenso:         #854761 (Botones / Éxito / Estados activos / Acciones)
+ * - Blanco puro:          #FFFFFF (Texto de botones / Fondos de tarjetas de input)
  *
- * Exclusión estricta: Sin verdes esmeralda ni ciruela oscuro dominante.
+ * PROHIBICIÓN ABSOLUTA: Cero verdes en toda la interfaz (esmeralda, bosque, oliva, menta, etc.)
  * ==============================================================================
  */
 
-:root {
+/* ==============================================================================
+   1. TOKENS SEMÁNTICOS CENTRALIZADOS (SCOPED A SOPHIA)
+   ============================================================================== */
+body.theme-sophia-jardin {
+    --theme-background: #FFF3E7;
+    --theme-surface: #EBC5CC;
+    --theme-surface-secondary: #D9A5B5;
+    --theme-accent: #C5A16A;
+    --theme-accent-secondary: #C6AEDB;
+    --theme-text-primary: #4A303B;
+    --theme-text-secondary: #79544D;
+    --theme-heading: #4A303B;
+    --theme-button-background: #854761;
+    --theme-button-text: #FFFFFF;
+    --theme-border: #C5A16A;
+    --theme-success: #854761;
+    --theme-focus: #854761;
+
+    /* Nombres semánticos directos */
+    --sophia-marfil: #FFF3E7;
     --sophia-blush: #EBC5CC;
     --sophia-rosa-emp: #D9A5B5;
     --sophia-lavanda: #C6AEDB;
     --sophia-dorado: #C5A16A;
     --sophia-dorado-luz: #EAD8B8;
-    --sophia-marfil: #FFF3E7;
     --sophia-marron: #79544D;
+    --sophia-malva: #4A303B;
+    --sophia-rosa-intenso: #854761;
     --sophia-noche-calida: #382128;
-    --sophia-seda: rgba(255, 243, 231, 0.95);
+    --sophia-noche-fondo: #201017;
+
+    /* REEMPLAZO ABSOLUTO DE VARIABLES HEREDADAS DE ANGIE */
+    --verde-oscuro: #4A303B !important;
+    --verde-medio: #79544D !important;
+    --verde-claro: #D9A5B5 !important;
+    --verde-reino: #382128 !important;
+    --verde-esmeralda: #4A303B !important;
+    --verde-bosque: #79544D !important;
+    --dorado: #C5A16A !important;
+    --dorado-claro: #EAD8B8 !important;
+    --dorado-brillante: #FFF3E7 !important;
+    --crema: #FFF3E7 !important;
+    --marron: #79544D !important;
+    --rosa-suave: #EBC5CC !important;
+    --lavanda: #C6AEDB !important;
+    --lavanda-suave: #EAE2F3 !important;
+
+    /* Tipografías oficiales */
+    --font-script: 'Great Vibes', cursive;
+    --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
+    --font-sans: 'Montserrat', sans-serif;
 }
 
 /* ==============================================================================
-   FONDO GENERAL Y AMBIENTACIÓN
+   2. FONDO GENERAL Y AMBIENTACIÓN DEL JARDÍN ENCANTADO
    ============================================================================== */
 body.theme-sophia-jardin,
 .sophia-preview-wrapper {
     background: radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 60%, #201017 100%) !important;
-    color: var(--sophia-marron) !important;
+    color: var(--sophia-malva) !important;
     position: relative;
+    font-family: var(--font-sans) !important;
 }
 
-/* Partículas luminosas doradas y pétalos flotantes de fondo */
+/* Partículas luminosas doradas y destellos florales de fondo (Sin verde) */
 body.theme-sophia-jardin::before,
 .sophia-preview-wrapper::before {
     content: '';
@@ -54,7 +101,7 @@ body.theme-sophia-jardin::before,
     background-size: 400px 400px;
     animation: sophiaSparkleDrift 35s linear infinite;
     pointer-events: none;
-    opacity: 0.45;
+    opacity: 0.55;
     z-index: 1;
 }
 
@@ -64,24 +111,25 @@ body.theme-sophia-jardin::before,
 }
 
 /* ==============================================================================
-   ESTRUCTURA DE TARJETA (ESTILO JARDÍN ENCANTADO)
+   3. ESTRUCTURA DE TARJETAS (ESTILO JARDÍN ENCANTADO)
    ============================================================================== */
 body.theme-sophia-jardin .card,
 .sophia-card {
     background: linear-gradient(160deg, 
-        rgba(255, 243, 231, 0.96) 0%, 
-        rgba(252, 236, 240, 0.94) 45%, 
-        rgba(244, 218, 225, 0.92) 85%,
-        rgba(235, 197, 204, 0.95) 100%) !important;
+        rgba(255, 243, 231, 0.98) 0%, 
+        rgba(252, 236, 240, 0.96) 45%, 
+        rgba(244, 218, 225, 0.95) 85%,
+        rgba(235, 197, 204, 0.98) 100%) !important;
     border: 2px solid var(--sophia-dorado) !important;
     border-radius: 24px !important;
     box-shadow: 
         0 18px 45px rgba(56, 33, 40, 0.42), 
         0 0 30px rgba(197, 161, 106, 0.28), 
         inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
-    color: var(--sophia-marron) !important;
+    color: var(--sophia-malva) !important;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
 /* Marco ornamental interior sutil */
@@ -96,32 +144,34 @@ body.theme-sophia-jardin .card::before,
     z-index: 2;
 }
 
-/* Esquinas ornamentales con toques dorados y pétalos */
+/* Esquinas ornamentales doradas */
 body.theme-sophia-jardin .corner-tl,
 body.theme-sophia-jardin .corner-tr,
 body.theme-sophia-jardin .corner-bl,
 body.theme-sophia-jardin .corner-br,
 .sophia-corner {
     border-color: var(--sophia-dorado) !important;
-    filter: drop-shadow(0 0 2px rgba(197, 161, 106, 0.5));
+    filter: drop-shadow(0 0 3px rgba(197, 161, 106, 0.55));
+    z-index: 5;
 }
 
 /* ==============================================================================
-   TIPOGRAFÍA Y ENCABEZADOS
+   4. TIPOGRAFÍA Y LEGIBILIDAD (WCAG 2.2 AA)
    ============================================================================== */
 body.theme-sophia-jardin .card-title-script,
 .sophia-title-script {
-    color: var(--sophia-marron) !important;
-    font-family: 'Great Vibes', cursive !important;
-    text-shadow: 0 1px 3px rgba(197, 161, 106, 0.35) !important;
+    color: var(--sophia-malva) !important;
+    font-family: var(--font-script) !important;
+    text-shadow: 0 1px 2px rgba(197, 161, 106, 0.35) !important;
+    line-height: 1.2 !important;
 }
 
 body.theme-sophia-jardin .card-title-serif,
 .sophia-title-serif {
-    color: var(--sophia-dorado) !important;
-    font-family: 'Playfair Display', serif !important;
+    color: var(--sophia-rosa-intenso) !important;
+    font-family: var(--font-serif) !important;
     letter-spacing: 3px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
 }
 
 body.theme-sophia-jardin .gold-divider,
@@ -129,9 +179,9 @@ body.theme-sophia-jardin .gold-divider,
     height: 1.5px !important;
     background: linear-gradient(90deg, 
         transparent 0%, 
-        rgba(197, 161, 106, 0.3) 15%, 
+        rgba(197, 161, 106, 0.35) 15%, 
         var(--sophia-dorado) 50%, 
-        rgba(197, 161, 106, 0.3) 85%, 
+        rgba(197, 161, 106, 0.35) 85%, 
         transparent 100%) !important;
     margin: 12px auto !important;
     position: relative;
@@ -152,8 +202,11 @@ body.theme-sophia-jardin .gold-divider::after,
 body.theme-sophia-jardin .card-text,
 body.theme-sophia-jardin p,
 .sophia-text {
-    color: var(--sophia-marron) !important;
-    line-height: 1.6 !important;
+    color: var(--sophia-malva) !important;
+    font-family: var(--font-sans) !important;
+    font-weight: 400 !important;
+    line-height: 1.65 !important;
+    opacity: 1 !important;
 }
 
 body.theme-sophia-jardin .card-icon,
@@ -162,8 +215,92 @@ body.theme-sophia-jardin .card-icon,
     filter: drop-shadow(0 2px 6px rgba(197, 161, 106, 0.4));
 }
 
+body.theme-sophia-jardin .card-icon i {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
 /* ==============================================================================
-   PORTADA DECORATIVA CON RETRATO Y ARCO FLORAL (SOPHIA)
+   5. NAVEGACIÓN, FLECHAS Y PUNTOS INDICADORES (SIN HERENCIA VERDE)
+   ============================================================================== */
+body.theme-sophia-jardin .nav-arrows {
+    z-index: 120;
+}
+
+body.theme-sophia-jardin .nav-arrow {
+    background: rgba(74, 48, 59, 0.95) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-marfil) !important;
+    box-shadow: 0 4px 16px rgba(48, 26, 34, 0.6) !important;
+}
+
+body.theme-sophia-jardin .nav-arrow:hover:not(:disabled) {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+    border-color: var(--sophia-dorado) !important;
+    transform: scale(1.08) !important;
+}
+
+body.theme-sophia-jardin .nav-arrow:disabled {
+    opacity: 0.3 !important;
+    background: rgba(74, 48, 59, 0.5) !important;
+    color: rgba(255, 243, 231, 0.4) !important;
+}
+
+body.theme-sophia-jardin .nav-dots .dot {
+    background: rgba(121, 84, 77, 0.45) !important;
+    border: 1px solid rgba(197, 161, 106, 0.6) !important;
+}
+
+body.theme-sophia-jardin .nav-dots .dot.active {
+    background: var(--sophia-rosa-intenso) !important;
+    border-color: var(--sophia-dorado) !important;
+    box-shadow: 0 0 10px rgba(133, 71, 97, 0.6) !important;
+    transform: scale(1.25) !important;
+}
+
+/* ==============================================================================
+   6. CONTROL FLOTANTE DE AUDIO & BOTÓN ADMIN (SIN VERDE)
+   ============================================================================== */
+body.theme-sophia-jardin .audio-toggle {
+    background: rgba(74, 48, 59, 0.92) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-dorado) !important;
+    box-shadow: 0 4px 16px rgba(48, 26, 34, 0.5) !important;
+}
+
+body.theme-sophia-jardin .audio-toggle:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+    transform: scale(1.08) !important;
+}
+
+body.theme-sophia-jardin .audio-toggle.playing {
+    background: rgba(133, 71, 97, 0.95) !important;
+    border-color: var(--sophia-dorado) !important;
+    color: var(--sophia-marfil) !important;
+}
+
+body.theme-sophia-jardin .audio-tooltip {
+    background: rgba(74, 48, 59, 0.96) !important;
+    border: 1px solid var(--sophia-dorado) !important;
+    color: var(--sophia-marfil) !important;
+    box-shadow: 0 4px 16px rgba(48, 26, 34, 0.5) !important;
+}
+
+body.theme-sophia-jardin .admin-link-btn {
+    background: rgba(74, 48, 59, 0.75) !important;
+    border: 1px solid rgba(197, 161, 106, 0.5) !important;
+    color: var(--sophia-dorado) !important;
+}
+
+body.theme-sophia-jardin .admin-link-btn:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+    opacity: 0.9 !important;
+}
+
+/* ==============================================================================
+   7. TARJETA 1: PORTADA OFICIAL (RETRATO EN MARCO DORADO COMPLETO)
    ============================================================================== */
 body.theme-sophia-jardin .cover-card.sophia-card {
     padding: 10px 10px 8px 10px !important;
@@ -172,6 +309,10 @@ body.theme-sophia-jardin .cover-card.sophia-card {
     justify-content: space-between !important;
     align-items: center !important;
     box-sizing: border-box !important;
+}
+
+body.theme-sophia-jardin .cover-card.sophia-card::before {
+    display: none !important;
 }
 
 body.theme-sophia-jardin .sophia-cover-container {
@@ -222,13 +363,13 @@ body.theme-sophia-jardin .cover-swipe {
     color: var(--sophia-dorado) !important;
     font-size: 0.8rem !important;
     text-align: center !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     letter-spacing: 1px !important;
     z-index: 5 !important;
 }
 
 /* ==============================================================================
-   MARIPOSAS LUMINOSAS 3D FLOTANTES (SVG ANIMADO)
+   8. MARIPOSAS LUMINOSAS 3D FLOTANTES (SVG ANIMADO)
    ============================================================================== */
 .sophia-butterfly {
     position: absolute;
@@ -290,48 +431,77 @@ body.theme-sophia-jardin .cover-swipe {
 }
 
 /* ==============================================================================
-   TARJETA 2: FAMILIAR (PADRES Y BENDICIÓN)
+   9. TARJETA 2: FAMILIAR Y CUENTO DE HADAS (SIN VERDE)
    ============================================================================== */
-.sophia-family-badge {
-    background: rgba(255, 243, 231, 0.85);
-    border: 1px solid var(--sophia-dorado);
-    border-radius: 16px;
-    padding: 16px 14px;
-    margin: 12px 0;
-    box-shadow: 0 4px 15px rgba(121, 84, 77, 0.1);
+body.theme-sophia-jardin .fairytale-story-box {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 18px !important;
+    padding: 16px 14px !important;
+    box-shadow: 0 4px 15px rgba(121, 84, 77, 0.1) !important;
 }
 
-.sophia-parents-names {
-    color: var(--sophia-marron);
-    font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    margin: 6px 0;
+body.theme-sophia-jardin .story-paragraph {
+    color: var(--sophia-malva) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.65 !important;
+    text-shadow: none !important;
 }
 
-.sophia-blessing-quote {
-    font-style: italic;
-    color: #5D3E38;
-    font-size: 0.92rem;
-    line-height: 1.6;
-    margin: 10px 0;
+body.theme-sophia-jardin .story-drop-cap {
+    color: var(--sophia-rosa-intenso) !important;
+    font-family: var(--font-serif) !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+
+body.theme-sophia-jardin .story-highlight {
+    background: linear-gradient(135deg, rgba(255, 243, 231, 0.95), rgba(235, 197, 204, 0.5)) !important;
+    border-left: 3px solid var(--sophia-rosa-intenso) !important;
+    border-right: 3px solid var(--sophia-rosa-intenso) !important;
+    color: var(--sophia-malva) !important;
+    border-radius: 10px !important;
+    box-shadow: inset 0 0 10px rgba(197, 161, 106, 0.15) !important;
+}
+
+body.theme-sophia-jardin .story-conclusion {
+    color: var(--sophia-marron) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .family-parents-box {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 16px !important;
+    padding: 14px !important;
+    margin: 12px 0 !important;
+}
+
+body.theme-sophia-jardin .parents-name {
+    color: var(--sophia-malva) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .blessing-text {
+    color: var(--sophia-marron) !important;
+    font-style: italic !important;
+    font-size: 0.9rem !important;
 }
 
 /* ==============================================================================
-   TARJETA 3: CUENTA REGRESIVA
+   10. TARJETA 3: CUENTA REGRESIVA (SIN VERDE)
    ============================================================================== */
-body.theme-sophia-jardin .countdown-grid,
-.sophia-countdown-grid {
+body.theme-sophia-jardin .countdown-grid {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 8px !important;
     margin: 18px 0 !important;
 }
 
-body.theme-sophia-jardin .countdown-item,
-.sophia-countdown-box {
-    background: linear-gradient(145deg, #FFFFFF 0%, var(--sophia-marfil) 100%) !important;
+body.theme-sophia-jardin .countdown-item {
+    background: #FFFFFF !important;
     border: 1.5px solid var(--sophia-dorado) !important;
     border-radius: 14px !important;
     padding: 10px 4px !important;
@@ -339,18 +509,16 @@ body.theme-sophia-jardin .countdown-item,
     box-shadow: 0 4px 12px rgba(121, 84, 77, 0.12) !important;
 }
 
-body.theme-sophia-jardin .countdown-number,
-.sophia-countdown-num {
+body.theme-sophia-jardin .countdown-number {
     font-size: 1.6rem !important;
     font-weight: 700 !important;
-    color: var(--sophia-dorado) !important;
-    font-family: 'Playfair Display', serif !important;
+    color: var(--sophia-rosa-intenso) !important;
+    font-family: var(--font-serif) !important;
     line-height: 1 !important;
     margin-bottom: 4px !important;
 }
 
-body.theme-sophia-jardin .countdown-label,
-.sophia-countdown-lbl {
+body.theme-sophia-jardin .countdown-label {
     font-size: 0.72rem !important;
     text-transform: uppercase !important;
     letter-spacing: 1px !important;
@@ -358,221 +526,518 @@ body.theme-sophia-jardin .countdown-label,
     font-weight: 600 !important;
 }
 
-/* ==============================================================================
-   TARJETA 4: RECEPCIÓN Y LUGAR (NOVA ROMA)
-   ============================================================================== */
-body.theme-sophia-jardin .info-block,
-.sophia-info-card {
-    background: rgba(255, 255, 255, 0.75) !important;
-    border: 1px solid rgba(197, 161, 106, 0.5) !important;
-    border-radius: 14px !important;
-    padding: 12px 14px !important;
-    margin-bottom: 12px !important;
-    text-align: center !important;
+body.theme-sophia-jardin .calendar-btn {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    box-shadow: 0 6px 18px rgba(133, 71, 97, 0.35) !important;
 }
 
-body.theme-sophia-jardin .info-label,
-.sophia-info-title {
-    color: var(--sophia-dorado) !important;
+/* ==============================================================================
+   11. TARJETA 4 & 5: INVITACIÓN FORMAL, RECEPCIÓN & LUGAR (NOVA ROMA)
+   ============================================================================== */
+body.theme-sophia-jardin .info-block,
+body.theme-sophia-jardin .place-card,
+body.theme-sophia-jardin .invitation-formal-box {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 16px !important;
+    padding: 14px !important;
+    margin-bottom: 12px !important;
+    text-align: center !important;
+    box-shadow: 0 4px 15px rgba(121, 84, 77, 0.08) !important;
+}
+
+body.theme-sophia-jardin .info-label {
+    color: var(--sophia-rosa-intenso) !important;
     font-size: 0.78rem !important;
     text-transform: uppercase !important;
     letter-spacing: 1.5px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     margin-bottom: 4px !important;
 }
 
 body.theme-sophia-jardin .info-value,
-.sophia-info-val {
-    color: var(--sophia-marron) !important;
+body.theme-sophia-jardin .place-name {
+    color: var(--sophia-malva) !important;
     font-size: 1.05rem !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
 }
 
-body.theme-sophia-jardin .info-address {
-    color: #6C4942 !important;
-    font-size: 0.82rem !important;
+body.theme-sophia-jardin .info-address,
+body.theme-sophia-jardin .place-address {
+    color: var(--sophia-marron) !important;
+    font-size: 0.84rem !important;
     margin-top: 4px !important;
 }
 
+body.theme-sophia-jardin .map-btn {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 6px 18px rgba(133, 71, 97, 0.35) !important;
+}
+
+body.theme-sophia-jardin .map-btn:hover {
+    background: linear-gradient(135deg, var(--sophia-dorado) 0%, var(--sophia-rosa-intenso) 100%) !important;
+    color: #FFFFFF !important;
+}
+
 /* ==============================================================================
-   TARJETA 5: CONFIRMACIÓN DE ASISTENCIA (RSVP)
+   12. TARJETA 6: CÓDIGO DE VESTIMENTA (DRESS CODE)
+   ============================================================================== */
+body.theme-sophia-jardin .dresscode-box {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 16px !important;
+    padding: 16px !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .dresscode-desc {
+    color: var(--sophia-malva) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.6 !important;
+}
+
+body.theme-sophia-jardin .dresscode-note {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+}
+
+/* ==============================================================================
+   13. TARJETA 7: ITINERARIO (TIMELINE SIN VERDE)
+   ============================================================================== */
+body.theme-sophia-jardin .timeline::before {
+    background: linear-gradient(to bottom, var(--sophia-dorado), rgba(197, 161, 106, 0.2)) !important;
+}
+
+body.theme-sophia-jardin .timeline-item::before {
+    background: var(--sophia-rosa-intenso) !important;
+    border: 2px solid var(--sophia-dorado) !important;
+}
+
+body.theme-sophia-jardin .timeline-time {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+}
+
+body.theme-sophia-jardin .timeline-event {
+    color: var(--sophia-malva) !important;
+    font-weight: 500 !important;
+}
+
+/* ==============================================================================
+   14. TARJETA 8: MINIJUEGO DE MARIPOSAS & TRIVIA (WCAG 2.2 AA SIN VERDE)
+   ============================================================================== */
+/* Arena del Minijuego de Mariposas */
+.sophia-game-card {
+    position: relative;
+    width: 100%;
+}
+
+.sophia-game-arena {
+    position: relative;
+    width: 100%;
+    height: 270px;
+    background: linear-gradient(160deg, #FFF3E7 0%, #FCECF0 55%, #F4DAE1 100%);
+    border: 2px solid var(--sophia-dorado);
+    border-radius: 18px;
+    overflow: hidden;
+    margin: 12px 0;
+    box-shadow: inset 0 0 20px rgba(197, 161, 106, 0.2), 0 8px 25px rgba(56, 33, 40, 0.15);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+/* Fondo decorativo del escenario: flores rosadas, ramas marrones cálidas, destellos (CERO VERDE) */
+.sophia-game-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(235, 197, 204, 0.6) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(198, 174, 219, 0.5) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 243, 231, 0.8) 0%, transparent 60%);
+}
+
+.sophia-game-backdrop .branch-decor {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.35;
+}
+
+/* HUD Superior: Contador de Puntos y Temporizador */
+.sophia-game-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1.5px solid var(--sophia-dorado);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    z-index: 10;
+    position: relative;
+}
+
+.sophia-game-score {
+    color: var(--sophia-malva);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sophia-game-score span {
+    color: var(--sophia-rosa-intenso);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.sophia-game-timer {
+    color: var(--sophia-rosa-intenso);
+    background: #FFF3E7;
+    border: 1px solid var(--sophia-dorado);
+    border-radius: 12px;
+    padding: 3px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Mariposas del Minijuego (Rosa Blush, Lavanda, Champagne) */
+.sophia-catch-target {
+    position: absolute;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease;
+    z-index: 5;
+}
+
+.sophia-catch-target:active {
+    transform: scale(0.9);
+}
+
+.target-butterfly-svg {
+    width: 42px;
+    height: 42px;
+    filter: drop-shadow(0 4px 8px rgba(74, 48, 59, 0.35));
+    animation: targetWingFlap 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes targetWingFlap {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(0.55); }
+}
+
+/* Destello al atrapar */
+.catch-sparkle-fx {
+    position: absolute;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--sophia-rosa-intenso);
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+    pointer-events: none;
+    animation: catchFloatUp 0.8s ease-out forwards;
+    z-index: 20;
+}
+
+@keyframes catchFloatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-30px) scale(1.3); }
+}
+
+/* Botón y controles del juego */
+.sophia-game-btn {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 25px !important;
+    padding: 10px 24px !important;
+    font-family: var(--font-sans) !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-shadow: 0 6px 18px rgba(133, 71, 97, 0.35) !important;
+    transition: all 0.3s ease !important;
+}
+
+.sophia-game-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(133, 71, 97, 0.5) !important;
+}
+
+/* Estados de Trivia para Sophia: Exclusivo Paleta Autorizada Rosa y Lavanda */
+body.theme-sophia-jardin .trivia-container {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .trivia-question {
+    color: var(--sophia-malva) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .trivia-counter {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .trivia-option {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(197, 161, 106, 0.6) !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .trivia-option:hover:not(:disabled) {
+    border-color: var(--sophia-rosa-intenso) !important;
+    background: rgba(235, 197, 204, 0.3) !important;
+}
+
+/* Respuesta Correcta en Sophia: Champagne & Rosa Intenso (NUNCA VERDE) */
+body.theme-sophia-jardin .trivia-option.correct {
+    border-color: var(--sophia-dorado) !important;
+    background: linear-gradient(135deg, rgba(197, 161, 106, 0.25), rgba(235, 197, 204, 0.45)) !important;
+    color: var(--sophia-malva) !important;
+    box-shadow: 0 0 12px rgba(197, 161, 106, 0.4) !important;
+}
+
+body.theme-sophia-jardin .trivia-option.correct .opt-letter {
+    background: var(--sophia-dorado) !important;
+    border-color: var(--sophia-dorado) !important;
+    color: #2D1820 !important;
+}
+
+body.theme-sophia-jardin .trivia-option.correct .opt-icon {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+/* ==============================================================================
+   15. TARJETA 9: PLAYLIST (SIN VERDE)
+   ============================================================================== */
+body.theme-sophia-jardin .playlist-input {
+    background: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .playlist-input::placeholder {
+    color: #9C7982 !important;
+}
+
+body.theme-sophia-jardin .playlist-add-btn {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid var(--sophia-dorado) !important;
+}
+
+body.theme-sophia-jardin .playlist-song-item {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(197, 161, 106, 0.45) !important;
+    color: var(--sophia-malva) !important;
+}
+
+/* ==============================================================================
+   16. TARJETA 10: PRESENTE & LLUVIA DE SOBRES (SIN VERDE)
+   ============================================================================== */
+body.theme-sophia-jardin .gift-envelope-box {
+    background: linear-gradient(145deg, rgba(255, 243, 231, 0.98), rgba(235, 197, 204, 0.92)) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+    box-shadow: 0 10px 30px rgba(56, 33, 40, 0.15) !important;
+}
+
+body.theme-sophia-jardin .gift-icon-bubble {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso), #68344B) !important;
+    color: var(--sophia-marfil) !important;
+    box-shadow: 0 6px 20px rgba(133, 71, 97, 0.45) !important;
+}
+
+body.theme-sophia-jardin .gift-bank-info {
+    background: #FFFFFF !important;
+    border: 1.5px dashed var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .btn-copy-account {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid var(--sophia-dorado) !important;
+}
+
+/* ==============================================================================
+   17. TARJETA 11: RSVP & PASE VIP CON QR (WCAG 2.2 AA SIN VERDE)
    ============================================================================== */
 body.theme-sophia-jardin .rsvp-form input,
 body.theme-sophia-jardin .rsvp-form select,
-body.theme-sophia-jardin .rsvp-form textarea,
-.sophia-form-control {
+body.theme-sophia-jardin .rsvp-form textarea {
     background: #FFFFFF !important;
-    border: 1.5px solid rgba(197, 161, 106, 0.6) !important;
-    color: var(--sophia-marron) !important;
-    border-radius: 12px !important;
-    padding: 10px 14px !important;
-    font-family: 'Montserrat', sans-serif !important;
-    font-size: 0.9rem !important;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04) !important;
+    border: 1.5px solid rgba(197, 161, 106, 0.7) !important;
+    color: var(--sophia-malva) !important;
 }
 
 body.theme-sophia-jardin .rsvp-form input:focus,
 body.theme-sophia-jardin .rsvp-form select:focus,
-.sophia-form-control:focus {
-    outline: none !important;
-    border-color: var(--sophia-dorado) !important;
-    box-shadow: 0 0 10px rgba(197, 161, 106, 0.45) !important;
+body.theme-sophia-jardin .rsvp-form textarea:focus {
+    border-color: var(--sophia-rosa-intenso) !important;
+    box-shadow: 0 0 10px rgba(133, 71, 97, 0.3) !important;
 }
 
-/* Botones de acción Dorados Champagne */
-body.theme-sophia-jardin .confirmar-btn,
-body.theme-sophia-jardin .calendar-btn,
-body.theme-sophia-jardin .map-btn,
-body.theme-sophia-jardin .btn-ticket-download,
-.sophia-btn-gold {
-    background: linear-gradient(135deg, #C5A16A 0%, #E2CA99 50%, #B89255 100%) !important;
-    color: #2D1820 !important;
-    font-weight: 700 !important;
-    border: 1px solid #FFF3E7 !important;
-    border-radius: 25px !important;
-    padding: 12px 22px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1.5px !important;
-    font-size: 0.82rem !important;
-    box-shadow: 0 6px 18px rgba(197, 161, 106, 0.4) !important;
-    cursor: pointer !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    text-decoration: none !important;
-    transition: all 0.3s ease !important;
+body.theme-sophia-jardin .rsvp-submit-btn {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    box-shadow: 0 8px 25px rgba(133, 71, 97, 0.4) !important;
 }
 
-body.theme-sophia-jardin .confirmar-btn:hover,
-body.theme-sophia-jardin .calendar-btn:hover,
-body.theme-sophia-jardin .map-btn:hover,
-.sophia-btn-gold:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(197, 161, 106, 0.55) !important;
+body.theme-sophia-jardin .rsvp-submit-btn .spinner {
+    border: 2px solid #FFFFFF !important;
+    border-top-color: transparent !important;
 }
 
-/* ==============================================================================
-   PASE VIP DE SOPHIA
-   ============================================================================== */
-body.theme-sophia-jardin .vip-ticket,
-.sophia-vip-pass {
+/* Pase VIP Exclusivo de Sophia */
+body.theme-sophia-jardin .vip-ticket {
     background: linear-gradient(150deg, #FFFFFF 0%, var(--sophia-marfil) 50%, #F5DFE5 100%) !important;
     border: 2px dashed var(--sophia-dorado) !important;
     border-radius: 18px !important;
-    padding: 18px !important;
+    padding: 22px 18px !important;
+    color: var(--sophia-malva) !important;
+    box-shadow: 0 12px 35px rgba(56, 33, 40, 0.25) !important;
+}
+
+body.theme-sophia-jardin .ticket-badge {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso), #68344B) !important;
+    color: var(--sophia-marfil) !important;
+    box-shadow: 0 3px 10px rgba(133, 71, 97, 0.3) !important;
+}
+
+body.theme-sophia-jardin .ticket-qr-container {
+    background: #FFFFFF !important;
+    border: 2px solid var(--sophia-dorado) !important;
+    border-radius: 14px !important;
+    padding: 10px !important;
+}
+
+body.theme-sophia-jardin .ticket-info .t-lbl {
     color: var(--sophia-marron) !important;
-    box-shadow: 0 10px 25px rgba(121, 84, 77, 0.18) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .ticket-info .t-data {
+    color: var(--sophia-malva) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .ticket-info .t-passes {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .ticket-raffle-section {
+    background: rgba(255, 243, 231, 0.95) !important;
+    border: 1.5px dashed var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .ticket-raffle-header {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .raffle-ticket-item {
+    background: #FFFFFF !important;
+    border: 1px solid rgba(197, 161, 106, 0.5) !important;
+}
+
+body.theme-sophia-jardin .raffle-ticket-person {
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .raffle-ticket-number {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso), #68344B) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(133, 71, 97, 0.3) !important;
+}
+
+body.theme-sophia-jardin .btn-ticket-download {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    box-shadow: 0 6px 20px rgba(133, 71, 97, 0.35) !important;
+}
+
+/* Íconos de éxito en formularios (CERO VERDE) */
+body.theme-sophia-jardin .rsvp-success-icon {
+    color: var(--sophia-rosa-intenso) !important;
 }
 
 /* ==============================================================================
-   PORTADA DECK INTEGRADA: ADAPTACIÓN TOTAL DE TARJETA 1
+   18. TARJETA 12: FOTOS EN VIVO & MODAL DE SUBIDA (SIN VERDE)
    ============================================================================== */
-body.theme-sophia-jardin .cover-tiara {
-    display: none !important;
+body.theme-sophia-jardin .live-step-item {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
 }
 
-body.theme-sophia-jardin .cover-photo-container {
-    margin: 4px auto 12px auto !important;
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
+body.theme-sophia-jardin .live-step-num {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
 }
 
-body.theme-sophia-jardin .cover-photo-wrapper {
-    width: 100% !important;
-    max-width: 270px !important;
-    margin: 0 auto !important;
-    border-radius: 24px !important;
-    padding: 4px !important;
-    background: linear-gradient(145deg, #C5A16A, #FFF3E7, #C5A16A) !important;
-    box-shadow: 0 10px 28px rgba(56, 33, 40, 0.35) !important;
-    transform: none !important;
+body.theme-sophia-jardin .photo-upload-box {
+    background: linear-gradient(160deg, #FFF3E7 0%, #FCECF0 50%, #EBC5CC 100%) !important;
+    border: 2px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+    box-shadow: 0 15px 50px rgba(56, 33, 40, 0.6) !important;
 }
 
-body.theme-sophia-jardin .cover-photo-frame {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    aspect-ratio: auto !important;
-    border-radius: 20px !important;
-    overflow: hidden !important;
-    background: transparent !important;
-    border: none !important;
+body.theme-sophia-jardin .upload-input {
+    background: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
 }
 
-body.theme-sophia-jardin .cover-photo-img {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 330px !important;
-    object-fit: cover !important;
-    object-position: center 10% !important;
-    display: block !important;
-    border-radius: 18px !important;
+body.theme-sophia-jardin .btn-upload-submit {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
 }
 
-body.theme-sophia-jardin .cover-presents {
-    color: #79544D !important;
-    letter-spacing: 3px !important;
-    font-size: 0.75rem !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    margin-top: 6px !important;
+body.theme-sophia-jardin .lightbox-close:hover,
+body.theme-sophia-jardin .lightbox-nav-btn:hover,
+body.theme-sophia-jardin .btn-download-lightbox:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
 }
 
-body.theme-sophia-jardin .cover-name {
-    color: #79544D !important;
-    text-shadow: 0 1px 3px rgba(197, 161, 106, 0.35) !important;
+/* ==============================================================================
+   19. NOTIFICACIONES TOAST & ALERTAS (SIN VERDE)
+   ============================================================================== */
+body.theme-sophia-jardin .toast,
+body.theme-sophia-jardin .alert-success {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    box-shadow: 0 8px 25px rgba(133, 71, 97, 0.45) !important;
 }
 
-body.theme-sophia-jardin .cover-xv {
-    color: #C5A16A !important;
-    font-family: 'Playfair Display', serif !important;
-    font-weight: 700 !important;
-}
-
-body.theme-sophia-jardin .cover-date {
-    color: #79544D !important;
-    font-weight: 600 !important;
-}
-
-body.theme-sophia-jardin .cover-swipe {
-    color: #C5A16A !important;
-}
-
-/* Adaptación de cajas interiores de todas las tarjetas */
-body.theme-sophia-jardin .fairytale-story-box,
-body.theme-sophia-jardin .family-parents-box,
-body.theme-sophia-jardin .itinerary-timeline,
-body.theme-sophia-jardin .dresscode-box,
-body.theme-sophia-jardin .gift-envelope-box,
-body.theme-sophia-jardin .gallery-container,
-body.theme-sophia-jardin .music-suggestion-box,
-body.theme-sophia-jardin .trivia-container,
-body.theme-sophia-jardin .guestbook-form-box {
-    background: rgba(255, 255, 255, 0.78) !important;
-    border: 1px solid rgba(197, 161, 106, 0.45) !important;
-    border-radius: 18px !important;
-    color: var(--sophia-marron) !important;
-    box-shadow: 0 6px 18px rgba(121, 84, 77, 0.1) !important;
-}
-
-body.theme-sophia-jardin .story-paragraph,
-body.theme-sophia-jardin .dresscode-desc,
-body.theme-sophia-jardin .gift-bank-info,
-body.theme-sophia-jardin .trivia-question {
-    color: var(--sophia-marron) !important;
-}
-
-body.theme-sophia-jardin .story-drop-cap {
-    color: var(--sophia-dorado) !important;
-}
-
-body.theme-sophia-jardin .timeline-item .timeline-time {
-    color: var(--sophia-dorado) !important;
-    font-weight: 700 !important;
-}
-
-body.theme-sophia-jardin .timeline-item .timeline-desc {
-    color: var(--sophia-marron) !important;
+body.theme-sophia-jardin .alert-error {
+    background: #943248 !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
 }

@@ -382,6 +382,7 @@ $slugActivo = $eventoActivo['slug'] ?? 'angie-xv';
 $urlInvitacionActiva = ($activeEventoId == 1) ? '../' : '../e/' . urlencode($slugActivo);
 $urlLibroActivo = '../public/libro-recuerdos.php?evento=' . urlencode($slugActivo);
 $urlEnVivoActivo = '../public/en-vivo.php?evento=' . urlencode($slugActivo);
+$isSophiaAdmin = ($activeEventoId == 2 || $slugActivo === 'sophia-xv');
 
 // Exportar CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
@@ -740,9 +741,14 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Invitados XV Años Angie</title>
-    <!-- Favicon Corona Real -->
+    <title>Admin - Invitados XV Años <?= htmlspecialchars($nombreFestejadaActiva) ?></title>
+    <?php if ($isSophiaAdmin): ?>
+    <!-- Favicon Oficial de Sophia: Mariposa Real y Corona Champagne -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%234A303B' stroke='%23C5A16A' stroke-width='2.5'/%3E%3Cpath d='M32 32 C20 12, 6 22, 12 38 C18 50, 28 42, 32 32 Z' fill='%23EBC5CC' stroke='%23C5A16A' stroke-width='1'/%3E%3Cpath d='M32 32 C44 12, 58 22, 52 38 C46 50, 36 42, 32 32 Z' fill='%23C6AEDB' stroke='%23C5A16A' stroke-width='1'/%3E%3Cellipse cx='32' cy='32' rx='2.5' ry='8' fill='%23C5A16A'/%3E%3C/svg%3E">
+    <?php else: ?>
+    <!-- Favicon Corona Real Angie -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23062E25' stroke='%23C8A24A' stroke-width='2.5'/%3E%3Cpath d='M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z' fill='%23FFD700' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Cpath d='M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z' fill='%23C8A24A'/%3E%3Ccircle cx='17' cy='23' r='2.8' fill='%23FFFDF5'/%3E%3Ccircle cx='24' cy='32' r='2.2' fill='%23FFFDF5'/%3E%3Ccircle cx='32' cy='14' r='3.6' fill='%23FFFDF5'/%3E%3Ccircle cx='40' cy='32' r='2.2' fill='%23FFFDF5'/%3E%3Ccircle cx='47' cy='23' r='2.8' fill='%23FFFDF5'/%3E%3Cpolygon points='32,25 36,32 32,39 28,32' fill='%23006B4F' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Ccircle cx='22' cy='45' r='1.8' fill='%23006B4F'/%3E%3Ccircle cx='32' cy='47' r='2.2' fill='%23006B4F'/%3E%3Ccircle cx='42' cy='45' r='1.8' fill='%23006B4F'/%3E%3C/svg%3E">
+    <?php endif; ?>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.ico">
@@ -754,6 +760,28 @@ try {
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root {
+            <?php if ($isSophiaAdmin): ?>
+            --verde-oscuro: #4A303B;
+            --verde-medio: #79544D;
+            --verde-claro: #854761;
+            --dorado: #C5A16A;
+            --dorado-claro: #EAD8B8;
+            --crema: #FFF3E7;
+            --marron: #79544D;
+            --theme-background: #FFF3E7;
+            --theme-surface: #EBC5CC;
+            --theme-surface-secondary: #D9A5B5;
+            --theme-accent: #C5A16A;
+            --theme-accent-secondary: #C6AEDB;
+            --theme-text-primary: #4A303B;
+            --theme-text-secondary: #79544D;
+            --theme-heading: #4A303B;
+            --theme-button-background: #854761;
+            --theme-button-text: #FFFFFF;
+            --theme-border: #C5A16A;
+            --theme-success: #854761;
+            --theme-focus: #854761;
+            <?php else: ?>
             --verde-oscuro: #062E25;
             --verde-medio: #006B4F;
             --verde-claro: #2F8F68;
@@ -761,6 +789,7 @@ try {
             --dorado-claro: #E7D49A;
             --crema: #FFF8EC;
             --marron: #1A1410;
+            <?php endif; ?>
         }
 
         * {
@@ -771,11 +800,54 @@ try {
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, var(--verde-oscuro) 0%, #0a3d30 50%, var(--verde-oscuro) 100%);
+            background: <?= $isSophiaAdmin ? 'radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 55%, #201017 100%)' : 'linear-gradient(135deg, var(--verde-oscuro) 0%, #0a3d30 50%, var(--verde-oscuro) 100%)' ?>;
             color: var(--crema);
             min-height: 100vh;
             padding: 20px;
         }
+
+        <?php if ($isSophiaAdmin): ?>
+        /* Identidad Cromática Sophia Valentina: Purga Total de Verdes */
+        .stat-card {
+            background: rgba(74, 48, 59, 0.45) !important;
+            border-color: rgba(197, 161, 106, 0.35) !important;
+        }
+        .stat-card:hover {
+            border-color: #C5A16A !important;
+            box-shadow: 0 8px 25px rgba(197, 161, 106, 0.25) !important;
+        }
+        .table-container {
+            background: rgba(48, 26, 34, 0.85) !important;
+            border-color: rgba(197, 161, 106, 0.3) !important;
+        }
+        .raffle-modal-window {
+            background: linear-gradient(145deg, #301A22, #4A303B) !important;
+            border-color: #C5A16A !important;
+        }
+        .badge-yes {
+            background: rgba(133, 71, 97, 0.35) !important;
+            color: #FFF3E7 !important;
+            border-color: rgba(197, 161, 106, 0.5) !important;
+        }
+        .badge-present {
+            background: linear-gradient(135deg, rgba(133, 71, 97, 0.6), rgba(74, 48, 59, 0.8)) !important;
+            color: #FFF3E7 !important;
+            border: 1.5px solid #C5A16A !important;
+            box-shadow: 0 0 10px rgba(197, 161, 106, 0.35) !important;
+        }
+        .row-checked-in td {
+            background: rgba(133, 71, 97, 0.12) !important;
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #854761, #622f43) !important;
+            color: #FFFFFF !important;
+            border-color: #C5A16A !important;
+        }
+        .action-btn.primary:hover {
+            background: #854761 !important;
+            color: #FFFFFF !important;
+        }
+        <?php endif; ?>
 
         .admin-header {
             text-align: center;
@@ -949,6 +1021,7 @@ try {
             border: 1px solid rgba(139, 69, 19, 0.3);
         }
 
+        <?php if (!$isSophiaAdmin): ?>
         .badge-present {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.5));
             color: #6EE7B7;
@@ -971,6 +1044,7 @@ try {
         .row-checked-in td {
             background: rgba(16, 185, 129, 0.04);
         }
+        <?php endif; ?>
 
         .companion-list {
             list-style: none;
@@ -1039,7 +1113,7 @@ try {
         }
 
         .raffle-modal-window {
-            background: linear-gradient(145deg, #062E25, #004D38);
+            background: <?= $isSophiaAdmin ? 'linear-gradient(145deg, #301A22, #4A303B)' : 'linear-gradient(145deg, #062E25, #004D38)' ?>;
             border: 2px solid var(--dorado);
             border-radius: 20px;
             max-width: 620px;
@@ -1192,9 +1266,9 @@ try {
             <span>Administrador activo</span>
             <?php 
             $engine = function_exists('getActiveDbEngine') ? getActiveDbEngine() : 'mysql';
-            $engineLabel = ($engine === 'sqlite') ? '🟢 SQLite (Local)' : '🟢 MySQL (Conectado)';
+            $engineLabel = ($engine === 'sqlite') ? ($isSophiaAdmin ? '✨ SQLite (Local)' : '🟢 SQLite (Local)') : ($isSophiaAdmin ? '✨ MySQL (Conectado)' : '🟢 MySQL (Conectado)');
             ?>
-            <span class="badge" style="background: rgba(47, 143, 104, 0.25); border: 1px solid var(--verde-claro); color: #A7F3D0; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;">
+            <span class="badge" style="<?= $isSophiaAdmin ? 'background: rgba(133, 71, 97, 0.4); border: 1px solid var(--dorado); color: #FFF3E7;' : 'background: rgba(47, 143, 104, 0.25); border: 1px solid var(--verde-claro); color: #A7F3D0;' ?> font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;">
                 <?= $engineLabel ?>
             </span>
         </div>
@@ -1202,7 +1276,7 @@ try {
             <a href="moderacion-fotos.php?evento_id=<?= (int)$activeEventoId ?>" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: rgba(200, 162, 74, 0.25); border-color: var(--dorado); color: var(--dorado-claro);">
                 <i class="fas fa-camera"></i> Moderación Fotos 📸
             </a>
-            <a href="<?= htmlspecialchars($urlLibroActivo) ?>" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: linear-gradient(135deg, rgba(200, 162, 74, 0.3), rgba(6, 46, 37, 0.6)); border-color: var(--dorado); color: var(--dorado-claro);">
+            <a href="<?= htmlspecialchars($urlLibroActivo) ?>" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: <?= $isSophiaAdmin ? 'linear-gradient(135deg, rgba(197, 161, 106, 0.3), rgba(74, 48, 59, 0.8))' : 'linear-gradient(135deg, rgba(200, 162, 74, 0.3), rgba(6, 46, 37, 0.6))' ?>; border-color: var(--dorado); color: var(--dorado-claro);">
                 <i class="fas fa-book-open"></i> Libro de Recuerdos ✨
             </a>
             <a href="<?= htmlspecialchars($urlInvitacionActiva) ?>" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem;">
@@ -1222,7 +1296,7 @@ try {
             <!-- Selector de Celebración para SuperAdmin -->
             <div style="margin-top: 15px; display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--dorado);">
                 <span style="font-size: 0.8rem; color: var(--dorado-claro); text-transform: uppercase; letter-spacing: 1px;"><i class="fas fa-calendar-alt"></i> Celebración Activa:</span>
-                <select onchange="window.location.href='?cambiar_evento=' + this.value;" style="background: var(--verde-oscuro); color: #FFD700; border: 1px solid var(--dorado); border-radius: 8px; padding: 4px 10px; font-size: 0.85rem; font-family: inherit; outline: none; cursor: pointer;">
+                <select onchange="window.location.href='?cambiar_evento=' + this.value;" style="background: var(--verde-oscuro); color: <?= $isSophiaAdmin ? '#FFF3E7' : '#FFD700' ?>; border: 1px solid var(--dorado); border-radius: 8px; padding: 4px 10px; font-size: 0.85rem; font-family: inherit; outline: none; cursor: pointer;">
                     <?php foreach ($listaEventos as $ev): ?>
                         <option value="<?= $ev['id'] ?>" <?= $ev['id'] == $activeEventoId ? 'selected' : '' ?>>
                             #<?= $ev['id'] ?> · <?= htmlspecialchars($ev['festejada_nombre']) ?> (<?= $ev['slug'] ?>)
@@ -1258,13 +1332,13 @@ try {
             <div class="stat-number"><?= $totalPersonas ?></div>
             <div class="stat-label">Personas Esperadas</div>
         </div>
-        <div class="stat-card" style="border-color: rgba(47, 143, 104, 0.6); background: linear-gradient(145deg, rgba(47, 143, 104, 0.25), rgba(6, 46, 37, 0.85));">
-            <div class="stat-number" style="color: #6EE7B7; text-shadow: 0 0 15px rgba(110, 231, 183, 0.5);"><?= $totalAsistieronReal ?> <span style="font-size: 1.1rem; opacity: 0.8;">(<?= $totalPersonasPresentes ?> pers.)</span></div>
-            <div class="stat-label" style="color: #A7F3D0;">🎉 Asistieron a la Fiesta</div>
+        <div class="stat-card" style="<?= $isSophiaAdmin ? 'border-color: rgba(197, 161, 106, 0.6); background: linear-gradient(145deg, rgba(133, 71, 97, 0.35), rgba(74, 48, 59, 0.85));' : 'border-color: rgba(47, 143, 104, 0.6); background: linear-gradient(145deg, rgba(47, 143, 104, 0.25), rgba(6, 46, 37, 0.85));' ?>">
+            <div class="stat-number" style="<?= $isSophiaAdmin ? 'color: #EBC5CC; text-shadow: 0 0 15px rgba(235, 197, 204, 0.5);' : 'color: #6EE7B7; text-shadow: 0 0 15px rgba(110, 231, 183, 0.5);' ?>"><?= $totalAsistieronReal ?> <span style="font-size: 1.1rem; opacity: 0.8;">(<?= $totalPersonasPresentes ?> pers.)</span></div>
+            <div class="stat-label" style="<?= $isSophiaAdmin ? 'color: #FFF3E7;' : 'color: #A7F3D0;' ?>">🎉 Asistieron a la Fiesta</div>
         </div>
-        <div class="stat-card" style="border-color: rgba(255, 215, 0, 0.45); background: linear-gradient(145deg, rgba(200, 162, 74, 0.18), rgba(6, 46, 37, 0.8));">
-            <div class="stat-number" style="color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);"><?= count($todosBoletosRifa) ?></div>
-            <div class="stat-label" style="color: #FFE680;">🎟️ Boletos en Rifa</div>
+        <div class="stat-card" style="<?= $isSophiaAdmin ? 'border-color: rgba(197, 161, 106, 0.5); background: linear-gradient(145deg, rgba(197, 161, 106, 0.2), rgba(74, 48, 59, 0.8));' : 'border-color: rgba(255, 215, 0, 0.45); background: linear-gradient(145deg, rgba(200, 162, 74, 0.18), rgba(6, 46, 37, 0.8));' ?>">
+            <div class="stat-number" style="<?= $isSophiaAdmin ? 'color: #C5A16A; text-shadow: 0 0 15px rgba(197, 161, 106, 0.4);' : 'color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);' ?>"><?= count($todosBoletosRifa) ?></div>
+            <div class="stat-label" style="<?= $isSophiaAdmin ? 'color: #FFF3E7;' : 'color: #FFE680;' ?>">🎟️ Boletos en Rifa</div>
         </div>
     </div>
 
@@ -1283,7 +1357,7 @@ try {
             </a>
         </div>
         <div>
-            <button type="button" class="action-btn" id="btnOpenScannerTop" style="background: linear-gradient(135deg, #10B981, #059669); color: #FFF; font-weight: 700; border: none; padding: 10px 22px; border-radius: 25px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45); cursor: pointer;">
+            <button type="button" class="action-btn" id="btnOpenScannerTop" style="<?= $isSophiaAdmin ? 'background: linear-gradient(135deg, #854761, #5c2c40); color: #FFF; font-weight: 700; border: 1.5px solid #C5A16A; padding: 10px 22px; border-radius: 25px; box-shadow: 0 4px 18px rgba(133, 71, 97, 0.45); cursor: pointer;' : 'background: linear-gradient(135deg, #10B981, #059669); color: #FFF; font-weight: 700; border: none; padding: 10px 22px; border-radius: 25px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45); cursor: pointer;' ?>">
                 <i class="fas fa-qrcode"></i> Escanear QR Recepción
             </button>
         </div>
@@ -1300,7 +1374,7 @@ try {
                 </span>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <a href="<?= htmlspecialchars($urlEnVivoActivo) ?>" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none;">
+                <a href="<?= htmlspecialchars($urlEnVivoActivo) ?>" target="_blank" class="action-btn" style="background: <?= $isSophiaAdmin ? 'linear-gradient(135deg, #C5A16A, #EAD8B8)' : 'linear-gradient(135deg, #FFD700, #C8A24A)' ?>; color: <?= $isSophiaAdmin ? '#4A303B' : '#062E25' ?>; font-weight: 700; border: none;">
                     <i class="fas fa-tv"></i> Abrir Modo Proyector
                 </a>
                 <a href="?export=fotos_zip" class="action-btn primary">
@@ -1338,7 +1412,7 @@ try {
                         $fotoUrl = '../api/foto.php?f=' . rawurlencode($f['archivo']);
                         $fotoDownloadUrl = '../api/foto.php?f=' . rawurlencode($f['archivo']) . '&download=1';
                     ?>
-                        <div style="background: rgba(6, 46, 37, 0.7); border: 1.5px solid <?= $f['visible'] ? 'rgba(200, 162, 74, 0.35)' : 'rgba(220, 50, 50, 0.5)' ?>; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.3); backdrop-filter: blur(8px);">
+                        <div style="background: <?= $isSophiaAdmin ? 'rgba(74, 48, 59, 0.75)' : 'rgba(6, 46, 37, 0.7)' ?>; border: 1.5px solid <?= $f['visible'] ? 'rgba(200, 162, 74, 0.35)' : 'rgba(220, 50, 50, 0.5)' ?>; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.3); backdrop-filter: blur(8px);">
                             <div style="width: 100%; height: 210px; background: #000; overflow: hidden; position: relative;">
                                 <img src="<?= $fotoUrl ?>" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;">
                                 <?php if (!$f['visible']): ?>
@@ -1474,10 +1548,10 @@ try {
                 </span>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <button type="button" class="action-btn" id="btnOpenScanner" style="background: linear-gradient(135deg, #10B981, #059669); color: #FFF; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                <button type="button" class="action-btn" id="btnOpenScanner" style="<?= $isSophiaAdmin ? 'background: linear-gradient(135deg, #854761, #5c2c40); color: #FFF; font-weight: 700; border: 1.5px solid #C5A16A; cursor: pointer; box-shadow: 0 4px 15px rgba(133, 71, 97, 0.4);' : 'background: linear-gradient(135deg, #10B981, #059669); color: #FFF; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);' ?>">
                     <i class="fas fa-qrcode"></i> Escanear QR en Entrada
                 </button>
-                <button type="button" class="action-btn" id="btnOpenRaffle" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
+                <button type="button" class="action-btn" id="btnOpenRaffle" style="background: <?= $isSophiaAdmin ? 'linear-gradient(135deg, #C5A16A, #EAD8B8)' : 'linear-gradient(135deg, #FFD700, #C8A24A)' ?>; color: <?= $isSophiaAdmin ? '#4A303B' : '#062E25' ?>; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(200, 162, 74, 0.4);">
                     <i class="fas fa-gift"></i> Sorteo de Rifa
                 </button>
                 <a href="?export=csv" class="action-btn primary">
@@ -1504,7 +1578,7 @@ try {
         <!-- Buscador en tiempo real de invitados -->
         <div style="max-width: 1200px; margin: 0 auto 16px auto; position: relative;">
             <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--dorado); font-size: 0.95rem; pointer-events: none;"></i>
-            <input type="text" id="guestSearchInput" placeholder="🔍 Buscar invitado por nombre, acompañante o código de rifa..." style="width: 100%; box-sizing: border-box; padding: 12px 18px 12px 45px; border-radius: 25px; border: 1.5px solid rgba(200, 162, 74, 0.35); background: rgba(6, 46, 37, 0.7); color: #FFF; font-family: 'Montserrat', sans-serif; font-size: 0.88rem; outline: none; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+            <input type="text" id="guestSearchInput" placeholder="🔍 Buscar invitado por nombre, acompañante o código de rifa..." style="width: 100%; box-sizing: border-box; padding: 12px 18px 12px 45px; border-radius: 25px; border: 1.5px solid <?= $isSophiaAdmin ? 'rgba(197, 161, 106, 0.45)' : 'rgba(200, 162, 74, 0.35)' ?>; background: <?= $isSophiaAdmin ? 'rgba(74, 48, 59, 0.75)' : 'rgba(6, 46, 37, 0.7)' ?>; color: #FFF; font-family: 'Montserrat', sans-serif; font-size: 0.88rem; outline: none; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
         </div>
 
         <!-- Tabla de invitados -->
@@ -1892,11 +1966,12 @@ try {
             // Sonido y confeti triunfal
             playFanfare();
             if (typeof confetti === 'function') {
+                const confColors = <?= $isSophiaAdmin ? "['#C5A16A', '#EBC5CC', '#D9A5B5', '#C6AEDB', '#FFFFFF', '#854761']" : "['#FFD700', '#C8A24A', '#2F8F68', '#FFFDF5', '#E7D49A']" ?>;
                 confetti({
                     particleCount: 80,
                     spread: 70,
                     origin: { y: 0.6 },
-                    colors: ['#FFD700', '#C8A24A', '#2F8F68', '#FFFDF5', '#E7D49A']
+                    colors: confColors
                 });
                 setTimeout(() => {
                     confetti({
@@ -1904,14 +1979,14 @@ try {
                         angle: 60,
                         spread: 55,
                         origin: { x: 0 },
-                        colors: ['#FFD700', '#C8A24A']
+                        colors: confColors
                     });
                     confetti({
                         particleCount: 50,
                         angle: 120,
                         spread: 55,
                         origin: { x: 1 },
-                        colors: ['#2F8F68', '#FFFDF5']
+                        colors: confColors
                     });
                 }, 300);
             }
@@ -2134,7 +2209,7 @@ try {
             document.getElementById('resultStatusBadge').style.color = '#FCA5A5';
             
             document.getElementById('resultPassesCount').textContent = msg;
-            document.getElementById('resultCompanions').textContent = 'Verifica que el código pertenezca a la invitación de Angie.';
+            document.getElementById('resultCompanions').textContent = 'Verifica que el código pertenezca a la invitación de <?= htmlspecialchars($nombreFestejadaActiva) ?>.';
             document.getElementById('resultRaffleCode').textContent = '';
             document.getElementById('resultCheckinTime').textContent = '';
             if (btnToggleCheckinResult) btnToggleCheckinResult.style.display = 'none';
@@ -2148,19 +2223,19 @@ try {
             scannerResultBox.style.display = 'block';
 
             if (isAsistio) {
-                scannerResultBox.style.border = already ? '2px solid #F59E0B' : '2px solid #10B981';
-                scannerResultBox.style.background = already ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+                scannerResultBox.style.border = already ? '2px solid #F59E0B' : (<?= $isSophiaAdmin ? "'2px solid #854761'" : "'2px solid #10B981'" ?>);
+                scannerResultBox.style.background = already ? 'rgba(245, 158, 11, 0.15)' : (<?= $isSophiaAdmin ? "'rgba(133, 71, 97, 0.25)'" : "'rgba(16, 185, 129, 0.15)'" ?>);
                 
                 document.getElementById('resultStatusIcon').innerHTML = already 
                     ? '<i class="fas fa-info-circle" style="color: #F59E0B;"></i>' 
-                    : '<i class="fas fa-check-circle" style="color: #10B981;"></i>';
+                    : (<?= $isSophiaAdmin ? "'<i class=\"fas fa-check-circle\" style=\"color: #C5A16A;\"></i>'" : "'<i class=\"fas fa-check-circle\" style=\"color: #10B981;\"></i>'" ?>);
                 
                 document.getElementById('resultGuestName').textContent = inv.nombre_completo;
                 
                 const badge = document.getElementById('resultStatusBadge');
                 badge.textContent = already ? 'YA HABÍA INGRESADO' : '¡ASISTENCIA REGISTRADA!';
-                badge.style.background = already ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.3)';
-                badge.style.color = already ? '#FDE68A' : '#6EE7B7';
+                badge.style.background = already ? 'rgba(245, 158, 11, 0.3)' : (<?= $isSophiaAdmin ? "'rgba(133, 71, 97, 0.45)'" : "'rgba(16, 185, 129, 0.3)'" ?>);
+                badge.style.color = already ? '#FDE68A' : (<?= $isSophiaAdmin ? "'#FFF3E7'" : "'#6EE7B7'" ?>);
 
             } else {
                 scannerResultBox.style.border = '2px solid #6B7280';

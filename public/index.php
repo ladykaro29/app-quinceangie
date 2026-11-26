@@ -123,8 +123,13 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
     <meta name="twitter:description" content="¡Te invito a celebrar mis XV Años! Acompáñanos este <?= htmlspecialchars($fechaEventoFormatoPortada) ?>.">
     <meta name="twitter:image" content="<?= htmlspecialchars($shareImageUrl) ?>">
 
+    <?php if ($isSophia): ?>
+    <!-- Favicon Oficial de Sophia: Mariposa Real y Corona Champagne -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%234A303B' stroke='%23C5A16A' stroke-width='2.5'/%3E%3Cpath d='M32 32 C20 12, 6 22, 12 38 C18 50, 28 42, 32 32 Z' fill='%23EBC5CC' stroke='%23C5A16A' stroke-width='1'/%3E%3Cpath d='M32 32 C44 12, 58 22, 52 38 C46 50, 36 42, 32 32 Z' fill='%23C6AEDB' stroke='%23C5A16A' stroke-width='1'/%3E%3Cellipse cx='32' cy='32' rx='2.5' ry='8' fill='%23C5A16A'/%3E%3C/svg%3E">
+    <?php else: ?>
     <!-- Favicon: Corona Real Dorada y Esmeralda -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23062E25' stroke='%23C8A24A' stroke-width='2.5'/%3E%3Cpath d='M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z' fill='%23FFD700' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Cpath d='M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z' fill='%23C8A24A'/%3E%3Ccircle cx='17' cy='23' r='2.8' fill='%23FFFDF5'/%3E%3Ccircle cx='24' cy='32' r='2.2' fill='%23FFFDF5'/%3E%3Ccircle cx='32' cy='14' r='3.6' fill='%23FFFDF5'/%3E%3Ccircle cx='40' cy='32' r='2.2' fill='%23FFFDF5'/%3E%3Ccircle cx='47' cy='23' r='2.8' fill='%23FFFDF5'/%3E%3Cpolygon points='32,25 36,32 32,39 28,32' fill='%23006B4F' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Ccircle cx='22' cy='45' r='1.8' fill='%23006B4F'/%3E%3Ccircle cx='32' cy='47' r='2.2' fill='%23006B4F'/%3E%3Ccircle cx='42' cy='45' r='1.8' fill='%23006B4F'/%3E%3C/svg%3E">
+    <?php endif; ?>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="shortcut icon" href="favicon.ico">
@@ -156,6 +161,15 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
            VARIABLES Y RESET
            ============================================================ */
         :root {
+            <?php if ($isSophia): ?>
+            --verde-oscuro: #4A303B;
+            --verde-medio: #79544D;
+            --verde-claro: #D9A5B5;
+            --dorado: #C5A16A;
+            --dorado-claro: #EAD8B8;
+            --crema: #FFF3E7;
+            --marron: #79544D;
+            <?php else: ?>
             --verde-oscuro: #062E25;
             --verde-medio: #006B4F;
             --verde-claro: #2F8F68;
@@ -163,6 +177,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             --dorado-claro: #E7D49A;
             --crema: #FFF8EC;
             --marron: #1A1410;
+            <?php endif; ?>
 
             --font-script: 'Great Vibes', cursive;
             --font-serif: 'Playfair Display', serif;
@@ -538,7 +553,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             aspect-ratio: 4 / 5;
             border-radius: 90px 90px 20px 20px;
             overflow: hidden;
-            background: #062E25;
+            background: var(--verde-oscuro);
             border: 2px solid rgba(255, 253, 245, 0.35);
         }
 
@@ -1044,22 +1059,24 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             transform: translateY(-1px);
         }
 
-        .trivia-option.correct {
+        <?php if (!$isSophia): ?>
+        body:not(.theme-sophia-jardin) .trivia-option.correct {
             border-color: #2ECC71 !important;
             background: rgba(46, 204, 113, 0.25) !important;
             color: #FFFFFF !important;
             box-shadow: 0 0 12px rgba(46, 204, 113, 0.3);
         }
 
-        .trivia-option.correct .opt-letter {
+        body:not(.theme-sophia-jardin) .trivia-option.correct .opt-letter {
             background: #2ECC71;
             border-color: #2ECC71;
             color: #062E25;
         }
 
-        .trivia-option.correct .opt-icon {
+        body:not(.theme-sophia-jardin) .trivia-option.correct .opt-icon {
             color: #2ECC71;
         }
+        <?php endif; ?>
 
         .trivia-option.incorrect {
             border-color: #E74C3C !important;
@@ -1838,7 +1855,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             aspect-ratio: 4 / 5;
             border-radius: 16px;
             overflow: hidden;
-            background: #062E25;
+            background: var(--verde-oscuro);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2554,8 +2571,13 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             animation: fadeIn 0.3s ease;
         }
 
-        .photo-upload-box {
+        <?php if (!$isSophia): ?>
+        body:not(.theme-sophia-jardin) .photo-upload-box {
             background: linear-gradient(145deg, #062E25, #004D38);
+        }
+        <?php endif; ?>
+
+        .photo-upload-box {
             border: 2px solid var(--dorado);
             border-radius: 20px;
             max-width: 420px;
@@ -2646,11 +2668,13 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             z-index: 100005;
         }
 
-        .lightbox-close:hover {
+        <?php if (!$isSophia): ?>
+        body:not(.theme-sophia-jardin) .lightbox-close:hover {
             background: var(--dorado);
             color: #062E25;
             transform: scale(1.1);
         }
+        <?php endif; ?>
 
         .lightbox-counter {
             position: absolute;
@@ -2688,11 +2712,13 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
-        .lightbox-nav-btn:hover {
+        <?php if (!$isSophia): ?>
+        body:not(.theme-sophia-jardin) .lightbox-nav-btn:hover {
             background: var(--dorado);
             color: #062E25;
             transform: translateY(-50%) scale(1.12);
         }
+        <?php endif; ?>
 
         .lightbox-prev {
             left: 20px;
@@ -2782,11 +2808,13 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             transition: all 0.2s;
         }
 
-        .btn-download-lightbox:hover {
+        <?php if (!$isSophia): ?>
+        body:not(.theme-sophia-jardin) .btn-download-lightbox:hover {
             background: var(--dorado);
             color: #062E25;
             transform: scale(1.05);
         }
+        <?php endif; ?>
 
         <?php if ($isSophia && file_exists(__DIR__ . '/assets/css/theme-sophia-jardin.css')): ?>
         /* ============================================================
@@ -3218,15 +3246,98 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         </div>
 
         <!-- ============================================
-             TARJETA 8: TRIVIA
+             TARJETA 8: TRIVIA / MINIJUEGO DE MARIPOSAS
              ============================================ -->
         <div class="card-slide hidden" data-slide="7">
-            <div class="card">
+            <div class="card <?= $isSophia ? 'sophia-card' : '' ?>">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
                 <div class="corner-bl"></div>
                 <div class="corner-br"></div>
 
+                <?php if ($isSophia): ?>
+                <!-- MINIJUEGO DE MARIPOSAS EXCLUSIVO DE SOPHIA (WCAG 2.2 AA SIN VERDE) -->
+                <div class="card-icon" style="margin-bottom: 2px;">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="card-title-script" style="font-size: 2.3rem; margin-bottom: 0px;">El Jardín Encantado</div>
+                <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; margin-bottom: 6px;">MINIJUEGO DE MARIPOSAS</div>
+                <div class="gold-divider" style="margin-bottom: 10px;"></div>
+
+                <!-- Selector de modos: Minijuego o Trivia -->
+                <div class="sophia-mode-selector" style="display: flex; justify-content: center; gap: 8px; margin-bottom: 10px;">
+                    <button type="button" id="tabBtnGame" class="sophia-game-btn" style="padding: 6px 14px; font-size: 0.72rem;">
+                        <i class="fas fa-butterfly"></i> Atrapa Mariposas
+                    </button>
+                    <button type="button" id="tabBtnTrivia" class="sophia-game-btn" style="padding: 6px 14px; font-size: 0.72rem; background: #FFF3E7; color: #4A303B; border-color: #C5A16A;">
+                        <i class="fas fa-question-circle"></i> Trivia de Sophia
+                    </button>
+                </div>
+
+                <!-- Panel 1: Minijuego de Mariposas -->
+                <div id="sophiaGamePanel">
+                    <p class="card-text" style="font-size: 0.8rem; line-height: 1.4; margin-bottom: 6px; text-align: center;">
+                        ¡Toca las mariposas mágicas que vuelan en el jardín antes de que se acabe el tiempo! ✨
+                    </p>
+
+                    <div class="sophia-game-arena" id="sophiaGameArena">
+                        <div class="sophia-game-backdrop">
+                            <!-- Ramas y flores decorativas en paleta oficial (CERO VERDE) -->
+                            <svg class="branch-decor" viewBox="0 0 300 200" preserveAspectRatio="none">
+                                <path d="M 0,180 Q 80,120 180,150 T 300,100" stroke="#79544D" stroke-width="2.5" fill="none" opacity="0.4" />
+                                <path d="M 20,20 Q 120,60 220,30 T 300,70" stroke="#79544D" stroke-width="1.8" fill="none" opacity="0.3" />
+                                <circle cx="80" cy="120" r="5" fill="#EBC5CC" opacity="0.7" />
+                                <circle cx="180" cy="150" r="6" fill="#C6AEDB" opacity="0.7" />
+                                <circle cx="220" cy="30" r="4" fill="#EAD8B8" opacity="0.7" />
+                            </svg>
+                        </div>
+
+                        <!-- HUD de juego -->
+                        <div class="sophia-game-hud">
+                            <div class="sophia-game-score">
+                                <i class="fas fa-sparkles" style="color: #C5A16A;"></i>
+                                Puntos: <span id="sophiaGameScore">0</span>
+                            </div>
+                            <div class="sophia-game-timer">
+                                <i class="fas fa-stopwatch"></i>
+                                <span id="sophiaGameTimer">30s</span>
+                            </div>
+                        </div>
+
+                        <!-- Área interactiva donde vuelan las mariposas -->
+                        <div id="sophiaTargetsArea" style="position: absolute; top: 38px; left: 0; right: 0; bottom: 0; overflow: hidden;"></div>
+
+                        <!-- Pantalla de inicio / fin dentro del juego -->
+                        <div id="sophiaGameOverOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 243, 231, 0.94); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; text-align: center; z-index: 15;">
+                            <div style="font-size: 2.2rem; margin-bottom: 4px;">🦋✨</div>
+                            <h4 id="sophiaGameTitle" style="font-family: 'Great Vibes', cursive; font-size: 2rem; color: #4A303B; margin: 0 0 4px 0;">El Jardín Encantado</h4>
+                            <p id="sophiaGameMsg" style="font-size: 0.8rem; color: #79544D; margin: 0 0 10px 0; max-width: 250px;">
+                                Atrapa mariposas rosadas, lavanda y doradas para sumar puntos.
+                            </p>
+                            <button type="button" id="btnStartGame" class="sophia-game-btn">
+                                <i class="fas fa-play"></i> Iniciar Juego
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Trivia de Sophia (Oculto por defecto si se usa pestaña) -->
+                <div id="trivia-container" style="display: none;">
+                    <div class="trivia-counter" id="trivia-counter">Pregunta 1 de 5</div>
+                    <div class="trivia-question" id="trivia-question"></div>
+                    <div class="trivia-options" id="trivia-options"></div>
+                    <div class="trivia-result" id="trivia-result"></div>
+                    <div class="trivia-nav" id="trivia-nav">
+                        <button class="trivia-nav-btn" id="trivia-prev" disabled>
+                            <i class="fas fa-arrow-left"></i> Anterior
+                        </button>
+                        <button class="trivia-nav-btn" id="trivia-next">
+                            Siguiente <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <?php else: ?>
+                <!-- TRIVIA ORIGINAL DE ANGIE (100% PRESERVADA) -->
                 <div class="card-icon">
                     <i class="fas fa-question-circle"></i>
                 </div>
@@ -3248,6 +3359,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                         </button>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -4091,6 +4203,240 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         renderQuestion();
     })();
 
+    <?php if ($isSophia): ?>
+    /* ================================================================
+       MINIJUEGO DE MARIPOSAS DE SOPHIA: "EL JARDÍN ENCANTADO"
+       ================================================================ */
+    (() => {
+        const tabBtnGame = document.getElementById('tabBtnGame');
+        const tabBtnTrivia = document.getElementById('tabBtnTrivia');
+        const gamePanel = document.getElementById('sophiaGamePanel');
+        const triviaPanel = document.getElementById('trivia-container');
+        const arena = document.getElementById('sophiaGameArena');
+        const targetsArea = document.getElementById('sophiaTargetsArea');
+        const scoreEl = document.getElementById('sophiaGameScore');
+        const timerEl = document.getElementById('sophiaGameTimer');
+        const overlay = document.getElementById('sophiaGameOverOverlay');
+        const startBtn = document.getElementById('btnStartGame');
+        const gameTitle = document.getElementById('sophiaGameTitle');
+        const gameMsg = document.getElementById('sophiaGameMsg');
+
+        if (!gamePanel || !startBtn || !targetsArea) return;
+
+        // Pestañas / Alternador de modo (Juego vs Trivia)
+        if (tabBtnGame && tabBtnTrivia && triviaPanel) {
+            tabBtnGame.addEventListener('click', () => {
+                gamePanel.style.display = 'block';
+                triviaPanel.style.display = 'none';
+                tabBtnGame.style.background = 'linear-gradient(135deg, #854761 0%, #68344B 100%)';
+                tabBtnGame.style.color = '#FFFFFF';
+                tabBtnTrivia.style.background = '#FFF3E7';
+                tabBtnTrivia.style.color = '#4A303B';
+            });
+
+            tabBtnTrivia.addEventListener('click', () => {
+                gamePanel.style.display = 'none';
+                triviaPanel.style.display = 'block';
+                tabBtnTrivia.style.background = 'linear-gradient(135deg, #854761 0%, #68344B 100%)';
+                tabBtnTrivia.style.color = '#FFFFFF';
+                tabBtnGame.style.background = '#FFF3E7';
+                tabBtnGame.style.color = '#4A303B';
+            });
+        }
+
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let spawnInterval = null;
+        let timerInterval = null;
+        let record = parseInt(localStorage.getItem('sophia_butterfly_record') || '0', 10);
+
+        // SVG de Mariposas Oficiales (Sin ningún elemento verde)
+        const butterflyTypes = [
+            {
+                name: 'Rosa Blush',
+                pts: 10,
+                colorMain: '#EBC5CC',
+                colorStroke: '#D9A5B5',
+                colorBody: '#854761',
+                speed: 2.2,
+                weight: 5
+            },
+            {
+                name: 'Lavanda Mágica',
+                pts: 15,
+                colorMain: '#C6AEDB',
+                colorStroke: '#854761',
+                colorBody: '#4A303B',
+                speed: 1.8,
+                weight: 3
+            },
+            {
+                name: 'Dorado Champagne',
+                pts: 25,
+                colorMain: '#C5A16A',
+                colorStroke: '#FFF3E7',
+                colorBody: '#4A303B',
+                speed: 1.4,
+                weight: 2
+            }
+        ];
+
+        function createButterflySvg(bType) {
+            return `
+                <svg viewBox="0 0 50 50" class="target-butterfly-svg">
+                    <defs>
+                        <linearGradient id="g_${bType.pts}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="${bType.colorMain}" />
+                            <stop offset="100%" stop-color="${bType.colorStroke}" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Ala izquierda -->
+                    <path d="M 25 25 C 10 5, 2 15, 6 30 C 10 40, 22 32, 25 25 Z" fill="url(#g_${bType.pts})" stroke="${bType.colorStroke}" stroke-width="1.2" />
+                    <!-- Ala derecha -->
+                    <path d="M 25 25 C 40 5, 48 15, 44 30 C 40 40, 28 32, 25 25 Z" fill="url(#g_${bType.pts})" stroke="${bType.colorStroke}" stroke-width="1.2" />
+                    <!-- Cuerpo central -->
+                    <ellipse cx="25" cy="25" rx="2" ry="8" fill="${bType.colorBody}" />
+                    <circle cx="24" cy="15" r="1.2" fill="${bType.colorStroke}" />
+                    <circle cx="26" cy="15" r="1.2" fill="${bType.colorStroke}" />
+                </svg>
+            `;
+        }
+
+        function spawnTarget() {
+            if (!gameActive) return;
+
+            // Selección ponderada de mariposa
+            const totalWeight = butterflyTypes.reduce((acc, b) => acc + b.weight, 0);
+            let rnd = Math.random() * totalWeight;
+            let chosen = butterflyTypes[0];
+            for (let b of butterflyTypes) {
+                if (rnd < b.weight) {
+                    chosen = b;
+                    break;
+                }
+                rnd -= b.weight;
+            }
+
+            const w = targetsArea.clientWidth || 320;
+            const h = targetsArea.clientHeight || 220;
+
+            const el = document.createElement('div');
+            el.className = 'sophia-catch-target';
+            el.innerHTML = createButterflySvg(chosen);
+
+            const startX = Math.random() * (w - 50);
+            const startY = Math.random() * (h - 50);
+            el.style.left = `${startX}px`;
+            el.style.top = `${startY}px`;
+
+            // Animación de vuelo dentro del área
+            let posX = startX;
+            let posY = startY;
+            let vx = (Math.random() - 0.5) * chosen.speed * 2;
+            let vy = (Math.random() - 0.5) * chosen.speed * 2;
+
+            const moveInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(moveInterval);
+                    el.remove();
+                    return;
+                }
+                posX += vx;
+                posY += vy;
+                if (posX < 5 || posX > w - 45) vx *= -1;
+                if (posY < 5 || posY > h - 45) vy *= -1;
+
+                el.style.transform = `translate3d(${posX - startX}px, ${posY - startY}px, 0)`;
+            }, 30);
+
+            // Tiempo de vida de la mariposa (desaparece tras unos segundos)
+            const lifeTimeout = setTimeout(() => {
+                clearInterval(moveInterval);
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 200);
+            }, 2800);
+
+            // Evento de captura al hacer clic o tocar
+            const catchHandler = (e) => {
+                e.stopPropagation();
+                if (!gameActive) return;
+
+                clearInterval(moveInterval);
+                clearTimeout(lifeTimeout);
+
+                score += chosen.pts;
+                scoreEl.textContent = score;
+
+                // Efecto flotante de puntuación (+10, +15, +25)
+                const fx = document.createElement('div');
+                fx.className = 'catch-sparkle-fx';
+                fx.textContent = `+${chosen.pts} ✨`;
+                fx.style.left = `${posX + 10}px`;
+                fx.style.top = `${posY}px`;
+                targetsArea.appendChild(fx);
+                setTimeout(() => fx.remove(), 800);
+
+                el.style.transform += ' scale(1.4)';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 150);
+            };
+
+            el.addEventListener('pointerdown', catchHandler);
+            targetsArea.appendChild(el);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            scoreEl.textContent = '0';
+            timerEl.textContent = '30s';
+            overlay.style.display = 'none';
+            targetsArea.innerHTML = '';
+
+            // Generar mariposas periódicamente
+            spawnInterval = setInterval(() => {
+                if (targetsArea.children.length < 5) {
+                    spawnTarget();
+                }
+            }, 600);
+
+            // Cuenta regresiva del temporizador
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = `${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(spawnInterval);
+            clearInterval(timerInterval);
+            targetsArea.innerHTML = '';
+
+            if (score > record) {
+                record = score;
+                localStorage.setItem('sophia_butterfly_record', record);
+            }
+
+            gameTitle.textContent = '¡Mágico Recorrido!';
+            gameMsg.innerHTML = `
+                Atrapaste <strong style="color: #854761; font-size: 1.15rem;">${score} puntos</strong> en el Jardín Encantado de Sophia.<br>
+                <span style="font-size: 0.75rem; color: #C5A16A; display: inline-block; margin-top: 4px;">🏆 Récord: ${record} puntos</span>
+            `;
+            startBtn.innerHTML = '<i class="fas fa-redo"></i> Jugar de Nuevo';
+            overlay.style.display = 'flex';
+        }
+
+        startBtn.addEventListener('click', startGame);
+    })();
+    <?php endif; ?>
+
     /* ================================================================
        PLAYLIST (SUGERIR CANCIONES CON PERSISTENCIA EN BD)
        ================================================================ */
@@ -4398,19 +4744,19 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                                     text: qrPayload,
                                     width: 170,
                                     height: 170,
-                                    colorDark: '#062E25',
-                                    colorLight: '#FFFDF5',
+                                    colorDark: '<?= $isSophia ? "#4A303B" : "#062E25" ?>',
+                                    colorLight: '<?= $isSophia ? "#FFF3E7" : "#FFFDF5" ?>',
                                     correctLevel: QRCode.CorrectLevel.M
                                 });
                             } catch(e) {
                                 const qrImg = document.createElement('img');
-                                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=062E25&bgcolor=FFFDF5`;
+                                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=<?= $isSophia ? "4A303B" : "062E25" ?>&bgcolor=<?= $isSophia ? "FFF3E7" : "FFFDF5" ?>`;
                                 qrImg.alt = 'Código QR Pase VIP';
                                 qrWrapper.appendChild(qrImg);
                             }
                         } else {
                             const qrImg = document.createElement('img');
-                            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=062E25&bgcolor=FFFDF5`;
+                            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(qrPayload)}&color=<?= $isSophia ? "4A303B" : "062E25" ?>&bgcolor=<?= $isSophia ? "FFF3E7" : "FFFDF5" ?>`;
                             qrImg.alt = 'Código QR Pase VIP';
                             qrWrapper.appendChild(qrImg);
                         }
@@ -4449,7 +4795,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
 
                                     html2canvas(vipTicket, {
                                         scale: 2,
-                                        backgroundColor: '#062E25',
+                                        backgroundColor: '<?= $isSophia ? "#FFF3E7" : "#062E25" ?>',
                                         useCORS: true,
                                         allowTaint: true,
                                         logging: false,
@@ -4514,7 +4860,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             burst.style.top = '50%';
             document.body.appendChild(burst);
 
-            const colors = ['#C8A24A', '#E7D49A', '#FFF8EC', '#2F8F68'];
+            const colors = <?= $isSophia ? "['#C5A16A', '#EBC5CC', '#D9A5B5', '#FFF3E7', '#C6AEDB']" : "['#C8A24A', '#E7D49A', '#FFF8EC', '#2F8F68']" ?>;
             for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'sparkle-particle';

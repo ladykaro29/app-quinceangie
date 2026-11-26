@@ -47,6 +47,7 @@ if (!$currentEvento && !empty($eventos)) {
     $currentEvento = $eventos[0];
     $activeEventoId = (int)$currentEvento['id'];
 }
+$isSophia = ($activeEventoId == 2 || ($currentEvento['slug'] ?? '') === 'sophia-xv');
 
 // 3. Pestaña de filtro
 $tab = $_GET['tab'] ?? 'pendientes'; // pendientes, aprobadas, rechazadas, destacadas, todas
@@ -96,14 +97,34 @@ $fotos = $stmtList->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centro de Moderación Multimedia · XV Experience</title>
-    <!-- Favicon Corona Real -->
+    <?php if ($isSophia): ?>
+    <!-- Favicon Oficial de Sophia: Mariposa Real y Corona Champagne -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%234A303B' stroke='%23C5A16A' stroke-width='2.5'/%3E%3Cpath d='M32 32 C20 12, 6 22, 12 38 C18 50, 28 42, 32 32 Z' fill='%23EBC5CC' stroke='%23C5A16A' stroke-width='1'/%3E%3Cpath d='M32 32 C44 12, 58 22, 52 38 C46 50, 36 42, 32 32 Z' fill='%23C6AEDB' stroke='%23C5A16A' stroke-width='1'/%3E%3Cellipse cx='32' cy='32' rx='2.5' ry='8' fill='%23C5A16A'/%3E%3C/svg%3E">
+    <?php else: ?>
+    <!-- Favicon Corona Real Angie -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23062E25' stroke='%23C8A24A' stroke-width='2.5'/%3E%3Cpath d='M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z' fill='%23FFD700' stroke='%23FFF0BA' stroke-width='0.8'/%3E%3Cpath d='M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z' fill='%23C8A24A'/%3E%3C/svg%3E">
+    <?php endif; ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
+            <?php if ($isSophia): ?>
+            --bg-body: #201017;
+            --bg-card: #301A22;
+            --bg-card-hover: #4A303B;
+            --gold: #C5A16A;
+            --gold-bright: #EAD8B8;
+            --gold-light: #FFF3E7;
+            --emerald: #4A303B;
+            --text-main: #FFF3E7;
+            --text-sub: #D9A5B5;
+            --border-card: rgba(197, 161, 106, 0.35);
+            --color-success: #854761;
+            --color-danger: #e74c3c;
+            --color-warning: #C5A16A;
+            <?php else: ?>
             --bg-body: #071512;
             --bg-card: #0D231E;
             --bg-card-hover: #12302A;
@@ -117,6 +138,7 @@ $fotos = $stmtList->fetchAll(PDO::FETCH_ASSOC);
             --color-success: #2ecc71;
             --color-danger: #e74c3c;
             --color-warning: #f39c12;
+            <?php endif; ?>
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -401,8 +423,8 @@ $fotos = $stmtList->fetchAll(PDO::FETCH_ASSOC);
             gap: 4px;
         }
 
-        .btn-card-approve { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
-        .btn-card-approve:hover { background: #2ecc71; color: #000; }
+        .btn-card-approve { background: rgba(133, 71, 97, 0.25); color: var(--color-success); border: 1px solid var(--color-success); }
+        .btn-card-approve:hover { background: var(--color-success); color: #FFF; }
         .btn-card-reject { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
         .btn-card-reject:hover { background: #e74c3c; color: #fff; }
         .btn-card-del { background: rgba(255, 255, 255, 0.1); color: var(--text-sub); width: 32px; flex: none; }

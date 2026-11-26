@@ -15,9 +15,10 @@ $currentEvent = CurrentEventContext::get();
 $currentConfigs = CurrentEventContext::allConfigs();
 $eventoId = (int)($currentEvent['id'] ?? 1);
 $slug = $currentEvent['slug'] ?? 'angie-xv';
+$isSophia = ($eventoId === 2 || $slug === 'sophia-xv');
 $festejadaNombre = $currentEvent['festejada_nombre'] ?? 'Angie Karolina';
 $festejadaNombreCorto = $currentConfigs['nombre_corto'] ?? explode(' ', $festejadaNombre)[0];
-if (str_contains($festejadaNombre, 'Sophia Valentina')) $festejadaNombreCorto = 'Sophia Valentina';
+if (str_contains($festejadaNombre, 'Sophia Valentina') || $isSophia) $festejadaNombreCorto = 'Sophia Valentina';
 if (str_contains($festejadaNombre, 'Angie Karolina')) $festejadaNombreCorto = 'Angie Karolina';
 
 $tituloCelebracion = $currentEvent['nombre_celebracion'] ?? 'Mis XV Años';
@@ -50,7 +51,7 @@ $qrUploadUrl = ($slug === 'angie-xv')
     <style>
         :root {
             --verde-profundo: #041B16;
-            --verde-esmeralda: #062E25;
+            --verde-esmeralda: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             --verde-medio: #0A4337;
             --dorado: #C8A24A;
             --dorado-claro: #E8D390;
@@ -81,6 +82,36 @@ $qrUploadUrl = ($slug === 'angie-xv')
         }
         <?php endif; ?>
 
+        <?php if ($isSophia): ?>
+        /* Identidad Visual Oficial de Sophia en Pantalla en Vivo (CERO VERDE) */
+        body {
+            background-color: #201017 !important;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(197, 161, 106, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(133, 71, 97, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 60%, #201017 100%) !important;
+            color: #FFF3E7 !important;
+        }
+        .live-header {
+            background: rgba(74, 48, 59, 0.92) !important;
+            border-bottom: 2px solid #C5A16A !important;
+        }
+        .live-photo-card {
+            background: linear-gradient(160deg, #FFF3E7 0%, #FCECF0 50%, #EBC5CC 100%) !important;
+            border: 2px solid #C5A16A !important;
+            color: #4A303B !important;
+        }
+        .live-badge {
+            background: linear-gradient(135deg, #854761, #4A303B) !important;
+            color: #FFF3E7 !important;
+        }
+        .qr-card-live {
+            background: #FFF3E7 !important;
+            border: 2px solid #C5A16A !important;
+            color: #4A303B !important;
+        }
+        <?php endif; ?>
+
         * {
             margin: 0;
             padding: 0;
@@ -92,7 +123,7 @@ $qrUploadUrl = ($slug === 'angie-xv')
             background-image: 
                 radial-gradient(circle at 15% 20%, rgba(200, 162, 74, 0.12) 0%, transparent 40%),
                 radial-gradient(circle at 85% 80%, rgba(10, 67, 55, 0.5) 0%, transparent 50%),
-                linear-gradient(135deg, #02110E 0%, #062E25 50%, #031713 100%);
+                <?= $isSophia ? "radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 50%, #201017 100%)" : "linear-gradient(135deg, #02110E 0%, #062E25 50%, #031713 100%)" ?>;
             color: var(--blanco);
             font-family: 'Montserrat', sans-serif;
             min-height: 100vh;
@@ -460,7 +491,7 @@ $qrUploadUrl = ($slug === 'angie-xv')
 
         .fullscreen-btn:hover {
             background: var(--dorado);
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             transform: scale(1.1);
         }
     </style>
@@ -470,11 +501,11 @@ $qrUploadUrl = ($slug === 'angie-xv')
     <header class="live-header">
         <div class="brand-title">
             <svg class="brand-crown" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="30" fill="#062E25" stroke="#C8A24A" stroke-width="2.5"/>
+                <circle cx="32" cy="32" r="30" fill="<?= $isSophia ? "#4A303B" : "#062E25" ?>" stroke="#C8A24A" stroke-width="2.5"/>
                 <path d="M13 43 L17 24 L24 33 L32 15 L40 33 L47 24 L51 43 Z" fill="#FFD700" stroke="#FFF0BA" stroke-width="0.8"/>
                 <path d="M13 43 Q32 47 51 43 L51 47 Q32 51 13 47 Z" fill="#C8A24A"/>
                 <circle cx="32" cy="14" r="3.6" fill="#FFFDF5"/>
-                <polygon points="32,25 36,32 32,39 28,32" fill="#006B4F" stroke="#FFF0BA" stroke-width="0.8"/>
+                <polygon points="32,25 36,32 32,39 28,32" fill="<?= $isSophia ? "#854761" : "#006B4F" ?>" stroke="#FFF0BA" stroke-width="0.8"/>
             </svg>
             <div class="brand-text">
                 <h1><?= htmlspecialchars($festejadaNombreCorto) ?></h1>

@@ -19,9 +19,11 @@ $currentEvent = CurrentEventContext::get();
 $currentConfigs = CurrentEventContext::allConfigs();
 $eventoId = (int)($currentEvent['id'] ?? 1);
 $slug = $currentEvent['slug'] ?? 'angie-xv';
+$isSophia = ($eventoId === 2 || $slug === 'sophia-xv');
 $festejadaNombre = $currentEvent['festejada_nombre'] ?? 'Angie Karolina Avendaño Rivera';
 $festejadaNombreCorto = !empty($currentConfigs['nombre_corto']) ? $currentConfigs['nombre_corto'] : explode(' ', $festejadaNombre)[0];
-if (str_contains($festejadaNombre, 'Sophia Valentina')) $festejadaNombreCorto = 'Sophia Valentina';
+$fechaEventoFormatoPortada = $currentConfigs['fecha_portada'] ?? ($evento['fecha_evento'] ?? '21 · DICIEMBRE · 2026');
+if (str_contains($festejadaNombre, 'Sophia Valentina') || $isSophia) $festejadaNombreCorto = 'Sophia Valentina';
 if (str_contains($festejadaNombre, 'Angie Karolina')) $festejadaNombreCorto = 'Angie Karolina';
 
 $tituloCelebracion = $currentEvent['nombre_celebracion'] ?? 'Mis XV Años';
@@ -71,8 +73,8 @@ $baseUrl = $protocol . $host;
     <style>
         :root {
             --verde-reino: #021410;
-            --verde-esmeralda: #062E25;
-            --verde-bosque: #0B4538;
+            --verde-esmeralda: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
+            --verde-bosque: <?= $isSophia ? "#301A22" : "#0B4538" ?>;
             --cuero-libro: #05211A;
             --dorado-puro: #FFD700;
             --dorado: #C8A24A;
@@ -104,6 +106,46 @@ $baseUrl = $protocol . $host;
                 --dorado-puro: <?= $designTokens['--dorado-brillante'] ?? '#FFF0BA' ?>;
                 --dorado-claro: <?= $designTokens['--dorado-claro'] ?? '#F7E5B5' ?>;
             <?php endif; ?>
+        }
+        <?php endif; ?>
+
+        <?php if ($isSophia): ?>
+        /* Identidad Visual Oficial de Sophia en Libro de Recuerdos (CERO VERDE) */
+        body {
+            background-color: #201017 !important;
+            background-image: 
+                radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 60%, #201017 100%) !important;
+            color: #FFF3E7 !important;
+        }
+        .book-cover {
+            background: linear-gradient(135deg, #4A303B 0%, #382128 50%, #2A171D 100%) !important;
+            border-color: #C5A16A !important;
+        }
+        .page-inner {
+            background: #FFF3E7 !important;
+            color: #4A303B !important;
+        }
+        .author-name, .book-title {
+            color: #4A303B !important;
+        }
+        .dedication-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: #C5A16A !important;
+            color: #4A303B !important;
+        }
+        .submit-btn, .btn-action, .btn-send {
+            background: linear-gradient(135deg, #854761 0%, #68344B 100%) !important;
+            color: #FFFFFF !important;
+            border: 1.5px solid #C5A16A !important;
+        }
+        .nav-book-btn {
+            background: rgba(74, 48, 59, 0.85) !important;
+            color: #FFF3E7 !important;
+            border-color: #C5A16A !important;
+        }
+        .nav-book-btn:hover {
+            background: #854761 !important;
+            color: #FFFFFF !important;
         }
         <?php endif; ?>
 
@@ -706,7 +748,7 @@ $baseUrl = $protocol . $host;
         .page-turn-btn:hover {
             transform: translateY(-50%) scale(1.12);
             background: #FFF;
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             box-shadow: 0 10px 30px rgba(255, 215, 0, 0.65);
         }
 
@@ -790,7 +832,7 @@ $baseUrl = $protocol . $host;
         .book-main-title {
             font-family: var(--font-script);
             font-size: clamp(2.8rem, 5vw, 4.2rem);
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             line-height: 1.05;
             margin-bottom: 2px;
             text-shadow: 0 2px 4px rgba(200, 162, 74, 0.3);
@@ -844,7 +886,7 @@ $baseUrl = $protocol . $host;
             align-items: center;
             gap: 8px;
             padding: 10px 24px;
-            background: linear-gradient(135deg, #062E25 0%, #0B4538 100%);
+            background: <?= $isSophia ? "radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 50%, #201017 100%)" : "linear-gradient(135deg, #062E25 0%, #0B4538 100%)" ?>;
             border: 1.5px solid var(--dorado);
             color: var(--dorado-brillante);
             border-radius: 30px;
@@ -889,7 +931,7 @@ $baseUrl = $protocol . $host;
         .chapter-title {
             font-family: var(--font-serif);
             font-size: 1.25rem;
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
@@ -1048,7 +1090,7 @@ $baseUrl = $protocol . $host;
             font-family: var(--font-serif);
             font-size: 0.92rem;
             font-weight: 700;
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -1059,7 +1101,7 @@ $baseUrl = $protocol . $host;
         }
 
         .btn-fullscreen-cine {
-            background: #062E25;
+            background: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             color: var(--dorado-brillante);
             border: 1px solid var(--dorado);
             font-size: 0.72rem;
@@ -1116,7 +1158,7 @@ $baseUrl = $protocol . $host;
             font-family: var(--font-serif);
             font-size: 0.9rem;
             font-weight: 700;
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
         }
 
         .entry-date {
@@ -1200,7 +1242,7 @@ $baseUrl = $protocol . $host;
         }
 
         .msg-modal-box {
-            background: linear-gradient(145deg, #062E25, #004D38);
+            background: <?= $isSophia ? "linear-gradient(145deg, #301A22, #4A303B)" : "linear-gradient(145deg, #062E25, #004D38)" ?>;
             border: 2px solid var(--dorado-puro);
             border-radius: 24px;
             max-width: 500px;

@@ -38,7 +38,7 @@ if (is_string($designTokens)) {
     <style>
         :root {
             --bg-dark: #031713;
-            --emerald-deep: #062E25;
+            --emerald-deep: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             --emerald-card: #0A3C31;
             --gold-primary: #C8A24A;
             --gold-bright: #FFD700;
@@ -65,6 +65,34 @@ if (is_string($designTokens)) {
         }
         <?php endif; ?>
 
+        <?php if ($isSophia): ?>
+        /* Identidad Visual Oficial de Sophia para Álbum Colaborativo QR (CERO VERDE) */
+        body {
+            background-color: #201017 !important;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(197, 161, 106, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(133, 71, 97, 0.35) 0%, transparent 50%),
+                radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 60%, #201017 100%) !important;
+            color: #FFF3E7 !important;
+        }
+        .card, .upload-card, .preview-card {
+            background: linear-gradient(160deg, #FFF3E7 0%, #FCECF0 50%, #EBC5CC 100%) !important;
+            border: 2px solid #C5A16A !important;
+            color: #4A303B !important;
+        }
+        .btn-primary, .btn-submit, .btn-camera {
+            background: linear-gradient(135deg, #854761 0%, #68344B 100%) !important;
+            color: #FFFFFF !important;
+            border: 1.5px solid #C5A16A !important;
+        }
+        .header-title {
+            color: #4A303B !important;
+        }
+        .header-subtitle {
+            color: #854761 !important;
+        }
+        <?php endif; ?>
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -77,7 +105,7 @@ if (is_string($designTokens)) {
             background-image: 
                 radial-gradient(circle at 10% 10%, rgba(200, 162, 74, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 90%, rgba(10, 60, 49, 0.4) 0%, transparent 50%),
-                linear-gradient(180deg, #02110E 0%, #062E25 100%);
+                <?= $isSophia ? "radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 50%, #201017 100%)" : "linear-gradient(180deg, #02110E 0%, #062E25 100%)" ?>;
             color: var(--text-light);
             font-family: 'Montserrat', sans-serif;
             min-height: 100vh;
@@ -304,7 +332,7 @@ if (is_string($designTokens)) {
         .status-processing { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
         .status-ready { background: rgba(52, 152, 219, 0.3); color: #3498db; }
         .status-uploading { background: rgba(230, 126, 34, 0.3); color: #e67e22; }
-        .status-success { background: rgba(46, 204, 113, 0.3); color: #2ecc71; }
+        .status-success { background: <?= $isSophia ? "rgba(133, 71, 97, 0.35)" : "rgba(46, 204, 113, 0.3)" ?>; color: <?= $isSophia ? "#FFF3E7" : "#2ecc71" ?>; }
         .status-error { background: rgba(231, 76, 60, 0.3); color: #e74c3c; }
 
         .queue-action {
@@ -324,7 +352,7 @@ if (is_string($designTokens)) {
         .btn-submit {
             width: 100%;
             background: linear-gradient(135deg, #FFD700 0%, #C8A24A 100%);
-            color: #062E25;
+            color: <?= $isSophia ? "#4A303B" : "#062E25" ?>;
             font-family: 'Cinzel Decorative', serif;
             font-size: 0.95rem;
             font-weight: 700;
@@ -380,7 +408,7 @@ if (is_string($designTokens)) {
 
         .alert-success {
             background: rgba(30, 140, 70, 0.25);
-            border: 1px solid #2ecc71;
+            border: 1px solid <?= $isSophia ? "#C5A16A" : "#2ecc71" ?>;
             color: #a8f0c2;
         }
 

@@ -91,15 +91,18 @@ $host = $_SERVER['HTTP_HOST'] ?? 'kickoff-invitacionangie.0gxuxx.easypanel.host'
 $baseUrl = rtrim($protocol . $host, '/');
 $shareImageUrl = $baseUrl . '/' . $portadaImgUrl;
 $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
+$isSophia = (($currentEvent['id'] ?? null) == 2 || ($currentEvent['slug'] ?? '') === 'sophia-xv');
+$appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')) ? '/InvitacionAngie/' : '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <base href="<?= htmlspecialchars($appBasePath) ?>">
     <title><?= htmlspecialchars($tituloCelebracion) ?></title>
     <meta name="description" content="Invitación digital a la celebración de XV años de <?= htmlspecialchars($festejadaNombreCompleto) ?>.">
-    <meta name="theme-color" content="#062E25">
+    <meta name="theme-color" content="<?= $isSophia ? '#382128' : '#062E25' ?>">
 
     <!-- Open Graph / WhatsApp / Facebook / Telegram Preview -->
     <meta property="og:type" content="website">
@@ -2784,6 +2787,13 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             color: #062E25;
             transform: scale(1.05);
         }
+
+        <?php if ($isSophia && file_exists(__DIR__ . '/assets/css/theme-sophia-jardin.css')): ?>
+        /* ============================================================
+           TEMA OFICIAL EN CALIENTE: EL JARDÍN ENCANTADO DE SOPHIA
+           ============================================================ */
+        <?= file_get_contents(__DIR__ . '/assets/css/theme-sophia-jardin.css') ?>
+        <?php endif; ?>
     </style>
 </head>
 <body class="<?= (($currentEvent['id'] ?? null) == 2 || ($currentEvent['slug'] ?? '') === 'sophia-xv') ? 'theme-sophia-jardin' : '' ?>">
@@ -2813,6 +2823,54 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
              TARJETA 1: PORTADA
              ============================================ -->
         <div class="card-slide active" data-slide="0">
+            <?php if ($isSophia): ?>
+            <!-- Portada Oficial de Sophia Valentina: El Jardín Encantado -->
+            <div class="card cover-card sophia-card">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+
+                <!-- Mariposa 3D Animada Esquina Superior Derecha -->
+                <div class="sophia-butterfly sophia-butterfly-float-1">
+                    <svg viewBox="0 0 100 100" class="butterfly-icon">
+                        <defs>
+                            <linearGradient id="bfWing1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#EBC5CC" />
+                                <stop offset="50%" stop-color="#D9A5B5" />
+                                <stop offset="100%" stop-color="#C6AEDB" />
+                            </linearGradient>
+                        </defs>
+                        <path class="wing-left" d="M 50 50 C 20 10, 0 35, 10 65 C 20 85, 45 65, 50 50 Z" fill="url(#bfWing1)" stroke="#C5A16A" stroke-width="1.8" />
+                        <path class="wing-right" d="M 50 50 C 80 10, 100 35, 90 65 C 80 85, 55 65, 50 50 Z" fill="url(#bfWing1)" stroke="#C5A16A" stroke-width="1.8" />
+                        <ellipse cx="50" cy="50" rx="3" ry="14" fill="#C5A16A" />
+                    </svg>
+                </div>
+
+                <!-- Tiara Elegante Dorada de Sophia -->
+                <div class="tiara-container" style="text-align: center; margin-bottom: 6px;">
+                    <i class="fas fa-crown tiara-icon" style="font-size: 26px; color: #C5A16A; filter: drop-shadow(0 2px 6px rgba(197, 161, 106, 0.5));"></i>
+                </div>
+
+                <!-- Marco Ornamental Dorado con Retrato Oficial de Sophia -->
+                <div class="sophia-cover-container">
+                    <div class="sophia-cover-frame">
+                        <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='sophia-portada.jpg';if(!this.complete)this.src='assets/images/sophia-portada.jpg';}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> - Mis XV Años" class="cover-photo-img" loading="eager">
+                    </div>
+                </div>
+
+                <div class="cover-announcement" style="color: #79544D; letter-spacing: 3px; font-size: 0.75rem; text-transform: uppercase; margin-top: 6px; text-align: center; font-weight: 600;">TE INVITO A CELEBRAR</div>
+                <div class="card-title-script cover-name" style="font-size: 2.8rem; margin-bottom: 2px; color: #79544D; text-shadow: 0 1px 3px rgba(197, 161, 106, 0.35); text-align: center;"><?= htmlspecialchars($festejadaNombreCorto) ?></div>
+                <div class="gold-divider" style="margin: 6px auto 8px auto;"></div>
+                <div class="cover-xv" style="font-size: 2.3rem; letter-spacing: 6px; margin-bottom: 6px; color: #C5A16A; font-family: 'Playfair Display', serif; font-weight: 700; text-align: center;">XV AÑOS</div>
+                <div class="cover-date" style="letter-spacing: 2.5px; color: #79544D; font-size: 0.82rem; font-weight: 600; text-align: center;"><?= htmlspecialchars($fechaEventoFormatoPortada) ?></div>
+                <div class="cover-swipe" style="margin-top: 14px; color: #C5A16A; font-size: 0.78rem; text-align: center;">
+                    <i class="fas fa-chevron-down" style="animation: bounce 1.8s infinite;"></i><br>
+                    Desliza para ver más
+                </div>
+            </div>
+            <?php else: ?>
+            <!-- Portada Original de Angie Karolina -->
             <div class="card cover-card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2906,6 +2964,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                     Desliza para ver más
                 </div>
             </div>
+            <?php endif; ?>
         </div>
 
         <!-- ============================================

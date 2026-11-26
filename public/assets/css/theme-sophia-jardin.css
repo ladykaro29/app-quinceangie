@@ -431,3 +431,115 @@ body.theme-sophia-jardin .vip-ticket,
     color: var(--sophia-marron) !important;
     box-shadow: 0 10px 25px rgba(121, 84, 77, 0.18) !important;
 }
+
+/* ==============================================================================
+   PORTADA DECK INTEGRADA: ADAPTACIÓN TOTAL DE TARJETA 1
+   ============================================================================== */
+body.theme-sophia-jardin .cover-tiara {
+    display: none !important;
+}
+
+body.theme-sophia-jardin .cover-photo-container {
+    margin: 4px auto 12px auto !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+body.theme-sophia-jardin .cover-photo-wrapper {
+    width: 100% !important;
+    max-width: 270px !important;
+    margin: 0 auto !important;
+    border-radius: 24px !important;
+    padding: 4px !important;
+    background: linear-gradient(145deg, #C5A16A, #FFF3E7, #C5A16A) !important;
+    box-shadow: 0 10px 28px rgba(56, 33, 40, 0.35) !important;
+    transform: none !important;
+}
+
+body.theme-sophia-jardin .cover-photo-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+body.theme-sophia-jardin .cover-photo-img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 330px !important;
+    object-fit: cover !important;
+    object-position: center 10% !important;
+    display: block !important;
+    border-radius: 18px !important;
+}
+
+body.theme-sophia-jardin .cover-presents {
+    color: #79544D !important;
+    letter-spacing: 3px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    margin-top: 6px !important;
+}
+
+body.theme-sophia-jardin .cover-name {
+    color: #79544D !important;
+    text-shadow: 0 1px 3px rgba(197, 161, 106, 0.35) !important;
+}
+
+body.theme-sophia-jardin .cover-xv {
+    color: #C5A16A !important;
+    font-family: 'Playfair Display', serif !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .cover-date {
+    color: #79544D !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .cover-swipe {
+    color: #C5A16A !important;
+}
+
+/* Adaptación de cajas interiores de todas las tarjetas */
+body.theme-sophia-jardin .fairytale-story-box,
+body.theme-sophia-jardin .family-parents-box,
+body.theme-sophia-jardin .itinerary-timeline,
+body.theme-sophia-jardin .dresscode-box,
+body.theme-sophia-jardin .gift-envelope-box,
+body.theme-sophia-jardin .gallery-container,
+body.theme-sophia-jardin .music-suggestion-box,
+body.theme-sophia-jardin .trivia-container,
+body.theme-sophia-jardin .guestbook-form-box {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border: 1px solid rgba(197, 161, 106, 0.45) !important;
+    border-radius: 18px !important;
+    color: var(--sophia-marron) !important;
+    box-shadow: 0 6px 18px rgba(121, 84, 77, 0.1) !important;
+}
+
+body.theme-sophia-jardin .story-paragraph,
+body.theme-sophia-jardin .dresscode-desc,
+body.theme-sophia-jardin .gift-bank-info,
+body.theme-sophia-jardin .trivia-question {
+    color: var(--sophia-marron) !important;
+}
+
+body.theme-sophia-jardin .story-drop-cap {
+    color: var(--sophia-dorado) !important;
+}
+
+body.theme-sophia-jardin .timeline-item .timeline-time {
+    color: var(--sophia-dorado) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .timeline-item .timeline-desc {
+    color: var(--sophia-marron) !important;
+}

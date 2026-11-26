@@ -22,6 +22,10 @@ DirectoryIndex index.php
 
     # Servir recursos estáticos desde public/assets directamente
     RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+    RewriteRule ^e/assets/(.*)$ public/assets/$1 [L]
+    RewriteRule ^e/storage/(.*)$ storage/$1 [L]
+    RewriteRule ^e/api/(.*)$ api/$1 [L]
+    RewriteRule ^e/(.*\.(jpg|jpeg|png|webp|gif|svg|mp3|mp4|css|js|ico|woff2?|ttf))$ public/$1 [L]
 
     # Si el archivo estático existe dentro de public/, servirlo desde allí
     RewriteCond %{DOCUMENT_ROOT}/public/$1 -f

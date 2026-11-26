@@ -17,6 +17,12 @@ $filepath = __DIR__ . '/../public/assets/videos/' . $filename;
 if (!file_exists($filepath) || !is_readable($filepath)) {
     $filepath = __DIR__ . '/../database/uploads/videos/' . $filename;
 }
+if (!file_exists($filepath) || !is_readable($filepath)) {
+    $filepath = __DIR__ . '/../storage/media/2/videos/' . $filename;
+}
+if (!file_exists($filepath) || !is_readable($filepath)) {
+    $filepath = __DIR__ . '/../storage/media/1/videos/' . $filename;
+}
 
 if (!file_exists($filepath) || !is_readable($filepath)) {
     http_response_code(404);

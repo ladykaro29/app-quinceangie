@@ -527,6 +527,51 @@ if (!file_exists(__DIR__ . '/' . $portadaUrl)) {
             </div>
         </div>
 
+        <!-- =========================================================================
+             TARJETA 6: VIDEO DE DESPEDIDA (AL FINAL DE LA INVITACIÓN)
+             ========================================================================= -->
+        <div class="card-preview-col">
+            <div class="card-number-badge">Final: Video Mágico</div>
+            <div class="device-card-frame sophia-card">
+                <!-- Mariposa 3D Animada -->
+                <div class="sophia-butterfly sophia-butterfly-float-1">
+                    <svg viewBox="0 0 100 100">
+                        <path class="wing-left" d="M 50 50 C 20 10, 0 35, 10 65 C 20 85, 45 65, 50 50 Z" fill="#EBC5CC" stroke="#C5A16A" stroke-width="1.8" />
+                        <path class="wing-right" d="M 50 50 C 80 10, 100 35, 90 65 C 80 85, 55 65, 50 50 Z" fill="#D9A5B5" stroke="#C5A16A" stroke-width="1.8" />
+                        <ellipse cx="50" cy="50" rx="3" ry="14" fill="#C5A16A" />
+                    </svg>
+                </div>
+
+                <div class="sophia-title-script" style="font-size: 2.3rem; text-align: center; margin-bottom: 2px;">¡Te Espero!</div>
+                <div class="sophia-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; text-align: center; margin-bottom: 8px;">MIS XV AÑOS</div>
+
+                <!-- Marco con el video oficial de la festejada -->
+                <div style="position: relative; width: 100%; max-width: 290px; margin: 0 auto 12px auto; border-radius: 20px; overflow: hidden; border: 2.5px solid #C5A16A; box-shadow: 0 10px 25px rgba(56, 33, 40, 0.4);">
+                    <video id="previewFarewellVideo" src="api/video.php?v=sophia_transformacion.mp4" playsinline webkit-playsinline loop muted autoplay style="width: 100%; height: auto; max-height: 320px; display: block; border-radius: 17px; object-fit: cover;" poster="sophia-portada.webp">
+                        Tu navegador no soporta reproducción de video.
+                    </video>
+                    <!-- Control de Audio Flotante -->
+                    <button type="button" onclick="const v=document.getElementById('previewFarewellVideo'); v.muted=!v.muted; this.querySelector('i').className = v.muted ? 'fas fa-volume-mute' : 'fas fa-volume-high';" style="position: absolute; bottom: 8px; right: 8px; background: rgba(56,33,40,0.75); color: #FFF3E7; border: 1px solid #C5A16A; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; backdrop-filter: blur(4px);" title="Activar/Silenciar Audio">
+                        <i class="fas fa-volume-mute"></i>
+                    </button>
+                </div>
+
+                <div class="sophia-divider" style="margin: 8px auto;"></div>
+
+                <p class="sophia-text" style="text-align: center; font-size: 0.85rem; line-height: 1.4; margin: 0;">
+                    Tu presencia es el mejor regalo.<br>
+                    ¡Celebremos juntos esta noche mágica! ✨
+                </p>
+
+                <p class="sophia-text" style="text-align: center; font-size: 0.78rem; margin-top: 8px;">
+                    Con todo mi cariño,<br>
+                    <span style="font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: #C5A16A; display: inline-block; margin-top: 1px;">
+                        Sophia Valentina
+                    </span>
+                </p>
+            </div>
+        </div>
+
     </main>
 
     <!-- Barra de Navegación Rápida -->

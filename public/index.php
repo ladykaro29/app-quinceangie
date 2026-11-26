@@ -61,6 +61,14 @@ $colorReserva = $currentEvent['color_reserva'] ?? 'Verde Esmeralda';
 $portadaImgUrl = !empty($currentEvent['portada_url']) ? $currentEvent['portada_url'] : 'angie-portada.jpg';
 $despedidaImgUrl = !empty($currentEvent['avatar_url']) ? $currentEvent['avatar_url'] : 'angie-xv.jpg';
 
+// Video opcional al final de la tarjeta
+$videoDespedidaUrl = !empty($currentConfigs['video_despedida_url']) ? $currentConfigs['video_despedida_url'] : null;
+if (empty($videoDespedidaUrl) && (($currentEvent['id'] ?? 0) == 2 || ($currentEvent['slug'] ?? '') === 'sophia-xv')) {
+    if (file_exists(__DIR__ . '/assets/videos/sophia_transformacion.mp4') || file_exists(__DIR__ . '/../storage/media/2/videos/sophia_transformacion.mp4')) {
+        $videoDespedidaUrl = 'api/video.php?v=sophia_transformacion.mp4';
+    }
+}
+
 // Detección de versión WebP optimizada disponible
 $portadaWebpUrl = null;
 $portadaWebpFile = pathinfo($portadaImgUrl, PATHINFO_FILENAME) . '.webp';
@@ -3489,13 +3497,27 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
                 <div class="card-title-script" style="font-size: 2.3rem; margin-bottom: 2px;">¡Te Espero!</div>
                 <div class="card-title-serif" style="font-size: 0.72rem; letter-spacing: 2px; margin-bottom: 8px;">MIS XV AÑOS</div>
 
-                <!-- Marco dorado con la foto de la festejada -->
+                <!-- Marco con la foto o video de la festejada -->
+                <?php if (!empty($videoDespedidaUrl)): ?>
+                <div class="farewell-video-wrapper" style="position: relative; width: 100%; max-width: 290px; margin: 0 auto 10px auto; border-radius: 20px; overflow: hidden; border: 2.5px solid var(--dorado); box-shadow: 0 10px 25px rgba(0,0,0,0.35);">
+                    <video id="farewellVideo" src="<?= htmlspecialchars($videoDespedidaUrl) ?>" playsinline webkit-playsinline loop muted autoplay style="width: 100%; height: auto; max-height: 320px; display: block; border-radius: 17px; object-fit: cover;" poster="<?= htmlspecialchars($despedidaImgUrl) ?>">
+                        Tu navegador no soporta reproducción de video.
+                    </video>
+                    <!-- Controles flotantes de audio y reproducción -->
+                    <div style="position: absolute; bottom: 8px; right: 8px; display: flex; gap: 6px; z-index: 5;">
+                        <button type="button" id="btnToggleFarewellVideoAudio" style="background: rgba(0,0,0,0.65); color: #FFF; border: 1px solid var(--dorado); border-radius: 50%; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; backdrop-filter: blur(4px);" title="Activar/Silenciar Audio del Video">
+                            <i class="fas fa-volume-mute" id="iconFarewellAudio"></i>
+                        </button>
+                    </div>
+                </div>
+                <?php else: ?>
                 <div class="angie-photo-wrapper">
                     <div class="angie-photo-frame">
                         <img src="<?= htmlspecialchars($despedidaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='public/<?= htmlspecialchars($despedidaImgUrl) ?>';<?= ($currentEvent['id'] == 1) ? "if(!this.complete)this.src='angie-xv.jpg';" : "" ?>}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> — Mis XV Años" class="angie-photo-img" loading="eager">
                         <div class="angie-photo-sheen"></div>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <div class="gold-divider" style="margin: 10px auto 8px auto;"></div>
 
@@ -3680,6 +3702,40 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
             // Update buttons
             prevBtn.disabled = currentSlide === 0;
             nextBtn.disabled = currentSlide === totalSlides - 1;
+
+            // Reproducción automática del video al alcanzar la última tarjeta
+            const farewellVid = document.getElementById('farewellVideo');
+            if (farewellVid) {
+                if (currentSlide === totalSlides - 1) {
+                    farewellVid.play().catch(() => {});
+                } else {
+                    farewellVid.pause();
+                }
+            }
+        }
+
+        // Control de audio del video de despedida
+        const btnToggleVidAudio = document.getElementById('btnToggleFarewellVideoAudio');
+        const iconFarewellAudio = document.getElementById('iconFarewellAudio');
+        const farewellVidElem = document.getElementById('farewellVideo');
+        if (btnToggleVidAudio && farewellVidElem) {
+            btnToggleVidAudio.addEventListener('click', (e) => {
+                e.stopPropagation();
+                farewellVidElem.muted = !farewellVidElem.muted;
+                if (!farewellVidElem.muted) {
+                    farewellVidElem.volume = 1.0;
+                    farewellVidElem.play().catch(() => {});
+                    if (iconFarewellAudio) iconFarewellAudio.className = 'fas fa-volume-high';
+                    const bgAudio = document.getElementById('bgMusic');
+                    if (bgAudio && !bgAudio.paused) {
+                        bgAudio.pause();
+                        const aIcon = document.getElementById('audioIcon');
+                        if (aIcon) aIcon.className = 'fas fa-volume-mute';
+                    }
+                } else {
+                    if (iconFarewellAudio) iconFarewellAudio.className = 'fas fa-volume-mute';
+                }
+            });
         }
 
         function goToSlide(index) {

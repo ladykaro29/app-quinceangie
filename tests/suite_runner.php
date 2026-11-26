@@ -181,6 +181,7 @@ class MultiTenantTestSuite
         $stmtCheck = $this->pdo->prepare('SELECT id, evento_id, codigo_rifa FROM invitados WHERE nombre_completo = :nom');
         $stmtCheck->execute([':nom' => $testGuestSophia]);
         $rowSophia = $stmtCheck->fetch();
+        $stmtCheck->closeCursor();
 
         $dbSavedOk = ($rowSophia && (int)$rowSophia['evento_id'] === 2);
         if ($rowSophia) {
@@ -200,6 +201,7 @@ class MultiTenantTestSuite
         $stmtAngieCheck = $this->pdo->prepare('SELECT count(*) FROM invitados WHERE evento_id = 1 AND nombre_completo = :nom');
         $stmtAngieCheck->execute([':nom' => $testGuestSophia]);
         $angieCount = (int)$stmtAngieCheck->fetchColumn();
+        $stmtAngieCheck->closeCursor();
 
         $this->recordResult(
             'PRUEBA 2 - CONFIRMACIONES',
@@ -684,8 +686,8 @@ class MultiTenantTestSuite
             ]
         ]);
 
-        $f1Id = (int)($up1['json']['foto']['id'] ?? 0);
-        $f2Id = (int)($up2['json']['foto']['id'] ?? 0);
+        $f1Id = (int)($up1['json']['foto']['id'] ?? ($up1['json']['id'] ?? 0));
+        $f2Id = (int)($up2['json']['foto']['id'] ?? ($up2['json']['id'] ?? 0));
         if ($f1Id > 0) $this->createdPhotos[] = $f1Id;
         if ($f2Id > 0) $this->createdPhotos[] = $f2Id;
 
@@ -727,11 +729,13 @@ class MultiTenantTestSuite
         // Ejecución de la acción de moderación tal como lo procesa admin/index.php
         $stmtToggle = $this->pdo->prepare('UPDATE fotos_fiesta SET visible = 1 - visible WHERE id = :id');
         $stmtToggle->execute([':id' => $f1Id]);
+        $stmtToggle->closeCursor();
 
         // Verificar que foto 1 ahora tiene visible = 0
         $stmtV = $this->pdo->prepare('SELECT visible FROM fotos_fiesta WHERE id = :id');
         $stmtV->execute([':id' => $f1Id]);
         $newVisible = (int)$stmtV->fetchColumn();
+        $stmtV->closeCursor();
 
         // Verificar que ya no aparece en api/fotos.php?evento_id=2
         $respAfterModer = $this->executeRequest([

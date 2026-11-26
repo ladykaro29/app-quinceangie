@@ -500,6 +500,9 @@ $fotos = $stmtList->fetchAll(PDO::FETCH_ASSOC);
             <a href="index.php" class="btn-nav">
                 <i class="fas fa-users"></i> Panel Invitados
             </a>
+            <a href="<?= ((int)$activeEventoId === 1) ? '../' : '../e/' . urlencode($currentEvento['slug'] ?? 'sophia-xv') ?>" target="_blank" class="btn-nav">
+                <i class="fas fa-external-link-alt"></i> Ver Invitación
+            </a>
             <a href="../en-vivo?evento=<?= urlencode($currentEvento['slug'] ?? 'angie-xv') ?>" target="_blank" class="btn-nav">
                 <i class="fas fa-tv"></i> Pantalla en Vivo
             </a>

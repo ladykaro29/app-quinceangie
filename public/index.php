@@ -2824,7 +2824,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
              ============================================ -->
         <div class="card-slide active" data-slide="0">
             <?php if ($isSophia): ?>
-            <!-- Portada Oficial de Sophia Valentina: El Jardín Encantado -->
+            <!-- Portada Oficial de Sophia Valentina: El Jardín Encantado (Retrato Completo con Placa Oficial) -->
             <div class="card cover-card sophia-card">
                 <div class="corner-tl"></div>
                 <div class="corner-tr"></div>
@@ -2832,7 +2832,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                 <div class="corner-br"></div>
 
                 <!-- Mariposa 3D Animada Esquina Superior Derecha -->
-                <div class="sophia-butterfly sophia-butterfly-float-1">
+                <div class="sophia-butterfly sophia-butterfly-float-1" style="top: 14px; right: 18px;">
                     <svg viewBox="0 0 100 100" class="butterfly-icon">
                         <defs>
                             <linearGradient id="bfWing1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -2847,26 +2847,17 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
                     </svg>
                 </div>
 
-                <!-- Tiara Elegante Dorada de Sophia -->
-                <div class="tiara-container" style="text-align: center; margin-bottom: 6px;">
-                    <i class="fas fa-crown tiara-icon" style="font-size: 26px; color: #C5A16A; filter: drop-shadow(0 2px 6px rgba(197, 161, 106, 0.5));"></i>
-                </div>
-
-                <!-- Marco Ornamental Dorado con Retrato Oficial de Sophia -->
+                <!-- Marco Ornamental Dorado Completo que Abarca Todo el Retrato -->
                 <div class="sophia-cover-container">
                     <div class="sophia-cover-frame">
-                        <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='sophia-portada.jpg';if(!this.complete)this.src='assets/images/sophia-portada.jpg';}" alt="<?= htmlspecialchars($festejadaNombreCorto) ?> - Mis XV Años" class="cover-photo-img" loading="eager">
+                        <img src="<?= htmlspecialchars($portadaImgUrl) ?>" onerror="if(!this.dataset.retry){this.dataset.retry=1;this.src='sophia-portada.jpg';if(!this.complete)this.src='assets/images/sophia-portada.jpg';}" alt="Sophia Valentina - Mis XV Años" class="cover-photo-img" loading="eager">
                     </div>
                 </div>
 
-                <div class="cover-announcement" style="color: #79544D; letter-spacing: 3px; font-size: 0.75rem; text-transform: uppercase; margin-top: 6px; text-align: center; font-weight: 600;">TE INVITO A CELEBRAR</div>
-                <div class="card-title-script cover-name" style="font-size: 2.8rem; margin-bottom: 2px; color: #79544D; text-shadow: 0 1px 3px rgba(197, 161, 106, 0.35); text-align: center;"><?= htmlspecialchars($festejadaNombreCorto) ?></div>
-                <div class="gold-divider" style="margin: 6px auto 8px auto;"></div>
-                <div class="cover-xv" style="font-size: 2.3rem; letter-spacing: 6px; margin-bottom: 6px; color: #C5A16A; font-family: 'Playfair Display', serif; font-weight: 700; text-align: center;">XV AÑOS</div>
-                <div class="cover-date" style="letter-spacing: 2.5px; color: #79544D; font-size: 0.82rem; font-weight: 600; text-align: center;"><?= htmlspecialchars($fechaEventoFormatoPortada) ?></div>
-                <div class="cover-swipe" style="margin-top: 14px; color: #C5A16A; font-size: 0.78rem; text-align: center;">
-                    <i class="fas fa-chevron-down" style="animation: bounce 1.8s infinite;"></i><br>
-                    Desliza para ver más
+                <!-- Indicador de Desplazamiento Inferior -->
+                <div class="cover-swipe">
+                    <i class="fas fa-chevron-down" style="animation: bounce 1.8s infinite; margin-right: 4px;"></i>
+                    <span>Desliza para ver más</span>
                 </div>
             </div>
             <?php else: ?>

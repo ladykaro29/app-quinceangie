@@ -163,35 +163,68 @@ body.theme-sophia-jardin .card-icon,
 }
 
 /* ==============================================================================
-   PORTADA DECORATIVA CON RETRATO Y ARCO FLORAL
+   PORTADA DECORATIVA CON RETRATO Y ARCO FLORAL (SOPHIA)
    ============================================================================== */
-.sophia-cover-container {
-    position: relative;
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto 12px auto;
+body.theme-sophia-jardin .cover-card.sophia-card {
+    padding: 10px 10px 8px 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
 }
 
-.sophia-cover-frame {
-    border-radius: 20px;
-    overflow: hidden;
-    border: 3px solid var(--sophia-dorado);
+body.theme-sophia-jardin .sophia-cover-container {
+    position: relative;
+    width: 100% !important;
+    max-width: 380px !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 2px auto !important;
+}
+
+body.theme-sophia-jardin .sophia-cover-frame {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    border: 3px solid var(--sophia-dorado) !important;
     box-shadow: 
-        0 12px 30px rgba(56, 33, 40, 0.35),
-        0 0 20px rgba(197, 161, 106, 0.4);
+        0 12px 35px rgba(56, 33, 40, 0.42),
+        0 0 25px rgba(197, 161, 106, 0.45) !important;
     position: relative;
+    width: 100% !important;
+    aspect-ratio: 3 / 4 !important;
+    max-height: calc(100vh - 95px) !important;
+    max-height: calc(100dvh - 95px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(160deg, rgba(255, 243, 231, 0.95), rgba(235, 197, 204, 0.9)) !important;
 }
 
-.sophia-cover-frame img {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
+body.theme-sophia-jardin .sophia-cover-frame img,
+body.theme-sophia-jardin .cover-photo-img {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    object-fit: contain !important;
+    border-radius: 17px !important;
     transition: transform 0.6s ease;
 }
 
-.sophia-cover-frame:hover img {
-    transform: scale(1.03);
+body.theme-sophia-jardin .sophia-cover-frame:hover img {
+    transform: scale(1.02);
+}
+
+body.theme-sophia-jardin .cover-swipe {
+    margin: 6px auto 2px auto !important;
+    color: var(--sophia-dorado) !important;
+    font-size: 0.8rem !important;
+    text-align: center !important;
+    font-weight: 500 !important;
+    letter-spacing: 1px !important;
+    z-index: 5 !important;
 }
 
 /* ==============================================================================

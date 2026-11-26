@@ -379,6 +379,9 @@ $stmtAct->execute([':id' => $activeEventoId]);
 $eventoActivo = $stmtAct->fetch(PDO::FETCH_ASSOC);
 $nombreFestejadaActiva = $eventoActivo['festejada_nombre'] ?? 'La Quinceañera';
 $slugActivo = $eventoActivo['slug'] ?? 'angie-xv';
+$urlInvitacionActiva = ($activeEventoId == 1) ? '../' : '../e/' . urlencode($slugActivo);
+$urlLibroActivo = '../public/libro-recuerdos.php?evento=' . urlencode($slugActivo);
+$urlEnVivoActivo = '../public/en-vivo.php?evento=' . urlencode($slugActivo);
 
 // Exportar CSV
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
@@ -1199,10 +1202,10 @@ try {
             <a href="moderacion-fotos.php?evento_id=<?= (int)$activeEventoId ?>" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: rgba(200, 162, 74, 0.25); border-color: var(--dorado); color: var(--dorado-claro);">
                 <i class="fas fa-camera"></i> Moderación Fotos 📸
             </a>
-            <a href="../public/libro-recuerdos.php" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: linear-gradient(135deg, rgba(200, 162, 74, 0.3), rgba(6, 46, 37, 0.6)); border-color: var(--dorado); color: var(--dorado-claro);">
+            <a href="<?= htmlspecialchars($urlLibroActivo) ?>" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; background: linear-gradient(135deg, rgba(200, 162, 74, 0.3), rgba(6, 46, 37, 0.6)); border-color: var(--dorado); color: var(--dorado-claro);">
                 <i class="fas fa-book-open"></i> Libro de Recuerdos ✨
             </a>
-            <a href="../" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem;">
+            <a href="<?= htmlspecialchars($urlInvitacionActiva) ?>" target="_blank" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem;">
                 <i class="fas fa-external-link-alt"></i> Ver Invitación
             </a>
             <a href="?logout=1" class="action-btn" style="padding: 6px 14px; font-size: 0.75rem; border-color: rgba(230, 90, 90, 0.6); color: #ff9999;">
@@ -1297,7 +1300,7 @@ try {
                 </span>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <a href="../public/en-vivo.php" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none;">
+                <a href="<?= htmlspecialchars($urlEnVivoActivo) ?>" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #FFD700, #C8A24A); color: #062E25; font-weight: 700; border: none;">
                     <i class="fas fa-tv"></i> Abrir Modo Proyector
                 </a>
                 <a href="?export=fotos_zip" class="action-btn primary">

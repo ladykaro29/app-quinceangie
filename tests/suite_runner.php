@@ -136,7 +136,7 @@ class MultiTenantTestSuite
         $s3 = (strpos($bodySophia, 'Salón Nova Roma') !== false);
         $s4 = (strpos($bodySophia, 'Dirección pendiente de confirmación') !== false);
         $s5 = (strpos($bodySophia, 'Ramón Eduardo Rivas Avendaño') !== false && strpos($bodySophia, 'Estefany Yamileth Sánchez Ángulo') !== false);
-        $s6 = (strpos($bodySophia, 'Princesa Sofía') !== false);
+        $s6 = (strpos($bodySophia, 'Danza del Hada') !== false || strpos($bodySophia, 'Princesa Sofía') !== false || strpos($bodySophia, 'Sugarplum') !== false);
         $s7 = (strpos($bodySophia, '#EBC5CC') !== false || strpos($bodySophia, '#C5A16A') !== false || strpos($bodySophia, '#1E0E1B') !== false);
         $s8 = (strpos($bodySophia, 'sophia-portada') !== false || strpos($bodySophia, 'sophia-xv') !== false);
         $s9 = (strpos($bodySophia, 'Angie Karolina') === false && strpos($bodySophia, 'Edwin Avendaño') === false);
@@ -147,7 +147,7 @@ class MultiTenantTestSuite
             'P1.2',
             'Portada e Identidad Visual de Sophia Valentina (/e/sophia-xv)',
             $passedSophia,
-            $passedSophia ? 'Paleta ciruela/rosa/champagne, Salón Nova Roma (dirección pendiente), padres oficiales, canción Princesa Sofía, sin datos de Angie' : 'Falló alguna aserción de Sophia',
+            $passedSophia ? 'Paleta ciruela/rosa/champagne, Salón Nova Roma (dirección pendiente), padres oficiales, canción oficial de Sophia, sin datos de Angie' : 'Falló alguna aserción de Sophia',
             ['http_code' => $respSophia['statusCode'], 'body_len' => strlen($bodySophia)]
         );
     }

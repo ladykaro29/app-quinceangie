@@ -191,6 +191,7 @@ class DatabaseMigrationService
 
         $pdo->exec("CREATE TABLE IF NOT EXISTS canciones (
             id $pk,
+            evento_id INT NOT NULL DEFAULT 1,
             cancion VARCHAR(255) NOT NULL,
             nombre_invitado VARCHAR(100) NULL,
             ip VARCHAR(45) NULL,
@@ -213,7 +214,7 @@ class DatabaseMigrationService
 
     private static function ensureEventoIdColumns(PDO $pdo, bool $isSqlite): void
     {
-        $tables = ['invitados', 'fotos_fiesta', 'libro_recuerdos'];
+        $tables = ['invitados', 'fotos_fiesta', 'libro_recuerdos', 'canciones'];
         foreach ($tables as $t) {
             try {
                 if ($isSqlite) {
@@ -420,7 +421,7 @@ class DatabaseMigrationService
 
         if (!$exists) {
             $pdo->exec("INSERT INTO eventos (id, cliente_id, paquete_id, plantilla_id, slug, nombre_celebracion, tipo_evento, festejada_nombre, fecha_evento, hora_evento, lugar_nombre, lugar_direccion, codigo_vestimenta, color_reserva, musica_url, portada_url, avatar_url, activo, publicado) VALUES 
-                (2, 2, 2, 2, 'sophia-xv', 'Mis XV Años - Sophia Valentina', 'xv_anos', 'Sophia Valentina Rivas Sánchez', '2026-12-21', '19:30:00', 'Salón Nova Roma', 'Dirección pendiente de confirmación', 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.', 'Rosa y Dorado Champagne', 'storage/media/2/audio/princesa_sofia.mp3', 'sophia-portada.jpg', 'sophia-xv.jpg', 1, 1)");
+                (2, 2, 2, 2, 'sophia-xv', 'Mis XV Años - Sophia Valentina', 'xv_anos', 'Sophia Valentina Rivas Sánchez', '2026-12-21', '19:30:00', 'Salón Nova Roma', 'Dirección pendiente de confirmación', 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.', 'Rosa y Dorado Champagne', 'storage/media/2/audio/dance_sugar_plum_fairy.mp3', 'sophia-portada.jpg', 'sophia-xv.jpg', 1, 1)");
         } else {
             // Actualizar para asegurar datos oficiales si ya existía
             $pdo->exec("UPDATE eventos SET 
@@ -432,6 +433,7 @@ class DatabaseMigrationService
                 lugar_direccion = 'Dirección pendiente de confirmación',
                 codigo_vestimenta = 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.',
                 color_reserva = 'Rosa y Dorado Champagne',
+                musica_url = 'storage/media/2/audio/dance_sugar_plum_fairy.mp3',
                 portada_url = 'sophia-portada.jpg',
                 avatar_url = 'sophia-xv.jpg',
                 activo = 1,
@@ -479,7 +481,7 @@ class DatabaseMigrationService
             'nombre_padre' => 'Ramón Eduardo Rivas Avendaño',
             'nombre_madre' => 'Estefany Yamileth Sánchez Ángulo',
             'padrinos_nombres' => 'Padrinos de Sophia Valentina',
-            'cancion_titulo' => 'Princesa Sofía',
+            'cancion_titulo' => 'Danza del Hada de Azúcar - Tchaikovsky (Fantasía)',
             'tematica' => 'Mariposas rosadas, flores, lavanda y dorado champagne',
             'frase_biblica' => 'Como una mariposa que despliega sus alas al viento, hoy comienzo a escribir el más hermoso capítulo de mi historia...',
             'frase_bendicion' => 'Con la bendición de Dios y el amor infinito de nuestros corazones, los invitamos a celebrar los quince años de nuestra amada hija.',

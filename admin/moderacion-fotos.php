@@ -23,6 +23,9 @@ if (!$isAuthenticated) {
 }
 
 $pdo = getDBConnection();
+if (class_exists('App\Core\DatabaseMigrationService')) {
+    \App\Core\DatabaseMigrationService::ensureMigrated($pdo);
+}
 
 // 1. Obtener lista de celebraciones disponibles
 $stmtEventos = $pdo->query("SELECT id, slug, festejada_nombre, nombre_celebracion, activo FROM eventos ORDER BY id ASC");

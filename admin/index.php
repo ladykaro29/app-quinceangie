@@ -340,6 +340,9 @@ if (!$isAuthenticated) {
 // GESTIÓN DE CELEBRACIÓN ACTIVA (MULTI-TENANCY RBAC)
 // ==============================================================================
 $pdo = getDBConnection();
+if (class_exists('App\Core\DatabaseMigrationService')) {
+    \App\Core\DatabaseMigrationService::ensureMigrated($pdo);
+}
 $isSuperAdmin = AuthService::isSuperAdmin();
 
 // Obtener todas las celebraciones disponibles
@@ -680,15 +683,53 @@ try {
 
     $dbError = null;
 } catch (\PDOException $e) {
-    $dbError = $e->getMessage();
-    $invitados = [];
-    $acompPorInvitado = [];
-    $todosBoletosRifa = [];
-    $fotosFiesta = [];
-    $totalFotosFiesta = 0;
-    $cancionesSugeridas = [];
-    $totalCanciones = 0;
-    $totalRegistros = $totalConfirmados = $totalNoAsistiran = $totalPersonas = 0;
+    // Si el error es por columna evento_id faltante en alguna tabla, auto-reparar en caliente y reintentar
+    if (strpos($e->getMessage(), 'no such column: evento_id') !== false || strpos($e->getMessage(), "Unknown column 'evento_id'") !== false) {
+        try {
+            if (class_exists('App\Core\DatabaseMigrationService')) {
+                \App\Core\DatabaseMigrationService::ensureMigrated($pdo);
+            }
+            foreach (['invitados', 'fotos_fiesta', 'canciones', 'libro_recuerdos'] as $tFix) {
+                try {
+                    $pdo->exec("ALTER TABLE $tFix ADD COLUMN evento_id INTEGER NOT NULL DEFAULT 1");
+                } catch (\Exception $eAlter) {
+                    try {
+                        $pdo->exec("ALTER TABLE $tFix ADD COLUMN evento_id INT NOT NULL DEFAULT 1");
+                    } catch (\Exception $eAlter2) {}
+                }
+            }
+            // Re-ejecutar consultas tras la auto-reparación
+            $stmtInvitados = $pdo->prepare('SELECT id, nombre_completo, asistira, codigo_rifa, asistio_evento, checkin_at, created_at FROM invitados WHERE evento_id = :evento_id ORDER BY created_at DESC');
+            $stmtInvitados->execute([':evento_id' => $activeEventoId]);
+            $invitados = $stmtInvitados->fetchAll();
+
+            $stmtFotosAdmin = $pdo->prepare('SELECT id, nombre_invitado, mensaje, archivo, likes, ip, visible, created_at FROM fotos_fiesta WHERE evento_id = :evento_id ORDER BY created_at DESC');
+            $stmtFotosAdmin->execute([':evento_id' => $activeEventoId]);
+            $fotosFiesta = $stmtFotosAdmin->fetchAll();
+            $totalFotosFiesta = count($fotosFiesta);
+
+            $stmtCancionesAdmin = $pdo->prepare('SELECT id, cancion, nombre_invitado, created_at FROM canciones WHERE evento_id = :evento_id ORDER BY id DESC');
+            $stmtCancionesAdmin->execute([':evento_id' => $activeEventoId]);
+            $cancionesSugeridas = $stmtCancionesAdmin->fetchAll();
+            $totalCanciones = count($cancionesSugeridas);
+
+            $dbError = null;
+        } catch (\Exception $retryEx) {
+            $dbError = $retryEx->getMessage();
+        }
+    } else {
+        $dbError = $e->getMessage();
+    }
+    if ($dbError) {
+        $invitados = [];
+        $acompPorInvitado = [];
+        $todosBoletosRifa = [];
+        $fotosFiesta = [];
+        $totalFotosFiesta = 0;
+        $cancionesSugeridas = [];
+        $totalCanciones = 0;
+        $totalRegistros = $totalConfirmados = $totalNoAsistiran = $totalPersonas = 0;
+    }
 }
 ?>
 <!DOCTYPE html>

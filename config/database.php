@@ -197,6 +197,7 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
 
         $pdo->exec("CREATE TABLE IF NOT EXISTS canciones (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            evento_id INTEGER NOT NULL DEFAULT 1,
             cancion TEXT NOT NULL,
             nombre_invitado TEXT NULL,
             ip TEXT NULL,
@@ -278,10 +279,12 @@ function ensureTablesExist(PDO $pdo, string $driver = 'mysql'): void {
 
             $pdo->exec("CREATE TABLE IF NOT EXISTS canciones (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                evento_id INT NOT NULL DEFAULT 1,
                 cancion VARCHAR(255) NOT NULL,
                 nombre_invitado VARCHAR(150) NULL,
                 ip VARCHAR(45) NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_evento (evento_id),
                 INDEX idx_created_at (created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 

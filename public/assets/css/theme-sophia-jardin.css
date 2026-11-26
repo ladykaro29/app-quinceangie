@@ -1,0 +1,433 @@
+/**
+ * ==============================================================================
+ * XV EXPERIENCE — TEMA OFICIAL: "EL JARDÍN ENCANTADO DE SOPHIA"
+ * Celebración: Sophia Valentina Rivas Sánchez (21 de Diciembre de 2026)
+ * ==============================================================================
+ * PALETA OFICIAL:
+ * - Rosa blush:         #EBC5CC
+ * - Rosa empolvado:     #D9A5B5
+ * - Lavanda:            #C6AEDB
+ * - Dorado champagne:   #C5A16A
+ * - Marfil cálido:      #FFF3E7
+ * - Marrón rosado:      #79544D
+ *
+ * Exclusión estricta: Sin verdes esmeralda ni ciruela oscuro dominante.
+ * ==============================================================================
+ */
+
+:root {
+    --sophia-blush: #EBC5CC;
+    --sophia-rosa-emp: #D9A5B5;
+    --sophia-lavanda: #C6AEDB;
+    --sophia-dorado: #C5A16A;
+    --sophia-dorado-luz: #EAD8B8;
+    --sophia-marfil: #FFF3E7;
+    --sophia-marron: #79544D;
+    --sophia-noche-calida: #382128;
+    --sophia-seda: rgba(255, 243, 231, 0.95);
+}
+
+/* ==============================================================================
+   FONDO GENERAL Y AMBIENTACIÓN
+   ============================================================================== */
+body.theme-sophia-jardin,
+.sophia-preview-wrapper {
+    background: radial-gradient(circle at 50% 15%, #4F2F39 0%, #301A22 60%, #201017 100%) !important;
+    color: var(--sophia-marron) !important;
+    position: relative;
+}
+
+/* Partículas luminosas doradas y pétalos flotantes de fondo */
+body.theme-sophia-jardin::before,
+.sophia-preview-wrapper::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #FFF3E7, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 80px 120px, #C5A16A, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 150px 70px, #EBC5CC, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 240px 220px, #FFF3E7, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 310px 160px, #C6AEDB, rgba(0,0,0,0)),
+        radial-gradient(2.5px 2.5px at 380px 300px, #C5A16A, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 400px 400px;
+    animation: sophiaSparkleDrift 35s linear infinite;
+    pointer-events: none;
+    opacity: 0.45;
+    z-index: 1;
+}
+
+@keyframes sophiaSparkleDrift {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-400px); }
+}
+
+/* ==============================================================================
+   ESTRUCTURA DE TARJETA (ESTILO JARDÍN ENCANTADO)
+   ============================================================================== */
+body.theme-sophia-jardin .card,
+.sophia-card {
+    background: linear-gradient(160deg, 
+        rgba(255, 243, 231, 0.96) 0%, 
+        rgba(252, 236, 240, 0.94) 45%, 
+        rgba(244, 218, 225, 0.92) 85%,
+        rgba(235, 197, 204, 0.95) 100%) !important;
+    border: 2px solid var(--sophia-dorado) !important;
+    border-radius: 24px !important;
+    box-shadow: 
+        0 18px 45px rgba(56, 33, 40, 0.42), 
+        0 0 30px rgba(197, 161, 106, 0.28), 
+        inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+    color: var(--sophia-marron) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Marco ornamental interior sutil */
+body.theme-sophia-jardin .card::before,
+.sophia-card::before {
+    content: '';
+    position: absolute;
+    top: 7px; left: 7px; right: 7px; bottom: 7px;
+    border: 1px solid rgba(197, 161, 106, 0.45);
+    border-radius: 18px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Esquinas ornamentales con toques dorados y pétalos */
+body.theme-sophia-jardin .corner-tl,
+body.theme-sophia-jardin .corner-tr,
+body.theme-sophia-jardin .corner-bl,
+body.theme-sophia-jardin .corner-br,
+.sophia-corner {
+    border-color: var(--sophia-dorado) !important;
+    filter: drop-shadow(0 0 2px rgba(197, 161, 106, 0.5));
+}
+
+/* ==============================================================================
+   TIPOGRAFÍA Y ENCABEZADOS
+   ============================================================================== */
+body.theme-sophia-jardin .card-title-script,
+.sophia-title-script {
+    color: var(--sophia-marron) !important;
+    font-family: 'Great Vibes', cursive !important;
+    text-shadow: 0 1px 3px rgba(197, 161, 106, 0.35) !important;
+}
+
+body.theme-sophia-jardin .card-title-serif,
+.sophia-title-serif {
+    color: var(--sophia-dorado) !important;
+    font-family: 'Playfair Display', serif !important;
+    letter-spacing: 3px !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .gold-divider,
+.sophia-divider {
+    height: 1.5px !important;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(197, 161, 106, 0.3) 15%, 
+        var(--sophia-dorado) 50%, 
+        rgba(197, 161, 106, 0.3) 85%, 
+        transparent 100%) !important;
+    margin: 12px auto !important;
+    position: relative;
+}
+
+body.theme-sophia-jardin .gold-divider::after,
+.sophia-divider::after {
+    content: '🌸';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    background: var(--sophia-marfil);
+    padding: 0 6px;
+}
+
+body.theme-sophia-jardin .card-text,
+body.theme-sophia-jardin p,
+.sophia-text {
+    color: var(--sophia-marron) !important;
+    line-height: 1.6 !important;
+}
+
+body.theme-sophia-jardin .card-icon,
+.sophia-icon {
+    color: var(--sophia-dorado) !important;
+    filter: drop-shadow(0 2px 6px rgba(197, 161, 106, 0.4));
+}
+
+/* ==============================================================================
+   PORTADA DECORATIVA CON RETRATO Y ARCO FLORAL
+   ============================================================================== */
+.sophia-cover-container {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto 12px auto;
+}
+
+.sophia-cover-frame {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 3px solid var(--sophia-dorado);
+    box-shadow: 
+        0 12px 30px rgba(56, 33, 40, 0.35),
+        0 0 20px rgba(197, 161, 106, 0.4);
+    position: relative;
+}
+
+.sophia-cover-frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.sophia-cover-frame:hover img {
+    transform: scale(1.03);
+}
+
+/* ==============================================================================
+   MARIPOSAS LUMINOSAS 3D FLOTANTES (SVG ANIMADO)
+   ============================================================================== */
+.sophia-butterfly {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    pointer-events: none;
+    z-index: 10;
+    filter: drop-shadow(0 0 8px rgba(224, 183, 104, 0.75));
+    transform-style: preserve-3d;
+}
+
+.sophia-butterfly svg {
+    width: 100%;
+    height: 100%;
+}
+
+.sophia-butterfly .wing-left {
+    transform-origin: 50% 50%;
+    animation: wingFlapLeft 0.8s ease-in-out infinite alternate;
+}
+
+.sophia-butterfly .wing-right {
+    transform-origin: 50% 50%;
+    animation: wingFlapRight 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes wingFlapLeft {
+    0% { transform: rotateY(0deg) scale(1); }
+    100% { transform: rotateY(65deg) scale(0.9); }
+}
+
+@keyframes wingFlapRight {
+    0% { transform: rotateY(0deg) scale(1); }
+    100% { transform: rotateY(-65deg) scale(0.9); }
+}
+
+.sophia-butterfly-float-1 {
+    top: 15px;
+    right: 20px;
+    animation: butterflyFloat1 6s ease-in-out infinite;
+}
+
+.sophia-butterfly-float-2 {
+    bottom: 25px;
+    left: 18px;
+    width: 36px;
+    height: 36px;
+    animation: butterflyFloat2 7s ease-in-out infinite;
+}
+
+@keyframes butterflyFloat1 {
+    0%, 100% { transform: translateY(0px) rotate(8deg); }
+    50% { transform: translateY(-10px) translateX(6px) rotate(16deg); }
+}
+
+@keyframes butterflyFloat2 {
+    0%, 100% { transform: translateY(0px) rotate(-10deg); }
+    50% { transform: translateY(-8px) translateX(-5px) rotate(-4deg); }
+}
+
+/* ==============================================================================
+   TARJETA 2: FAMILIAR (PADRES Y BENDICIÓN)
+   ============================================================================== */
+.sophia-family-badge {
+    background: rgba(255, 243, 231, 0.85);
+    border: 1px solid var(--sophia-dorado);
+    border-radius: 16px;
+    padding: 16px 14px;
+    margin: 12px 0;
+    box-shadow: 0 4px 15px rgba(121, 84, 77, 0.1);
+}
+
+.sophia-parents-names {
+    color: var(--sophia-marron);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 6px 0;
+}
+
+.sophia-blessing-quote {
+    font-style: italic;
+    color: #5D3E38;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 10px 0;
+}
+
+/* ==============================================================================
+   TARJETA 3: CUENTA REGRESIVA
+   ============================================================================== */
+body.theme-sophia-jardin .countdown-grid,
+.sophia-countdown-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    margin: 18px 0 !important;
+}
+
+body.theme-sophia-jardin .countdown-item,
+.sophia-countdown-box {
+    background: linear-gradient(145deg, #FFFFFF 0%, var(--sophia-marfil) 100%) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    border-radius: 14px !important;
+    padding: 10px 4px !important;
+    text-align: center !important;
+    box-shadow: 0 4px 12px rgba(121, 84, 77, 0.12) !important;
+}
+
+body.theme-sophia-jardin .countdown-number,
+.sophia-countdown-num {
+    font-size: 1.6rem !important;
+    font-weight: 700 !important;
+    color: var(--sophia-dorado) !important;
+    font-family: 'Playfair Display', serif !important;
+    line-height: 1 !important;
+    margin-bottom: 4px !important;
+}
+
+body.theme-sophia-jardin .countdown-label,
+.sophia-countdown-lbl {
+    font-size: 0.72rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    color: var(--sophia-marron) !important;
+    font-weight: 600 !important;
+}
+
+/* ==============================================================================
+   TARJETA 4: RECEPCIÓN Y LUGAR (NOVA ROMA)
+   ============================================================================== */
+body.theme-sophia-jardin .info-block,
+.sophia-info-card {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px solid rgba(197, 161, 106, 0.5) !important;
+    border-radius: 14px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 12px !important;
+    text-align: center !important;
+}
+
+body.theme-sophia-jardin .info-label,
+.sophia-info-title {
+    color: var(--sophia-dorado) !important;
+    font-size: 0.78rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+}
+
+body.theme-sophia-jardin .info-value,
+.sophia-info-val {
+    color: var(--sophia-marron) !important;
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .info-address {
+    color: #6C4942 !important;
+    font-size: 0.82rem !important;
+    margin-top: 4px !important;
+}
+
+/* ==============================================================================
+   TARJETA 5: CONFIRMACIÓN DE ASISTENCIA (RSVP)
+   ============================================================================== */
+body.theme-sophia-jardin .rsvp-form input,
+body.theme-sophia-jardin .rsvp-form select,
+body.theme-sophia-jardin .rsvp-form textarea,
+.sophia-form-control {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(197, 161, 106, 0.6) !important;
+    color: var(--sophia-marron) !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 0.9rem !important;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+body.theme-sophia-jardin .rsvp-form input:focus,
+body.theme-sophia-jardin .rsvp-form select:focus,
+.sophia-form-control:focus {
+    outline: none !important;
+    border-color: var(--sophia-dorado) !important;
+    box-shadow: 0 0 10px rgba(197, 161, 106, 0.45) !important;
+}
+
+/* Botones de acción Dorados Champagne */
+body.theme-sophia-jardin .confirmar-btn,
+body.theme-sophia-jardin .calendar-btn,
+body.theme-sophia-jardin .map-btn,
+body.theme-sophia-jardin .btn-ticket-download,
+.sophia-btn-gold {
+    background: linear-gradient(135deg, #C5A16A 0%, #E2CA99 50%, #B89255 100%) !important;
+    color: #2D1820 !important;
+    font-weight: 700 !important;
+    border: 1px solid #FFF3E7 !important;
+    border-radius: 25px !important;
+    padding: 12px 22px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    font-size: 0.82rem !important;
+    box-shadow: 0 6px 18px rgba(197, 161, 106, 0.4) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+body.theme-sophia-jardin .confirmar-btn:hover,
+body.theme-sophia-jardin .calendar-btn:hover,
+body.theme-sophia-jardin .map-btn:hover,
+.sophia-btn-gold:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(197, 161, 106, 0.55) !important;
+}
+
+/* ==============================================================================
+   PASE VIP DE SOPHIA
+   ============================================================================== */
+body.theme-sophia-jardin .vip-ticket,
+.sophia-vip-pass {
+    background: linear-gradient(150deg, #FFFFFF 0%, var(--sophia-marfil) 50%, #F5DFE5 100%) !important;
+    border: 2px dashed var(--sophia-dorado) !important;
+    border-radius: 18px !important;
+    padding: 18px !important;
+    color: var(--sophia-marron) !important;
+    box-shadow: 0 10px 25px rgba(121, 84, 77, 0.18) !important;
+}

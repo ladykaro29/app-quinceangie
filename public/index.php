@@ -132,6 +132,11 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
     <!-- Captura de Ticket a Imagen (Pase VIP Completo) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+    <?php if (($currentEvent['id'] ?? null) == 2 || ($currentEvent['slug'] ?? '') === 'sophia-xv'): ?>
+    <!-- Tema Oficial de Sophia Valentina: El Jardín Encantado -->
+    <link rel="stylesheet" href="assets/css/theme-sophia-jardin.css">
+    <?php endif; ?>
+
 
 
     <style>
@@ -2772,7 +2777,7 @@ $pageUrl = $baseUrl . $_SERVER['REQUEST_URI'];
         }
     </style>
 </head>
-<body>
+<body class="<?= (($currentEvent['id'] ?? null) == 2 || ($currentEvent['slug'] ?? '') === 'sophia-xv') ? 'theme-sophia-jardin' : '' ?>">
 
     <!-- Mariposas doradas volando mágicamente -->
     <div class="butterflies-container" id="butterfliesContainer">

@@ -440,17 +440,23 @@ class DatabaseMigrationService
         }
 
         $tokensSophia = [
-            "--verde-oscuro" => "#1E0E1B",
-            "--verde-medio" => "#3B1E37",
-            "--verde-claro" => "#D98CB8",
-            "--dorado" => "#E0B768",
-            "--dorado-claro" => "#F7E5B5",
-            "--dorado-brillante" => "#FFF0BA",
-            "--crema" => "#FFF9F5",
-            "--marron" => "#120610",
-            "--rosa-suave" => "#F8C8DC",
-            "--lavanda" => "#BDB2FF",
-            "--lavanda-suave" => "#E8E5F7"
+            "--color-rosa-blush"     => "#EBC5CC",
+            "--color-rosa-empolvado" => "#D9A5B5",
+            "--color-lavanda"        => "#C6AEDB",
+            "--color-dorado-champagne" => "#C5A16A",
+            "--color-marfil-calido"  => "#FFF3E7",
+            "--color-marron-rosado"  => "#79544D",
+            "--verde-oscuro"         => "#4A2E35",
+            "--verde-medio"          => "#6E4550",
+            "--verde-claro"          => "#D9A5B5",
+            "--dorado"               => "#C5A16A",
+            "--dorado-claro"         => "#EAD8B8",
+            "--dorado-brillante"     => "#FBF3E3",
+            "--crema"                => "#FFF3E7",
+            "--marron"               => "#79544D",
+            "--rosa-suave"           => "#EBC5CC",
+            "--lavanda"              => "#C6AEDB",
+            "--lavanda-suave"        => "#EAE2F3"
         ];
 
         $itinerarioSophia = [

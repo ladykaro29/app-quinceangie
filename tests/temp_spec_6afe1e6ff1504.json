@@ -1,1 +1,0 @@
-{"script":"api\/confirmar.php","method":"POST","input":{"nombre_completo":"Test Invitado Sophia Integracion","asistira":true,"acompanantes":["Test Acompanante Sophia Integracion"],"evento_id":2}}

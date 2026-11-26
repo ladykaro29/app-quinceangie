@@ -55,19 +55,25 @@ WHERE id = 2");
 $stmt->execute();
 echo "- Tabla eventos actualizada con datos oficiales de Sophia (21 de Diciembre de 2026, 7:30 PM, Salón Nova Roma).\n";
 
-// 4. Tokens de diseño para temática: Mariposas rosadas, flores, lavanda y dorado champagne
+// 4. Tokens de diseño para temática oficial: El jardín encantado de Sophia
 $tokensSophiaOficial = [
-    "--verde-oscuro" => "#1E0E1B",         // Fondo ciruela oscuro / noche de gala
-    "--verde-medio" => "#3B1E37",          // Lavanda profundo para tarjetas
-    "--verde-claro" => "#D98CB8",          // Rosa mariposa brillante
-    "--dorado" => "#E0B768",               // Dorado Champagne puro
-    "--dorado-claro" => "#F7E5B5",         // Champagne luz
-    "--dorado-brillante" => "#FFF0BA",     // Destello mariposa
-    "--crema" => "#FFF9F5",                // Perla suave
-    "--marron" => "#120610",               // Sombra profunda
-    "--rosa-suave" => "#F8C8DC",           // Rosa mariposa pastel
-    "--lavanda" => "#BDB2FF",              // Lavanda floral
-    "--lavanda-suave" => "#E8E5F7"         // Lavanda perla
+    "--color-rosa-blush" => "#EBC5CC",
+    "--color-rosa-empolvado" => "#D9A5B5",
+    "--color-lavanda" => "#C6AEDB",
+    "--color-dorado-champagne" => "#C5A16A",
+    "--color-marfil-calido" => "#FFF3E7",
+    "--color-marron-rosado" => "#79544D",
+    "--verde-oscuro" => "#4A2E35",         // Tono cálido fondo de noche
+    "--verde-medio" => "#6E4550",          // Seda rosada suave
+    "--verde-claro" => "#D9A5B5",          // Rosa empolvado
+    "--dorado" => "#C5A16A",               // Dorado Champagne oficial
+    "--dorado-claro" => "#EAD8B8",         // Champagne luz
+    "--dorado-brillante" => "#FBF3E3",     // Destello mariposa
+    "--crema" => "#FFF3E7",                // Marfil cálido
+    "--marron" => "#79544D",               // Marrón rosado
+    "--rosa-suave" => "#EBC5CC",           // Rosa blush
+    "--lavanda" => "#C6AEDB",              // Lavanda
+    "--lavanda-suave" => "#EAE2F3"         // Lavanda luz
 ];
 
 // 5. Itinerario oficial

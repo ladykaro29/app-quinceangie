@@ -369,6 +369,10 @@ if ($method === 'POST') {
                     'success'    => true,
                     'id'         => (int)$existing['id'],
                     'archivo'    => $existing['archivo'],
+                    'foto'       => [
+                        'id'      => (int)$existing['id'],
+                        'archivo' => $existing['archivo']
+                    ],
                     'url'        => 'api/foto.php?f=' . rawurlencode($existing['archivo']) . '&evento_id=' . $eventoId,
                     'duplicated' => true,
                     'idempotent' => true,
@@ -462,6 +466,10 @@ if ($method === 'POST') {
                 'success'    => true,
                 'id'         => (int)$existingHash['id'],
                 'archivo'    => $existingHash['archivo'],
+                'foto'       => [
+                    'id'      => (int)$existingHash['id'],
+                    'archivo' => $existingHash['archivo']
+                ],
                 'url'        => 'api/foto.php?f=' . rawurlencode($existingHash['archivo']) . '&evento_id=' . $eventoId,
                 'duplicated' => true,
                 'idempotent' => true,

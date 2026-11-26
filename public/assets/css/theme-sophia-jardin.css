@@ -249,7 +249,7 @@ body.theme-sophia-jardin #prevBtn:hover:not(:disabled),
 body.theme-sophia-jardin #nextBtn:hover:not(:disabled) {
     background: linear-gradient(135deg, var(--sophia-rosa-intenso), #4A303B) !important;
     color: #FFFFFF !important;
-    border-color: var(--sophia-rosa-blush) !important;
+    border-color: var(--sophia-blush) !important;
     transform: scale(1.08) !important;
 }
 
@@ -583,6 +583,19 @@ body.theme-sophia-jardin .calendar-btn {
 /* ==============================================================================
    11. TARJETA 4 & 5: INVITACIÓN FORMAL, RECEPCIÓN & LUGAR (NOVA ROMA)
    ============================================================================== */
+body.theme-sophia-jardin .formal-text {
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .formal-parents {
+    color: var(--sophia-marron) !important;
+}
+
+body.theme-sophia-jardin .formal-parents strong {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+}
+
 body.theme-sophia-jardin .info-block,
 body.theme-sophia-jardin .place-card,
 body.theme-sophia-jardin .invitation-formal-box {
@@ -593,6 +606,11 @@ body.theme-sophia-jardin .invitation-formal-box {
     margin-bottom: 12px !important;
     text-align: center !important;
     box-shadow: 0 4px 15px rgba(121, 84, 77, 0.08) !important;
+}
+
+body.theme-sophia-jardin .info-block div[style*="color"] {
+    color: var(--sophia-marron) !important;
+    opacity: 1 !important;
 }
 
 body.theme-sophia-jardin .info-label {
@@ -624,6 +642,13 @@ body.theme-sophia-jardin .map-btn {
     border: 1.5px solid var(--sophia-dorado) !important;
     font-weight: 700 !important;
     box-shadow: 0 6px 18px rgba(133, 71, 97, 0.35) !important;
+}
+
+body.theme-sophia-jardin .map-btn[style*="cursor: default"] {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+    box-shadow: none !important;
 }
 
 body.theme-sophia-jardin .map-btn:hover {
@@ -875,6 +900,28 @@ body.theme-sophia-jardin .trivia-option.correct .opt-icon {
     color: var(--sophia-rosa-intenso) !important;
 }
 
+body.theme-sophia-jardin .trivia-option .opt-letter {
+    color: var(--sophia-rosa-intenso) !important;
+    border-color: var(--sophia-dorado) !important;
+    background: rgba(255, 243, 231, 0.9) !important;
+}
+
+body.theme-sophia-jardin .trivia-nav-btn {
+    background: rgba(255, 243, 231, 0.95) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .trivia-nav-btn:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+}
+
+body.theme-sophia-jardin #trivia-options div[style*="dorado-claro"] {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+}
+
 /* ==============================================================================
    15. TARJETA 9: PLAYLIST (SIN VERDE)
    ============================================================================== */
@@ -885,7 +932,8 @@ body.theme-sophia-jardin .playlist-input {
 }
 
 body.theme-sophia-jardin .playlist-input::placeholder {
-    color: #9C7982 !important;
+    color: #79544D !important;
+    opacity: 0.78 !important;
 }
 
 body.theme-sophia-jardin .playlist-add-btn {
@@ -894,20 +942,54 @@ body.theme-sophia-jardin .playlist-add-btn {
     border: 1px solid var(--sophia-dorado) !important;
 }
 
+body.theme-sophia-jardin .playlist-song,
 body.theme-sophia-jardin .playlist-song-item {
-    background: rgba(255, 255, 255, 0.9) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
     border: 1px solid rgba(197, 161, 106, 0.45) !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 6px !important;
     color: var(--sophia-malva) !important;
 }
 
+body.theme-sophia-jardin .playlist-song i {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
 /* ==============================================================================
-   16. TARJETA 10: PRESENTE & LLUVIA DE SOBRES (SIN VERDE)
+   16. TARJETA 10: PRESENTE & LLUVIA DE SOBRES (WCAG 2.2 AA SIN VERDE)
    ============================================================================== */
 body.theme-sophia-jardin .gift-envelope-box {
     background: linear-gradient(145deg, rgba(255, 243, 231, 0.98), rgba(235, 197, 204, 0.92)) !important;
     border: 1.5px solid var(--sophia-dorado) !important;
     color: var(--sophia-malva) !important;
     box-shadow: 0 10px 30px rgba(56, 33, 40, 0.15) !important;
+}
+
+body.theme-sophia-jardin .gift-envelope-box > div:not(.gift-icon-bubble) {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .gift-envelope-box p,
+body.theme-sophia-jardin .gift-envelope-box strong {
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .gift-reception-note {
+    background: rgba(255, 243, 231, 0.94) !important;
+    border: 1.5px dashed var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+    box-shadow: 0 4px 12px rgba(74, 48, 59, 0.08) !important;
+}
+
+body.theme-sophia-jardin .gift-reception-note span {
+    color: var(--sophia-malva) !important;
+    font-weight: 500 !important;
+}
+
+body.theme-sophia-jardin .gift-reception-note i {
+    color: var(--sophia-rosa-intenso) !important;
 }
 
 body.theme-sophia-jardin .gift-icon-bubble {
@@ -931,19 +1013,95 @@ body.theme-sophia-jardin .btn-copy-account {
 /* ==============================================================================
    17. TARJETA 11: RSVP & PASE VIP CON QR (WCAG 2.2 AA SIN VERDE)
    ============================================================================== */
+body.theme-sophia-jardin .rsvp-label {
+    color: var(--sophia-malva) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .rsvp-input,
+body.theme-sophia-jardin .rsvp-companion-entry input,
+body.theme-sophia-jardin .rsvp-form-container input,
+body.theme-sophia-jardin .rsvp-form-container select,
+body.theme-sophia-jardin .rsvp-form-container textarea,
 body.theme-sophia-jardin .rsvp-form input,
 body.theme-sophia-jardin .rsvp-form select,
 body.theme-sophia-jardin .rsvp-form textarea {
     background: #FFFFFF !important;
-    border: 1.5px solid rgba(197, 161, 106, 0.7) !important;
+    border: 1.5px solid rgba(197, 161, 106, 0.75) !important;
     color: var(--sophia-malva) !important;
 }
 
+body.theme-sophia-jardin .rsvp-input::placeholder,
+body.theme-sophia-jardin .rsvp-companion-entry input::placeholder {
+    color: #79544D !important;
+    opacity: 0.75 !important;
+}
+
+body.theme-sophia-jardin .rsvp-input:focus,
+body.theme-sophia-jardin .rsvp-companion-entry input:focus,
 body.theme-sophia-jardin .rsvp-form input:focus,
 body.theme-sophia-jardin .rsvp-form select:focus,
 body.theme-sophia-jardin .rsvp-form textarea:focus {
     border-color: var(--sophia-rosa-intenso) !important;
-    box-shadow: 0 0 10px rgba(133, 71, 97, 0.3) !important;
+    box-shadow: 0 0 10px rgba(133, 71, 97, 0.25) !important;
+}
+
+body.theme-sophia-jardin .rsvp-attend-btn {
+    background: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .rsvp-attend-btn:hover {
+    background: rgba(235, 197, 204, 0.45) !important;
+    border-color: var(--sophia-rosa-intenso) !important;
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .rsvp-attend-btn.selected {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    border-color: var(--sophia-dorado) !important;
+    color: #FFFFFF !important;
+}
+
+body.theme-sophia-jardin .rsvp-attend-btn.selected i {
+    color: #FFFFFF !important;
+}
+
+body.theme-sophia-jardin #rsvp-passes-badge {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .rsvp-companions-section p {
+    color: var(--sophia-marron) !important;
+    opacity: 1 !important;
+}
+
+body.theme-sophia-jardin .rsvp-add-companion-btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1.5px dashed var(--sophia-rosa-intenso) !important;
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .rsvp-add-companion-btn:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+}
+
+body.theme-sophia-jardin .rsvp-remove-companion {
+    background: rgba(133, 71, 97, 0.14) !important;
+    border-color: var(--sophia-rosa-intenso) !important;
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .rsvp-error {
+    background: rgba(148, 50, 72, 0.12) !important;
+    border: 1px solid #943248 !important;
+    color: #7A1F35 !important;
+    font-weight: 600 !important;
 }
 
 body.theme-sophia-jardin .rsvp-submit-btn {
@@ -956,6 +1114,17 @@ body.theme-sophia-jardin .rsvp-submit-btn {
 body.theme-sophia-jardin .rsvp-submit-btn .spinner {
     border: 2px solid #FFFFFF !important;
     border-top-color: transparent !important;
+}
+
+body.theme-sophia-jardin .rsvp-success h3,
+body.theme-sophia-jardin #rsvp-declined-title {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .rsvp-success p,
+body.theme-sophia-jardin #rsvp-declined-message {
+    color: var(--sophia-malva) !important;
+    opacity: 1 !important;
 }
 
 /* Pase VIP Exclusivo de Sophia */
@@ -974,11 +1143,30 @@ body.theme-sophia-jardin .ticket-badge {
     box-shadow: 0 3px 10px rgba(133, 71, 97, 0.3) !important;
 }
 
+body.theme-sophia-jardin .ticket-title {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .ticket-subtitle {
+    color: var(--sophia-malva) !important;
+    font-weight: 700 !important;
+}
+
 body.theme-sophia-jardin .ticket-qr-container {
     background: #FFFFFF !important;
     border: 2px solid var(--sophia-dorado) !important;
     border-radius: 14px !important;
     padding: 10px !important;
+}
+
+body.theme-sophia-jardin .ticket-qr-code-txt {
+    color: var(--sophia-malva) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .ticket-info {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1.5px solid rgba(197, 161, 106, 0.55) !important;
 }
 
 body.theme-sophia-jardin .ticket-info .t-lbl {
@@ -1014,6 +1202,20 @@ body.theme-sophia-jardin .raffle-ticket-person {
     color: var(--sophia-malva) !important;
 }
 
+body.theme-sophia-jardin .raffle-ticket-person i {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .raffle-ticket-note {
+    color: var(--sophia-marron) !important;
+    font-weight: 500 !important;
+}
+
+body.theme-sophia-jardin .ticket-instruction {
+    color: var(--sophia-malva) !important;
+    font-weight: 600 !important;
+}
+
 body.theme-sophia-jardin .raffle-ticket-number {
     background: linear-gradient(135deg, var(--sophia-rosa-intenso), #68344B) !important;
     color: #FFFFFF !important;
@@ -1035,6 +1237,12 @@ body.theme-sophia-jardin .rsvp-success-icon {
 /* ==============================================================================
    18. TARJETA 12: FOTOS EN VIVO & MODAL DE SUBIDA (SIN VERDE)
    ============================================================================== */
+body.theme-sophia-jardin .live-steps-guide {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1.5px dashed var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+}
+
 body.theme-sophia-jardin .live-step-item {
     background: rgba(255, 255, 255, 0.9) !important;
     border: 1px solid var(--sophia-dorado) !important;
@@ -1046,6 +1254,62 @@ body.theme-sophia-jardin .live-step-num {
     color: #FFFFFF !important;
 }
 
+body.theme-sophia-jardin .live-photo-actions-wrap a[href*="libro-recuerdos"],
+body.theme-sophia-jardin .btn-camera-upload {
+    background: linear-gradient(135deg, var(--sophia-rosa-intenso) 0%, #68344B 100%) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    box-shadow: 0 6px 18px rgba(133, 71, 97, 0.35) !important;
+}
+
+body.theme-sophia-jardin .btn-gallery-upload {
+    background: #FFFFFF !important;
+    color: var(--sophia-malva) !important;
+    border: 1.5px solid var(--sophia-rosa-intenso) !important;
+}
+
+body.theme-sophia-jardin .btn-gallery-upload:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+    border-color: var(--sophia-dorado) !important;
+}
+
+body.theme-sophia-jardin .live-tv-link {
+    background: #FFFFFF !important;
+    color: var(--sophia-rosa-intenso) !important;
+    border: 1.5px solid var(--sophia-dorado) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .live-tv-link:hover {
+    background: var(--sophia-rosa-intenso) !important;
+    color: #FFFFFF !important;
+}
+
+body.theme-sophia-jardin .live-photos-container span[style*="dorado-claro"] {
+    color: var(--sophia-malva) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin #btnRefreshGallery {
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 700 !important;
+}
+
+body.theme-sophia-jardin .live-gallery-grid {
+    background: rgba(255, 243, 231, 0.8) !important;
+    border: 1.5px solid rgba(197, 161, 106, 0.55) !important;
+}
+
+body.theme-sophia-jardin .live-gallery-empty {
+    color: var(--sophia-marron) !important;
+    font-weight: 500 !important;
+}
+
+body.theme-sophia-jardin .live-gallery-empty i {
+    color: var(--sophia-rosa-intenso) !important;
+}
+
 body.theme-sophia-jardin .photo-upload-box {
     background: linear-gradient(160deg, #FFF3E7 0%, #FCECF0 50%, #EBC5CC 100%) !important;
     border: 2px solid var(--sophia-dorado) !important;
@@ -1053,10 +1317,51 @@ body.theme-sophia-jardin .photo-upload-box {
     box-shadow: 0 15px 50px rgba(56, 33, 40, 0.6) !important;
 }
 
+body.theme-sophia-jardin .photo-upload-box div[style*="dorado-brillante"] {
+    color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .photo-upload-box div[style*="dorado-claro"] {
+    color: var(--sophia-rosa-intenso) !important;
+    opacity: 1 !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin #btnAddMorePhotos {
+    background: #FFFFFF !important;
+    border: 1.5px dashed var(--sophia-rosa-intenso) !important;
+    color: var(--sophia-rosa-intenso) !important;
+    font-weight: 600 !important;
+}
+
+body.theme-sophia-jardin .quick-chip {
+    background: #FFFFFF !important;
+    border: 1px solid var(--sophia-dorado) !important;
+    color: var(--sophia-malva) !important;
+    font-weight: 500 !important;
+}
+
+body.theme-sophia-jardin .quick-chip:hover,
+body.theme-sophia-jardin .quick-chip.active {
+    background: var(--sophia-rosa-intenso) !important;
+    border-color: var(--sophia-dorado) !important;
+    color: #FFFFFF !important;
+}
+
 body.theme-sophia-jardin .upload-input {
     background: #FFFFFF !important;
     border: 1.5px solid var(--sophia-dorado) !important;
     color: var(--sophia-malva) !important;
+}
+
+body.theme-sophia-jardin .upload-input::placeholder {
+    color: #79544D !important;
+    opacity: 0.78 !important;
+}
+
+body.theme-sophia-jardin .photo-upload-box .lightbox-close {
+    background: rgba(74, 48, 59, 0.9) !important;
+    color: #FFFFFF !important;
 }
 
 body.theme-sophia-jardin .btn-upload-submit {
@@ -1070,6 +1375,11 @@ body.theme-sophia-jardin .lightbox-nav-btn:hover,
 body.theme-sophia-jardin .btn-download-lightbox:hover {
     background: var(--sophia-rosa-intenso) !important;
     color: #FFFFFF !important;
+}
+
+/* Tarjeta 13: Despedida */
+body.theme-sophia-jardin .card-slide[data-slide="12"] span[style*="font-script"] {
+    color: var(--sophia-rosa-intenso) !important;
 }
 
 /* ==============================================================================

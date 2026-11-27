@@ -1880,7 +1880,7 @@ try {
     <?php endif; ?>
 
     <div class="footer">
-        Panel de Administración — XV Años Angie Karolina Avendaño Rivera — 2026
+        Panel de Administración — Invitación para mis XV Años — 2026
     </div>
 
     <!-- ============================================================
@@ -1955,7 +1955,7 @@ try {
             <div class="raffle-modal-header">
                 <div>
                     <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dorado); margin: 0;">🎁 Sorteo de Rifa de Regalos</h3>
-                    <div style="font-size: 0.8rem; color: var(--dorado-claro); opacity: 0.85;">XV Años — Angie Karolina Avendaño Rivera</div>
+                    <div style="font-size: 0.8rem; color: var(--dorado-claro); opacity: 0.85;">XV Años — <?= htmlspecialchars($nombreFestejadaActiva) ?></div>
                 </div>
                 <button type="button" class="raffle-close-btn" id="btnCloseRaffle" title="Cerrar">&times;</button>
             </div>

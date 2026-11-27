@@ -1579,6 +1579,73 @@ $baseUrl = $protocol . $host;
                 height: 180px;
             }
         }
+        <?php if ($isSophia): ?>
+        /* Retrato protagonista ampliado para Sophia Valentina (Página II) */
+        .cover-page-content {
+            padding: 8px 8px;
+        }
+
+        .oval-photo-frame {
+            width: clamp(270px, 78%, 325px);
+            height: auto;
+            max-height: 430px;
+            aspect-ratio: 3 / 4;
+            flex: 0 0 auto;
+            border-radius: 170px 170px 26px 26px;
+            border: 3.5px solid #C5A16A;
+            background: #FFF3E7;
+            box-shadow:
+                0 12px 32px rgba(74, 48, 59, 0.28),
+                0 0 0 2px rgba(255, 243, 231, 0.92),
+                0 0 0 4px rgba(197, 161, 106, 0.45);
+            margin: 10px auto 12px auto;
+        }
+
+        .oval-photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+        }
+
+        .cover-page-content .prologue-quote {
+            margin: 6px auto 8px auto;
+            line-height: 1.45;
+        }
+
+        .cover-page-content .btn-open-book-cta {
+            margin-top: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .book-page {
+                flex: 0 0 auto;
+                height: auto;
+            }
+
+            #pageLeftContent,
+            #pageRightContent {
+                height: auto !important;
+            }
+
+            .cover-page-content {
+                height: auto;
+                width: 100%;
+                padding: 12px 6px;
+            }
+
+            .oval-photo-frame {
+                width: min(300px, 90%);
+                height: auto;
+                max-height: none;
+                aspect-ratio: 3 / 4;
+                flex: 0 0 auto;
+                border-radius: 155px 155px 22px 22px;
+                margin: 12px auto 14px auto;
+            }
+        }
+        <?php endif; ?>
     </style>
 </head>
 <body>

@@ -16,10 +16,12 @@ use App\Services\AuthService;
 
 // Cerrar sesión
 if (isset($_GET['logout'])) {
-    AuthService::logout();
     $_SESSION['admin_auth'] = false;
     unset($_SESSION['admin_auth'], $_SESSION['user_id'], $_SESSION['user_role'], $_SESSION['active_evento_id']);
-    session_destroy();
+    AuthService::logout();
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        @session_destroy();
+    }
     header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
     exit;
 }

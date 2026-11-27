@@ -528,7 +528,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             50% { transform: translateY(-7px) scale(1.03); }
         }
 
-        /* Marco elegante real para la foto de Angie en la Portada */
+        /* Marco elegante real para la foto de la Festejada en la Portada */
         .cover-photo-container {
             position: relative;
             margin: 4px auto 10px auto;
@@ -776,7 +776,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         }
 
         /* ============================================================
-           TARJETA: ÉRASE UNA VEZ (EL CUENTO DE HADAS DE VALIENTE)
+           TARJETA: ÉRASE UNA VEZ (HISTORIA MÁGICA)
            ============================================================ */
         .fairytale-story-box {
             text-align: center;
@@ -1840,7 +1840,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
             animation: heartBeat 2s ease-in-out infinite;
         }
 
-        /* Foto final de Angie en Tarjeta 10 */
+        /* Foto final de la Festejada en Tarjeta 13 */
         .angie-photo-wrapper {
             position: relative;
             display: inline-block;
@@ -3758,7 +3758,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
         </div>
 
         <!-- ============================================
-             TARJETA 13: GRACIAS & FOTO DE ANGIE
+             TARJETA 13: GRACIAS & FOTO DE DESPEDIDA
              ============================================ -->
         <div class="card-slide hidden" data-slide="12">
             <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 16px;">
@@ -4897,7 +4897,7 @@ $appBasePath = (str_contains($_SERVER['REQUEST_URI'] ?? '', '/InvitacionAngie/')
     })();
 
     /* ================================================================
-       AUDIO (HTML5 Background Player - "Valiente / Con toda libertad")
+       AUDIO (HTML5 Background Player)
        ================================================================ */
     (() => {
         const toggle = document.getElementById('audioToggle');

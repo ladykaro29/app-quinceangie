@@ -1751,7 +1751,7 @@ $baseUrl = $protocol . $host;
             <button type="button" class="modal-close-btn" id="btnCloseWriteModal" title="Cerrar">&times;</button>
             
             <div class="modal-title">Escribir Dedicatoria</div>
-            <div class="modal-subtitle">Libro de Recuerdos de Angie ✨</div>
+            <div class="modal-subtitle">Libro de Recuerdos de <?= htmlspecialchars($festejadaNombreCorto) ?> ✨</div>
 
             <form id="formNewDedication">
                 <div class="form-group">
@@ -1776,14 +1776,14 @@ $baseUrl = $protocol . $host;
                     <div class="quick-chips">
                         <span class="quick-chip" data-text="¡Te veías hermosa como una reina! 👑✨">¡Te veías como una reina! 👑✨</span>
                         <span class="quick-chip" data-text="¡Una noche mágica e inolvidable! 💃🥂">¡Noche mágica e inolvidable! 💃🥂</span>
-                        <span class="quick-chip" data-text="Que Dios bendiga siempre tus pasos Angie hermosa 💖">Dios te bendiga siempre 💖</span>
+                        <span class="quick-chip" data-text="Que Dios bendiga siempre tus pasos <?= htmlspecialchars($festejadaNombreCorto) ?> hermosa 💖">Dios te bendiga siempre 💖</span>
                         <span class="quick-chip" data-text="¡Los mejores 15 años del mundo! ¡Te amamos! 🎂🥳">¡Los mejores 15 años! 🎂🥳</span>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="dedicationMessage">Tu Mensajito Especial:</label>
-                    <textarea id="dedicationMessage" class="form-textarea" rows="3" placeholder="Escribe tus felicitaciones, anécdotas o deseos para Angie..." required maxlength="600" style="resize: none;"></textarea>
+                    <textarea id="dedicationMessage" class="form-textarea" rows="3" placeholder="Escribe tus felicitaciones, anécdotas o deseos para <?= htmlspecialchars($festejadaNombreCorto) ?>..." required maxlength="600" style="resize: none;"></textarea>
                 </div>
 
                 <div id="formStatusMsg" style="font-size: 0.82rem; margin-bottom: 12px; min-height: 18px; text-align: center;"></div>
@@ -1832,6 +1832,7 @@ $baseUrl = $protocol . $host;
         const isPublicSubdir = window.location.pathname.includes('/public/');
         const basePrefix = isPublicSubdir ? '../' : './';
         const eventoId = <?= (int)$eventoId ?>;
+        const festSlug = <?= json_encode($slug) ?>;
         const festName = <?= json_encode($festejadaNombreCorto) ?>;
         const festDate = <?= json_encode($fechaEventoFormatoPortada) ?>;
         const festImg = <?= json_encode($despedidaImgUrl) ?>;
@@ -1864,8 +1865,9 @@ $baseUrl = $protocol . $host;
             } catch(e) {}
         }
 
-        // 2. DATOS PRECARGADOS (19 Videos, 160 Fotos, Dedicatorias para Angie; dinámicos por evento)
-        const defaultVideos = (eventoId === 1) ? [
+        // 2. DATOS PRECARGADOS POR CELEBRACIÓN (Dinámicos y estrictamente aislados)
+        <?php if ($eventoId === 1): ?>
+        const defaultVideos = [
             { id: 1, titulo: "Llegada triunfal de Angie ✨", archivo: "angie_xv_video_01.mp4", tamano: "4.79 MB" },
             { id: 2, titulo: "Entrada mágica al salón 👑", archivo: "angie_xv_video_02.mp4", tamano: "10.44 MB" },
             { id: 3, titulo: "El Vals con Papá 💖", archivo: "angie_xv_video_03.mp4", tamano: "2.01 MB" },
@@ -1889,7 +1891,7 @@ $baseUrl = $protocol . $host;
             ...v,
             url: `api/video.php?v=${encodeURIComponent(v.archivo)}`,
             direct_url: `assets/videos/${encodeURIComponent(v.archivo)}`
-        })) : [];
+        }));
 
         const frasesDed = [
             "Momentos mágicos e inolvidables de mis XV Años ✨👑",
@@ -1901,7 +1903,7 @@ $baseUrl = $protocol . $host;
             "¡La mejor noche de mi vida! Gracias a todos por acompañarme ✨🥂"
         ];
 
-        const defaultPhotos = (eventoId === 1) ? Array.from({ length: 160 }, (_, i) => {
+        const defaultPhotos = Array.from({ length: 160 }, (_, i) => {
             const num = i + 1;
             const numStr = String(num).padStart(3, '0');
             const archivo = `angie_xv_recuerdo_${numStr}.jpg`;
@@ -1914,9 +1916,9 @@ $baseUrl = $protocol . $host;
                 url: `api/foto.php?f=${encodeURIComponent(archivo)}`,
                 direct_url: `assets/fotos/${encodeURIComponent(archivo)}`
             };
-        }) : [];
+        });
 
-        const defaultMensajes = (eventoId === 1) ? [
+        const defaultMensajes = [
             {
                 id: 1,
                 nombre: 'Edwin & Lady (Papás)',
@@ -1949,7 +1951,12 @@ $baseUrl = $protocol . $host;
                 likes: 19,
                 fecha_formateada: '04/10/2026 21:50'
             }
-        ] : [];
+        ];
+        <?php else: ?>
+        const defaultVideos = [];
+        const defaultPhotos = [];
+        const defaultMensajes = [];
+        <?php endif; ?>
 
         let albumData = {
             mensajes: defaultMensajes,
@@ -2221,7 +2228,7 @@ $baseUrl = $protocol . $host;
                                 <button type="button" class="btn-like-entry" onclick="likeDedication(${m.id}, this)">
                                     <i class="fas fa-heart"></i> <span class="like-num">${m.likes || 0}</span> Me encanta
                                 </button>
-                                <span style="color: #999; font-size: 0.68rem;">✨ Libro de Angie</span>
+                                <span style="color: #999; font-size: 0.68rem;">✨ Libro de ${festName}</span>
                             </div>
                         </div>
                     `).join('');
@@ -2800,9 +2807,9 @@ $baseUrl = $protocol . $host;
                     </video>
                 `;
                 lightboxMediaTitle.textContent = item.titulo || 'Video de la Fiesta';
-                lightboxMediaText.textContent = `🎬 Momento Especial de los XV de Angie (${item.tamano})`;
+                lightboxMediaText.textContent = `🎬 Momento Especial de los XV de ${festName} (${item.tamano})`;
                 btnDownloadMedia.href = directSrc;
-                btnDownloadMedia.download = item.archivo || 'video_angie_xv.mp4';
+                btnDownloadMedia.download = item.archivo || `video_${festSlug}.mp4`;
             } else {
                 const directSrc = basePrefix + (item.direct_url || `assets/fotos/${item.archivo}`);
                 const apiSrc = basePrefix + (item.url || `api/foto.php?f=${encodeURIComponent(item.archivo)}`);
@@ -2813,9 +2820,9 @@ $baseUrl = $protocol . $host;
                          alt="${item.nombre_invitado}" style="max-width: 90vw; max-height: 70vh; object-fit: contain; border-radius: 12px; border: 2px solid var(--dorado); box-shadow: 0 15px 50px rgba(0,0,0,0.9);">
                 `;
                 lightboxMediaTitle.textContent = item.nombre_invitado || 'Momento Mágico';
-                lightboxMediaText.textContent = item.mensaje ? `"${item.mensaje}"` : '✨ ¡Celebrando los XV de Angie Karolina!';
+                lightboxMediaText.textContent = item.mensaje ? `"${item.mensaje}"` : `✨ ¡Celebrando los XV de ${festName}!`;
                 btnDownloadMedia.href = directSrc;
-                btnDownloadMedia.download = item.archivo || 'foto_angie_xv.jpg';
+                btnDownloadMedia.download = item.archivo || `foto_${festSlug}.jpg`;
             }
         }
 

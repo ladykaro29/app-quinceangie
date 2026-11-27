@@ -451,8 +451,8 @@ class DatabaseMigrationService
         $exists = $stmtCheck->fetchColumn();
 
         if (!$exists) {
-            $pdo->exec("INSERT INTO eventos (id, cliente_id, paquete_id, plantilla_id, slug, nombre_celebracion, tipo_evento, festejada_nombre, fecha_evento, hora_evento, lugar_nombre, lugar_direccion, codigo_vestimenta, color_reserva, musica_url, portada_url, avatar_url, activo, publicado) VALUES 
-                (2, 2, 2, 2, 'sophia-xv', 'Mis XV Años - Sophia Valentina', 'xv_anos', 'Sophia Valentina Rivas Sánchez', '2026-12-21', '19:30:00', 'Salón Nova Roma', 'Dirección pendiente de confirmación', 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.', 'Rosa y Dorado Champagne', 'storage/media/2/audio/dance_sugar_plum_fairy.mp3', 'sophia-portada.jpg', 'sophia-xv.jpg', 1, 1)");
+            $pdo->exec("INSERT INTO eventos (id, cliente_id, paquete_id, plantilla_id, slug, nombre_celebracion, tipo_evento, festejada_nombre, fecha_evento, hora_evento, lugar_nombre, lugar_direccion, lugar_coordenadas, lugar_mapa_url, codigo_vestimenta, color_reserva, musica_url, portada_url, avatar_url, activo, publicado) VALUES 
+                (2, 2, 2, 2, 'sophia-xv', 'Mis XV Años - Sophia Valentina', 'xv_anos', 'Sophia Valentina Rivas Sánchez', '2026-12-21', '19:30:00', 'Salón Nova Roma', 'Av. Los Próceres, Mérida 5101, Estado Mérida (Municipio Libertador)', 'HRF6+RM8', 'https://www.google.com/maps/search/?api=1&query=HRF6%2BRM8+Salones+Nova+Roma+y+Venecia%2C+Av.+Los+Pr%C3%B3ceres%2C+M%C3%A9rida+5101%2C+M%C3%A9rida', 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.', 'Rosa y Dorado Champagne', 'storage/media/2/audio/dance_sugar_plum_fairy.mp3', 'sophia-portada.jpg', 'sophia-xv.jpg', 1, 1)");
         } else {
             // Actualizar para asegurar datos oficiales si ya existía
             $pdo->exec("UPDATE eventos SET 
@@ -461,7 +461,9 @@ class DatabaseMigrationService
                 fecha_evento = '2026-12-21',
                 hora_evento = '19:30:00',
                 lugar_nombre = 'Salón Nova Roma',
-                lugar_direccion = 'Dirección pendiente de confirmación',
+                lugar_direccion = 'Av. Los Próceres, Mérida 5101, Estado Mérida (Municipio Libertador)',
+                lugar_coordenadas = 'HRF6+RM8',
+                lugar_mapa_url = 'https://www.google.com/maps/search/?api=1&query=HRF6%2BRM8+Salones+Nova+Roma+y+Venecia%2C+Av.+Los+Pr%C3%B3ceres%2C+M%C3%A9rida+5101%2C+M%C3%A9rida',
                 codigo_vestimenta = 'Formal de Gala: sugerimos tonos suaves y elegantes. Por favor reserva los tonos rosa y dorado champagne para la quinceañera.',
                 color_reserva = 'Rosa y Dorado Champagne',
                 musica_url = 'storage/media/2/audio/dance_sugar_plum_fairy.mp3',
@@ -518,7 +520,7 @@ class DatabaseMigrationService
             'frase_bendicion' => 'Con la bendición de Dios y el amor infinito de nuestros corazones, los invitamos a celebrar los quince años de nuestra amada hija.',
             'frase_agradecimiento' => 'Tu cariño, compañía y alegría hacen que esta noche de mariposas y sueños sea verdaderamente inolvidable. ¡Gracias de corazón!',
             'fecha_nacimiento' => '2026-12-21',
-            'google_calendar_url' => 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+XV+A%C3%B1os+-+Sophia+Valentina&dates=20261221T233000Z%2F20261222T060000Z&details=%C2%A1Acomp%C3%A1%C3%B1anos+a+celebrar+los+XV+A%C3%B1os+de+Sophia+Valentina!+Una+noche+m%C3%A1gica+de+mariposas+y+flores.&location=Sal%C3%B3n+Nova+Roma',
+            'google_calendar_url' => 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+XV+A%C3%B1os+-+Sophia+Valentina&dates=20261221T233000Z%2F20261222T060000Z&details=%C2%A1Acomp%C3%A1%C3%B1anos+a+celebrar+los+XV+A%C3%B1os+de+Sophia+Valentina!+Una+noche+m%C3%A1gica+de+mariposas+y+flores.&location=Sal%C3%B3n+Nova+Roma%2C+Av.+Los+Pr%C3%B3ceres%2C+M%C3%A9rida+5101%2C+Estado+M%C3%A9rida',
             'itinerario_json' => json_encode($itinerarioSophia, JSON_UNESCAPED_UNICODE),
             'trivia_json' => json_encode($triviaSophia, JSON_UNESCAPED_UNICODE),
             'design_tokens' => json_encode($tokensSophia, JSON_UNESCAPED_UNICODE)
